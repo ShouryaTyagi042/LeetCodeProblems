@@ -10,8 +10,8 @@ public class Main {
      ListNode(int val, ListNode next) { this.val = val; this.next = next; }
     }
     static ListNode mergeTwoLists(ListNode list1, ListNode list2) {
-
-
+        ListNode ans = new ListNode() ;
+        return ans ;
 
     }
 
