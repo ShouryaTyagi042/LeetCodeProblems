@@ -15,7 +15,7 @@ public class MergeSorted {
                 arr2[p2] = temp ;
                 p1++ ;
             }
-            if(arr1[p1] )
+//            if(arr1[p1] )
         }
 
     }
