@@ -8,6 +8,8 @@ public class Anagram {
         String a = "pwngmzajc" ;
         String b = "ncgamzwjp" ;
         System.out.println(isAnagram(a,b));
+//        String[] arr = {"a","b","c"} ;
+//        System.out.println(String.join(".",arr));
 
     }
     public static boolean isAnagram(String a,String b)
