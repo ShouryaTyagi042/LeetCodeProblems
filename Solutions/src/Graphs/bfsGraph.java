@@ -1,4 +1,4 @@
-package com.shourya.Graphs;
+package Graphs;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -36,7 +36,7 @@ public class bfsGraph {
     public static void main(String[] args) {
 
         ArrayList < ArrayList < Integer >> adj = new ArrayList < > ();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             adj.add(new ArrayList < > ());
         }
         adj.get(0).add(1);
@@ -47,7 +47,9 @@ public class bfsGraph {
         adj.get(2).add(1);
         adj.get(1).add(3);
         adj.get(3).add(1);
-        ArrayList<Integer> ans = bfsOfGraph(5,adj);
+        adj.get(4).add(5);
+        adj.get(5).add(4) ;
+        ArrayList<Integer> ans = bfsOfGraph(6,adj);
         for (Integer an : ans) {
             System.out.print(an + " ");
         }
