@@ -25,7 +25,7 @@ public class LinkedList {
     }
 
     // Method to insert a new node
-    public static LinkedList insert(LinkedList list, int data)
+    public static void insert(LinkedList list, int data)
     {
         // Create a new node with given data
         Node new_node = new Node(data);
@@ -49,7 +49,7 @@ public class LinkedList {
         }
 
         // Return the list by head
-        return list;
+
     }
 
     // Method to print the LinkedList.
@@ -80,14 +80,16 @@ public class LinkedList {
         //
 
         // Insert the values
-        list = insert(list, 1);
-        list = insert(list, 2);
-        list = insert(list, 3);
-        list = insert(list, 4);
-        list = insert(list, 5);
-        list = insert(list, 6);
-        list = insert(list, 7);
-        list = insert(list, 8);
+
+        insert(list,1) ;
+        insert(list,2) ;
+        insert(list,3) ;
+        insert(list,4) ;
+        insert(list,5) ;
+        insert(list,6) ;
+        insert(list,7) ;
+
+
 
         // Print the LinkedList
         printList(list);
