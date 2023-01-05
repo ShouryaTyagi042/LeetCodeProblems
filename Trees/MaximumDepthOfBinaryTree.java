@@ -13,6 +13,8 @@
  *     }
  * }
  */
+
+//Recursive Solution
 class Solution {
     public int maxDepth(TreeNode root) {
         if (root == null) return 0 ;
@@ -21,3 +23,5 @@ class Solution {
         return Math.max(left,right) + 1 ;
     }
 }
+
+
