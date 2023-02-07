@@ -47,7 +47,7 @@ class Solution {
 
 class Solution {
     public void setZeroes(int[][] matrix) {
-
+        int rows = matrix.length, cols = matrix[0].length;
         int[] column = new int[matrix[0].length] ;
         Arrays.fill(column,0);
         int[] row = new int[matrix.length] ;
@@ -61,20 +61,14 @@ class Solution {
                 }
             }
         }
-        for(int i = 0 ; i < column.length ; i++ ) {
-            if(column[i] == 1) {
-                for(int k = 0 ; k < matrix.length ; k++ ) {
-                    matrix[k][i] = 0 ;
-                }
-            }
-        }
-        for(int j = 0 ; j < row.length ; j++) {
-            if(row[j] == 1) {
-                for(int k = 0 ; k < matrix.length ; k++ ) {
-                    matrix[j][k] = 0 ;
-                }
-            }
-        }
+       for (int i = 0; i < rows; i++) {
+           for (int j = 0; j < cols; j++) {
+              if (row[i] == 1 || column[j]==1) {
+                matrix[i][j] = 0;
+      }
+    }
+  }
+
 
 
 

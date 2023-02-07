@@ -15,8 +15,8 @@ class Solution {
                 for (int k=count0 ;k < count0 + count1 ; k++ ) {
             nums[k] = 1 ;
         }
-                for (int l= count0 + count1 - 1 ;l <= nums.length  ; l++ ) {
-            nums[l] = 0 ;
+                for (int l= count0 + count1 ;l < nums.length  ; l++ ) {
+            nums[l] = 2 ;
         }
 
     }
