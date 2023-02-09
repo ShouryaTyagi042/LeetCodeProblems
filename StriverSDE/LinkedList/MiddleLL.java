@@ -16,7 +16,7 @@ class Solution {
             count++ ;
             current = current.next ;
         }
-        System.out.print(count);
+        // System.out.print(count);
         ListNode ans = head ;
         for(int i = 0 ; i <= count/2 ; i++ ) {
             ans = ans.next ;
