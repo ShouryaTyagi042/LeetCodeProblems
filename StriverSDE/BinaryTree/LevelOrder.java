@@ -20,9 +20,10 @@ class solution {
         List<List<Integer>> wraplist = new LinkedList<List<Integer>>() ;
         if(root == null) return wraplist ;
         queue.offer(root) ;
-        while(queue.isEmpty()) {
+        while(!queue.isEmpty()) {
             int levelSize = queue.size() ;
-            List<Integer> sublist = LinkedList<Integer>() ;
+            System.out.println(levelSize);
+            List<Integer> sublist = new LinkedList<Integer>() ;
             for(int i = 0 ; i < levelSize ; i++ ){
                 if(queue.peek().left != null) queue.offer(queue.peek().left) ;
                 if(queue.peek().right != null) queue.offer(queue.peek().right) ;
