@@ -15,16 +15,18 @@
  */
 class Solution {
     public int diameterOfBinaryTree(TreeNode root) {
-        int diameter = 0 ;
+        int[] diameter = new int[1] ;
+        height(root,diameter) ;
+        return diameter[0];
 
     }
-    public int height(TreeNode root, diameter) {
+    public int height(TreeNode root, int[] diameter) {
         if(node == null) {
             return 0 ;
         }
         int left = height(root.left,diameter) ;
         int right = height(root.right,diameter);
-        diameter = Math.max(diameter,left+right);
+        diameter[0] = Math.max(diameter[0],left+right);
         return 1 + Math.max(left,right) ;
     }
 }
