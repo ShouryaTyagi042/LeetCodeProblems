@@ -21,3 +21,28 @@ class Solution {
 
     }
 }
+
+//Moore Voting Algorithm
+
+class Solution {
+    public int majorityElement(int[] nums) {
+        int element = nums[0] , count = 0 ;
+        for (int num : nums) {
+            if(count == 0 ) {
+                count = 1 ;
+                element = num ;
+            }
+            else if (element == num) count ++ ;
+            else {
+                count-- ;
+            }
+        }
+        int cnt1 = 0;
+        for(int n: nums) {
+            if (n == element) cnt1++ ;
+        }
+        if(cnt1>nums.length/2) return element ;
+        return -1 ;
+
+    }
+}
