@@ -6,7 +6,6 @@ class Solution {
         recur(list, ans, target, candidates, 0, 0 ) ;
         ArrayList<List<Integer>> dup = new ArrayList<>(ans) ;
         return dup ;
-
     }
 
     private static void recur(ArrayList<Integer> list, HashSet<List<Integer>> ans, int target, int[] candidates, int sum, int index) {
