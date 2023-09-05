@@ -6,7 +6,6 @@
         memo = new int[n] ;
         set = new HashSet<>(Arrays.asList(dictionary)) ;
         return dp(0,n,s) ;
-
     }
     private static int dp(int start, int n, String s) {
         if(start == n) return 0 ;
