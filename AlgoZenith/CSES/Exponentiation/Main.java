@@ -72,6 +72,21 @@ public class Main {
 
     static final long MOD = 1_000_000_007L;
 
+    static long modPow(long base, long exp, long mod) {
+        long result = 1 ;
+        base %= mod ;
+        while( exp > 0) {
+            // check if power is odd
+            if  ((exp & 1) == 1 ) {
+                result = (( result % mod) * (base % mod) ) % mod ;
+            }
+            base = ( (base % mod)  * (base % mod ) ) % mod ;
+            exp >>= 1 ;
+        }
+
+        return result ;
+    }
+
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
@@ -89,7 +104,6 @@ public class Main {
         System.out.println(ans);
     }
 
-
     }
 
     static long solve(long a, long b) {
@@ -101,19 +115,8 @@ public class Main {
 
     }
 
-    static long modPow(long base, long exp, long mod) {
-        long result = 1 ;
-        base %= mod ;
-        while( exp > 0) {
-            // check if power is odd
-            if  ((exp & 1) == 1 ) {
-                result = (( result % mod) * (base % mod) ) % mod ;
-            }
-            base = ( (base % mod)  * (base % mod ) ) % mod ;
-            exp >>= 1 ;
-        }
 
-        return result ;
-    }
 
 }
+
+
