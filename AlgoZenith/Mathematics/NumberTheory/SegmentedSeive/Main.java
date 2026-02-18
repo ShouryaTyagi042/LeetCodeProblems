@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -85,6 +70,20 @@ public class Main {
         }
     }
 
+    static class Pair  {
+        long x, y;
+
+        Pair(long x, long y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + x + ", " + y + ")";
+        }
+    }
+
     static final long MOD = 1_000_000_007L;
 
     static long modPow(long base, long exp, long mod) {
@@ -102,48 +101,91 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-    int t = fs.nextInt();   // number of test cases
+        long a = fs.nextLong();
+        long b = fs.nextLong();
 
-    while (t-- > 0) {
-        long a , b;
+         List<Long> primes = segmentedSieve(a,b);
 
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
+         System.out.println(primes.size());
+         int idx = 0 ;
+         while(idx < primes.size()) {
+            System.out.print(primes.get(idx));
+            System.out.print(" ");
+            idx++;
+         }
 
-        long ans = solve(a, b) ;
-        System.out.println(ans);
-    }
-
-    }
-
-    static long solve(long a, long b) {
 
     }
+
+    static int gcd(int a, int b) {
+       if (a == 0) return b;
+       return gcd(b % a, a);
+    }
+
+static List<Integer> sieve(int n) {
+    boolean[] isPrime = new boolean[n + 1];
+    Arrays.fill(isPrime, true);
+
+    if (n >= 0) isPrime[0] = false;
+    if (n >= 1) isPrime[1] = false;
+
+    for (int i = 2; i * i <= n; i++) {
+        if (isPrime[i]) {
+            for (int j = i * i; j <= n; j += i) {
+                isPrime[j] = false;
+            }
+        }
+    }
+
+    List<Integer> primes = new ArrayList<>();
+    for (int i = 2; i <= n; i++) {
+        if (isPrime[i]) primes.add(i);
+    }
+
+    return primes;
+}
+
+
+static List<Long> segmentedSieve(long L, long R) {
+
+    int limit = (int) Math.sqrt(R);
+    List<Integer> basePrimes = sieve(limit);
+
+    boolean[] isPrime = new boolean[(int)(R - L + 1)];
+    Arrays.fill(isPrime, true);
+
+    if (L == 1) isPrime[0] = false;
+
+    for (int prime : basePrimes) {
+
+        long ceilLByP = (L + prime - 1) / prime;
+        long curMul = prime * ceilLByP;
+
+        curMul = Math.max((long)prime * prime, curMul);
+
+        while (curMul <= R) {
+            isPrime[(int)(curMul - L)] = false;
+            curMul += prime;
+        }
+    }
+
+    List<Long> primesInRange = new ArrayList<>();
+
+    for (int i = 0; i <= R - L; i++) {
+        if (isPrime[i]) {
+            primesInRange.add(i + L) ;
+        }
+    }
+
+    return primesInRange;
+}
+
+
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

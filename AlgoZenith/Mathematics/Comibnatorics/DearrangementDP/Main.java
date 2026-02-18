@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -86,6 +71,7 @@ public class Main {
     }
 
     static final long MOD = 1_000_000_007L;
+    static long[] dp = new long[1000001] ;
 
     static long modPow(long base, long exp, long mod) {
         long result = 1 ;
@@ -102,20 +88,6 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
@@ -124,26 +96,24 @@ public class Main {
     int t = fs.nextInt();   // number of test cases
 
     while (t-- > 0) {
-        long a , b;
+        int n ;
 
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
+        n = fs.nextInt() ;
 
-        long ans = solve(a, b) ;
+        long ans = calculateDearrangement(n) ;
         System.out.println(ans);
     }
 
     }
 
-    static long solve(long a, long b) {
-
+    static long calculateDearrangement(int n) {
+        dp[1] = 0 ;
+        dp[2] = 1 ;
+        for(int i = 3 ; i <= n ; i++ ) {
+            dp[i] = ((i-1)*(dp[i-1] + dp[i-2]))% MOD ;
+        }
+        return dp[n] ;
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

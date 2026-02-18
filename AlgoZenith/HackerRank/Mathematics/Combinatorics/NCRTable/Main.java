@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -102,19 +87,22 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
+    static long[][] ncr = new long[1001][1001] ;
+    static void precomputeCalculateNCR() {
+        long mod  = 1_000_000_000;
+        ncr[0][0] = 1 ;
+        for(int i = 1 ; i <= 1000 ; i++) {
+            for(int j = 0 ;  j <= i ; j++ ) {
+                if (j == 0) {
+                    ncr[i][j] = ncr[i-1][j] % mod ;
+                } else {
+                    ncr[i][j] = ( ncr[i-1][j-1] + ncr[i-1][j]) % mod ;
+                }
+            }
         }
     }
+
+
 
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
@@ -122,28 +110,26 @@ public class Main {
         StringBuilder out = new StringBuilder();
 
     int t = fs.nextInt();   // number of test cases
-
+    precomputeCalculateNCR();
     while (t-- > 0) {
-        long a , b;
+        int a ;
 
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
+        a = fs.nextInt() ;
 
-        long ans = solve(a, b) ;
-        System.out.println(ans);
-    }
+         solve(a) ;
 
     }
 
-    static long solve(long a, long b) {
-
     }
+
+    static void solve(int a ) {
+        for(int i = 0 ; i <= a ; i += 1) {
+            System.out.print(ncr[a][i]);
+            System.out.print(" ");
+        }
+        System.out.println();
+    }
+
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

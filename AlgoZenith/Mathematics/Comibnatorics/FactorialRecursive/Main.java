@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -102,20 +87,6 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
@@ -124,26 +95,23 @@ public class Main {
     int t = fs.nextInt();   // number of test cases
 
     while (t-- > 0) {
-        long a , b;
+        long a ;
 
         a = fs.nextLong() ;
-        b = fs.nextLong() ;
 
-        long ans = solve(a, b) ;
+        long ans = factorial(a) ;
         System.out.println(ans);
     }
 
     }
 
-    static long solve(long a, long b) {
-
+    static long factorial(long a) {
+        long ans = 1 ;
+        for(int i = 2 ; i <= a ; i++) {
+            ans = (ans * i ) %  MOD ;
+        }
+        return ans ;
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

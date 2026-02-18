@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -102,48 +87,44 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
+    static long[] fact = new long[1000100];
 
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
+    static void precompute() {
+    fact[0] = 1L;
+    for(int i=1; i<=1000000; i++) {
+        fact[i] = (fact[i-1] * i) % MOD;
         }
     }
 
-    // -------- MAIN --------
+    static long inverse(long n) {
+        return modPow(n, MOD - 2, MOD) ;
+    }
+
+    static long calculateNCR(int n, int r) {
+        long num = fact[n] ;
+        long dem = ( fact[n-r] * fact[r]) % MOD ;
+        return (num * inverse(dem)) % MOD ;
+    }
+
+
+        // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-    int t = fs.nextInt();   // number of test cases
+        int t = fs.nextInt();   // number of test cases
+        precompute();
+        while (t-- > 0) {
+        int a , b;
 
-    while (t-- > 0) {
-        long a , b;
+        a = fs.nextInt() ;
+        b = fs.nextInt() ;
 
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
-
-        long ans = solve(a, b) ;
+        long ans = calculateNCR(a, b) ;
         System.out.println(ans);
-    }
-
-    }
-
-    static long solve(long a, long b) {
+        }
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

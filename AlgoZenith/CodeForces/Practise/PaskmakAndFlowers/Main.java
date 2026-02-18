@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -102,48 +87,57 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-    int t = fs.nextInt();   // number of test cases
-
+    int n = fs.nextInt();
+    int[] flowers = new int[n] ;
+    int idx = 0 ;
+    int t = n ;
     while (t-- > 0) {
-        long a , b;
-
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
-
-        long ans = solve(a, b) ;
-        System.out.println(ans);
+        flowers[idx] = fs.nextInt() ;
+        idx ++ ;
     }
 
+    int maxCnt = 0 ;
+    int minCnt = 0 ;
+    int max = -1 ;
+    int min = Integer.MAX_VALUE ;
+
+    for(int i = 0 ; i < n ; i++) {
+
+        if (flowers[i] > max) {
+            max = flowers[i] ;
+            maxCnt = 1;
+        }
+        else if ( flowers[i] == max) {
+            maxCnt ++ ;
+        }
+
+        if (flowers[i] < min)  {
+            min = flowers[i] ;
+            minCnt = 1 ;
+        } else if (flowers[i] == min) {
+            minCnt ++ ;
+        }
     }
 
-    static long solve(long a, long b) {
+    out.append((max-min));
+    out.append(" ");
+
+if (max == min) {
+    long cnt = (long) n * (n - 1) / 2;
+    out.append(cnt);
+} else {
+    out.append((long) maxCnt * minCnt);
+}
+
+    System.out.println(out);
 
     }
+
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

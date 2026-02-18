@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -85,6 +70,20 @@ public class Main {
         }
     }
 
+    static class Pair  {
+        long x, y;
+
+        Pair(long x, long y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + x + ", " + y + ")";
+        }
+    }
+
     static final long MOD = 1_000_000_007L;
 
     static long modPow(long base, long exp, long mod) {
@@ -102,20 +101,6 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
@@ -124,26 +109,25 @@ public class Main {
     int t = fs.nextInt();   // number of test cases
 
     while (t-- > 0) {
-        long a , b;
-
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
-
-        long ans = solve(a, b) ;
-        System.out.println(ans);
-    }
-
-    }
-
-    static long solve(long a, long b) {
+        int a = fs.nextInt();
+        int b = fs.nextInt();
+        int c = fs.nextInt();
+        int gcd = calculateGCD(a,b) ;
+            if(c % gcd == 0) {
+                System.out.println("Yes");
+            } else {
+                System.out.println("No");
+            }
 
     }
+
+    }
+
+    static int calculateGCD(int a, int b) {
+       if (a == 0) return b;
+       return calculateGCD(b % a, a);
+    }
+
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

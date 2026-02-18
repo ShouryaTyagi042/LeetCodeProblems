@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -85,6 +70,7 @@ public class Main {
         }
     }
 
+
     static final long MOD = 1_000_000_007L;
 
     static long modPow(long base, long exp, long mod) {
@@ -102,48 +88,38 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-    int t = fs.nextInt();   // number of test cases
-
-    while (t-- > 0) {
-        long a , b;
-
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
-
-        long ans = solve(a, b) ;
+        int n = fs.nextInt() ;
+        int k = fs.nextInt() ;
+        String s = fs.next();
+        Set<Character> set = new HashSet<>();
+        for(int i = 0 ; i < k ; i++ ) {
+            String next = fs.next();
+            set.add(next.charAt(0));
+        }
+        long currLength = 0 ;
+        long ans = 0 ;
+        int i = 0 ;
+        while(i < n) {
+            if(set.contains(s.charAt(i))) {
+                currLength++ ;
+            } else {
+                if(currLength > 0) {
+                    ans += ((currLength) * (currLength + 1 ) ) / 2 ;
+                }
+                currLength = 0 ;
+            }
+            i++;
+        }
+        if(currLength > 0) {
+            ans += ((currLength) * (currLength + 1 ) ) / 2 ;
+        }
         System.out.println(ans);
-    }
-
-    }
-
-    static long solve(long a, long b) {
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

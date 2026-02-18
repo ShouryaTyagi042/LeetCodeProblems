@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -102,48 +87,52 @@ public class Main {
         return result ;
     }
 
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
-        StringBuilder out = new StringBuilder();
+
 
     int t = fs.nextInt();   // number of test cases
 
     while (t-- > 0) {
-        long a , b;
+        StringBuilder out = new StringBuilder();
 
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
+        int num = fs.nextInt();
+        int den = fs.nextInt();
 
-        long ans = solve(a, b) ;
-        System.out.println(ans);
+        if ((num < 0) ^ (den < 0)) {
+            out.append("-");
+        }
+
+        num = Math.abs(num) ;
+        den = Math.abs(den) ;
+
+
+        out.append( num / den );
+        int rem = num % den ;
+        if( rem == 0 ) {
+            System.out.println(out);
+            continue;
+        }
+        HashMap<Integer, Integer> map = new HashMap<>();
+        out.append(".") ;
+        while(rem > 0) {
+            if(map.containsKey(rem)) {
+                int index  = map.get(rem) ;
+                out.insert(index, "(") ;
+                out.append(")");
+                break;
+            }
+            map.put(rem, out.length()) ;
+            rem *= 10 ;
+            out.append(rem / den) ;
+            rem = rem % den ;
+        }
+        System.out.println(out);
     }
 
     }
 
-    static long solve(long a, long b) {
-
-    }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"
