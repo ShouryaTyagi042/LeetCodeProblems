@@ -87,26 +87,42 @@ public class Main {
         return result ;
     }
 
-    // -------- MAIN --------
+    static long[] fact = new long[1000100];
+
+    static void precompute() {
+    fact[0] = 1L;
+    for(int i=1; i<=1000000; i++) {
+        fact[i] = (fact[i-1] * i) % MOD;
+        }
+    }
+
+    static long inverse(long n) {
+        return modPow(n, MOD - 2, MOD) ;
+    }
+
+    static long calculateNCR(int n, int r) {
+        long num = fact[n] ;
+        long dem = ( fact[n-r] * fact[r]) % MOD ;
+        return (num * inverse(dem)) % MOD ;
+    }
+
+
+        // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-    int t = fs.nextInt();   // number of test cases
+        long a = fs.nextLong();
+        long b = fs.nextLong();
 
-    while (t-- > 0) {
-        long a , b;
+        long max = (a-b+1)*(a-b) / 2 ;
+        long q = a / b ;
+        long r = a % b ;
 
-        a = fs.nextLong() ;
-        b = fs.nextLong() ;
 
-        long ans = solve(a, b) ;
-        System.out.println(ans);
-    }
-
-    }
-
-    static long solve(long a, long b) {
+        long min = r * q * (q + 1 ) /2 + (b - r) * q * (q-1) / 2 ;
+        out.append(min).append(" ").append(max) ;
+        System.out.println(out);
 
     }
 

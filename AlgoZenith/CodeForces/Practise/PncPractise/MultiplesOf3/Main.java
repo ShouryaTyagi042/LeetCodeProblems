@@ -92,13 +92,26 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        long n = fs.nextLong();
+    int t = fs.nextInt();   // number of test cases
 
-        long ans = modPow(3, 3 * n , MOD) - modPow(7, n, MOD)  + MOD;
+while (t-- > 0) {
 
-        System.out.println(ans % MOD);
+    long n = fs.nextLong();
+
+    long q3 = (n - 1) / 3;
+    long q5 = (n - 1) / 5;
+    long q15 = (n - 1) / 15;
+
+    long sum3 = 3 * q3 * (q3 + 1) / 2;
+    long sum5 = 5 * q5 * (q5 + 1) / 2;
+    long sum15 = 15 * q15 * (q15 + 1) / 2;
+
+    long ans = sum3 + sum5 - sum15;
+
+    System.out.println(ans);
+}
+
 
     }
-
 }
 

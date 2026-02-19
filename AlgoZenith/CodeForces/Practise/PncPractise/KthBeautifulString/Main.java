@@ -92,13 +92,61 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        long n = fs.nextLong();
+    int q = fs.nextInt();   // number of test cases
 
-        long ans = modPow(3, 3 * n , MOD) - modPow(7, n, MOD)  + MOD;
+    while (q-- > 0) {
+        int n  = fs.nextInt();
+        int k = fs.nextInt();
 
-        System.out.println(ans % MOD);
+
+        for(int t = 0 ; t < n ; t++ ) {
+            out.append("a") ;
+        }
+
+
+        int i = n - 2 ;
+        int currBlock = 0 ;
+
+        while( currBlock < k ) {
+            currBlock += n - i - 1 ;
+            i-- ;
+        }
+
+
+        if(currBlock == k) {
+            out.setCharAt(i + 1  , 'b');
+            out.setCharAt(i + 2 , 'b') ;
+            System.out.println(out);
+            out.setLength(0);
+            continue;
+        }
+
+        i += 1 ;
+
+        currBlock -= n - i - 1 ;
+
+        int diff = k - currBlock ;
+
+        int j = n - diff  ;
+
+        out.setCharAt(i, 'b') ;
+        out.setCharAt(j , 'b' );
+        System.out.println(out);
+        out.setLength(0);
+    }
 
     }
 
+
 }
+
+
+// aaabb
+// aabab
+// baaba
+// bbaaa
+// abb
+// bab
+// aaaaabaaaaabaaaaaaaa
+
 

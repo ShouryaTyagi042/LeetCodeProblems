@@ -116,7 +116,7 @@ public class Main {
          while(idx < primes.size()) {
             System.out.print(primes.get(idx));
             System.out.print(" ");
-            idx++;
+            idx++;a
          }
 
 
