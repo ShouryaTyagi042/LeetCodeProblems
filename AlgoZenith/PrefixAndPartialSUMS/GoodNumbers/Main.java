@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -102,51 +87,45 @@ public class Main {
         return result ;
     }
 
-    static long inverse(long n) {
-        return modPow(n, MOD - 2, MOD) ;
-    }
-
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int n = fs.nextInt();
+        int k = fs.nextInt() ;
+        int q = fs.nextInt() ;
 
-        while (t-- > 0) {
-         long a , b;
+        int[] arr = new int[n] ;
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
+        int[][] queries = new int[2][n] ;
 
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+        int idx = 0 ;
+
+        while(q > 0) {
+            int l = fs.nextInt();
+            int r = fs.nextInt();
+
+            arr[l-1] = 1  ;
+
+            if ( r + 1 < n ) {
+                arr[r + 1] = -1 ;
+            }
+
+            queries[i][0] = l ;
+            queries[i][1] = r ;
+
+            i++ ;
+        }
+
+
+
+
+
+
+
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"
