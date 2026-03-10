@@ -2,130 +2,52 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            sb.append(line).append(' ');
+        }
+        StringTokenizer st = new StringTokenizer(sb.toString());
 
-    // -------- FAST INPUT --------
-    static class FastScanner {
-        private final InputStream in = System.in;
-        private final byte[] buffer = new byte[1 << 16];
-        private int ptr = 0, len = 0;
+        final int N = 1000005;
+        int n = Integer.parseInt(st.nextToken());
+        int k = Integer.parseInt(st.nextToken());
+        int q = Integer.parseInt(st.nextToken());
+        int[] arr = new int[N];  // note that N and n are different.
 
-        private int readByte() throws IOException {
-            if (ptr >= len) {
-                len = in.read(buffer);
-                ptr = 0;
-                if (len <= 0) return -1;
-            }
-            return buffer[ptr++];
+        for (int i = 1; i <= n; i++) {
+            int l = Integer.parseInt(st.nextToken());
+            int r = Integer.parseInt(st.nextToken());
+            // use the technique of Partial sum to build the value at each index.
+            arr[l]++;
+            arr[r + 1]--;
+        }
+        // finally build the prefix sum.
+        for (int i = 1; i < N; i++) arr[i] += arr[i - 1];
+
+        // keep the values 1 where values >=k or else 0.
+        for (int i = 1; i < N; i++) arr[i] = (arr[i] >= k) ? 1 : 0;
+
+        // now to answer query in O(1), we will build prefix sum on this 0/1 array to
+        // get count of positions.
+        int[] prefixSum = new int[N];
+        prefixSum[0] = 0;
+        for (int i = 1; i < N; i++) {
+            prefixSum[i] = prefixSum[i - 1] + arr[i];
         }
 
-        int nextInt() throws IOException {
-            int c, sign = 1, val = 0;
-            do {
-                c = readByte();
-            } while (c <= ' ');
-
-            if (c == '-') {
-                sign = -1;
-                c = readByte();
-            }
-
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = readByte();
-            }
-            return val * sign;
+        while (q-- > 0) {
+            int l = Integer.parseInt(st.nextToken());
+            int r = Integer.parseInt(st.nextToken());
+            // gives the count of 1 positions in O(1).
+            int ans = prefixSum[r] - prefixSum[l - 1];
+            out.println(ans);
         }
 
-        long nextLong() throws IOException {
-            int c, sign = 1;
-            long val = 0;
-            do {
-                c = readByte();
-            } while (c <= ' ');
-
-            if (c == '-') {
-                sign = -1;
-                c = readByte();
-            }
-
-            while (c > ' ') {
-                val = val * 10 + (c - '0');
-                c = readByte();
-            }
-            return val * sign;
-        }
-
-        String next() throws IOException {
-            StringBuilder sb = new StringBuilder();
-            int c;
-            do {
-                c = readByte();
-            } while (c <= ' ');
-
-            while (c > ' ') {
-                sb.append((char) c);
-                c = readByte();
-            }
-            return sb.toString();
-        }
+        out.flush();
+        out.close();
     }
-
-    static final long MOD = 1_000_000_007L;
-
-    static long modPow(long base, long exp, long mod) {
-        long result = 1 ;
-        base %= mod ;
-        while( exp > 0) {
-            // check if power is odd
-            if  ((exp & 1) == 1 ) {
-                result = (( result % mod) * (base % mod) ) % mod ;
-            }
-            base = ( (base % mod)  * (base % mod ) ) % mod ;
-            exp >>= 1 ;
-        }
-
-        return result ;
-    }
-
-    // -------- MAIN --------
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        StringBuilder out = new StringBuilder();
-
-        int n = fs.nextInt();
-        int k = fs.nextInt() ;
-        int q = fs.nextInt() ;
-
-        int[] arr = new int[n] ;
-
-        int[][] queries = new int[2][n] ;
-
-        int idx = 0 ;
-
-        while(q > 0) {
-            int l = fs.nextInt();
-            int r = fs.nextInt();
-
-            arr[l-1] = 1  ;
-
-            if ( r + 1 < n ) {
-                arr[r + 1] = -1 ;
-            }
-
-            queries[i][0] = l ;
-            queries[i][1] = r ;
-
-            i++ ;
-        }
-
-
-
-
-
-
-
-
-    }
-
 }
-

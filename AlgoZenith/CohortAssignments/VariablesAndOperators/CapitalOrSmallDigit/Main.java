@@ -87,43 +87,42 @@ public class Main {
         return result ;
     }
 
+    static long inverse(long n) {
+        return modPow(n, MOD - 2, MOD) ;
+    }
+
+    static class Pair  {
+        long x, y;
+
+        Pair(long x, long y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + x + ", " + y + ")";
+        }
+    }
+
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int n = fs.nextInt();   // number of test cases
-        int q = fs.nextInt();
-        long[] prefixArr = new long[n] ;
-        prefixArr[0] = fs.nextLong();
-        for(int i = 1 ; i < n ; i++) {
-            long sum  = prefixArr[i-1] + fs.nextLong() ;
-            if(sum > 0) {
-                prefixArr[i] = sum % MOD ;
+        String test = fs.next() ;
+
+        int ascii  = (int) test.charAt(0) ;
+
+        if (ascii >= 65) {
+            out.append("ALPHA").append('\n') ;
+            if(ascii >= 97) {
+                out.append("IS SMALL").append('\n') ;
             } else {
-                prefixArr[i] = ( sum + MOD ) % MOD ;
+                 out.append("IS CAPITAL").append('\n') ;
             }
-        }
-
-
-        while( q > 0) {
-            int l = fs.nextInt();
-            int r = fs.nextInt();
-            long ans = 0;
-
-            if(l == 1) {
-                ans =  prefixArr[r-1] ;
-            } else {
-                ans = prefixArr[r-1] - prefixArr[l-2] ;
-            }
-
-if (ans < 0) {
-    out.append((ans + MOD) % MOD).append('\n');
-} else {
-    out.append(ans % MOD).append('\n');
-}
-
-            q--;
+        } else {
+            out.append("IS DIGIT").append('\n') ;
         }
 
         System.out.println(out);

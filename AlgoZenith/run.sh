@@ -9,7 +9,7 @@ OUTPUT="output.txt"
 
 echo "🔹 Compiling..."
 
-javac $MAIN
+javac "$MAIN"
 if [ $? -ne 0 ]; then
     echo -e "\033[31m❌ Compilation Error\033[0m"
     exit 1
@@ -17,22 +17,31 @@ fi
 
 echo "🔹 Running..."
 
-START=$(date +%s%N)
+START=$(date +%s%N 2>/dev/null)
 
-java $CLASS < $INPUT > $OUTPUT
+java "$CLASS" < "$INPUT" > "$OUTPUT"
 
-END=$(date +%s%N)
-TIME=$((($END - $START)/1000000))
+END=$(date +%s%N 2>/dev/null)
 
-echo "⏱ Execution Time: ${TIME} ms"
+if [ -n "$START" ] && [ -n "$END" ]; then
+    TIME=$((($END - $START)/1000000))
+    echo "⏱ Execution Time: ${TIME} ms"
+fi
 
 echo "🔹 Checking..."
 
-if diff -w --strip-trailing-cr $OUTPUT $EXPECTED > /dev/null; then
-    echo -e "✅ Accepted"
+# Normalize files (remove CR and trailing spaces)
+sed 's/\r$//' "$OUTPUT" | sed 's/[[:space:]]*$//' > output_clean.txt
+sed 's/\r$//' "$EXPECTED" | sed 's/[[:space:]]*$//' > expected_clean.txt
+
+if diff -wB output_clean.txt expected_clean.txt > /dev/null; then
+    echo "✅ Accepted"
 else
-    echo -e "❌ Wrong Answer"
+    echo "❌ Wrong Answer"
     echo
     echo "🔎 Difference:"
-    diff -w --strip-trailing-cr $OUTPUT $EXPECTED
+    diff -wB output_clean.txt expected_clean.txt
 fi
+
+# Cleanup
+rm -f output_clean.txt expected_clean.txt

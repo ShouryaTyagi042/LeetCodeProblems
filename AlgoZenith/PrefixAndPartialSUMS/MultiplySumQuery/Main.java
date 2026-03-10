@@ -87,46 +87,81 @@ public class Main {
         return result ;
     }
 
+    static long inverse(long n) {
+        return modPow(n, MOD - 2, MOD) ;
+    }
+
+    static class Pair  {
+        long x, y;
+
+        Pair(long x, long y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + x + ", " + y + ")";
+        }
+    }
+
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int n = fs.nextInt();   // number of test cases
-        int q = fs.nextInt();
-        long[] prefixArr = new long[n] ;
-        prefixArr[0] = fs.nextLong();
-        for(int i = 1 ; i < n ; i++) {
-            long sum  = prefixArr[i-1] + fs.nextLong() ;
+        int n = fs.nextInt() ;
+        int q = fs.nextInt() ;
+
+        long[] prefixArr = new long[n+2] ;
+
+        long sum = 0 ;
+
+        for(int i = 1 ; i <= n ; i++) {
+            long element = fs.nextLong();
+            sum += element ;
             if(sum > 0) {
-                prefixArr[i] = sum % MOD ;
+                sum %= MOD ;
             } else {
-                prefixArr[i] = ( sum + MOD ) % MOD ;
+                sum = (sum + MOD ) % MOD ;
             }
+            prefixArr[i] = sum ;
         }
 
+        long[] doublePrefixArr = new long[n+2] ;
+
+        sum = 0 ;
+
+        for(int i = 1 ; i <= n ; i++) {
+            long element = prefixArr[i] ;
+            sum += element ;
+            if(sum > 0) {
+                sum %= MOD ;
+            } else {
+                sum = (sum + MOD ) % MOD ;
+            }
+            doublePrefixArr[i] = sum ;
+        }
+
+        // System.out.println(Arrays.toString(prefixArr));
+        // System.out.println(Arrays.toString(doublePrefixArr));
 
         while( q > 0) {
-            int l = fs.nextInt();
-            int r = fs.nextInt();
-            long ans = 0;
+            int l = fs.nextInt() ;
+            int r = fs.nextInt() ;
 
-            if(l == 1) {
-                ans =  prefixArr[r-1] ;
+            long ans = ( prefixArr[r] * ( r - l + 1 ) ) % MOD ;
+            long toRemove = 0 ;
+            if(l - 2 >= 1) {
+                toRemove = (doublePrefixArr[r-1] - doublePrefixArr[l-2] + MOD ) % MOD ;
             } else {
-                ans = prefixArr[r-1] - prefixArr[l-2] ;
+                toRemove = doublePrefixArr[r-1] ;
             }
-
-if (ans < 0) {
-    out.append((ans + MOD) % MOD).append('\n');
-} else {
-    out.append(ans % MOD).append('\n');
-}
-
+            out.append((ans - toRemove + MOD) % MOD).append('\n');
             q--;
         }
-
         System.out.println(out);
+
 
     }
 
