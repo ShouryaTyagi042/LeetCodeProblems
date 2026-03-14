@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -132,25 +117,45 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-         long a , b;
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
+            int l1 = fs.nextInt() ;
+            int r1 = fs.nextInt() ;
+            if( l1 > r1) {
+                out.append(-1).append("\n") ;
+                continue;
+            }
 
-          long ans = solve(a, b) ;
-          System.out.println(ans);
+            int l2 = fs.nextInt() ;
+            int r2 = fs.nextInt() ;
+            if( l2 > r2) {
+                out.append(-1).append("\n") ;
+                continue;
+            }
+
+           if ( l2  >= l1 && l2 <= r1 && r2 >= r1 ) {
+                out.append(l2).append(" ");
+                out.append(r1).append("\n");
+           } else if ( r2 >= l1 && r2 <= r1 && l2 <= l1) {
+                out.append(l1).append(" ");
+                out.append(r2).append("\n");
+           }  else if (l2 >= l1 && l2 <= r1 && r2 >= l1 && r2 <= r1) {
+                out.append(l2).append(" ");
+                out.append(r2).append("\n");
+           } else if (l1 >= l2 && l1 <= r2 && r1 >= l2 && r1 <= r2) {
+                out.append(l1).append(" ");
+                out.append(r1).append("\n");
+           }
+
+
+           else {
+            out.append(-1).append("\n") ;
+           }
+
           }
+
+          System.out.println(out);
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

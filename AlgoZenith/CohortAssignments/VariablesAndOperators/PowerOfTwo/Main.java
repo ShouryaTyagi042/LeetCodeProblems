@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -83,10 +68,6 @@ public class Main {
             }
             return sb.toString();
         }
-
-        double nextDouble() throws IOException {
-            return Double.parseDouble(next());
-        }
     }
 
     static final long MOD = 1_000_000_007L;
@@ -124,33 +105,27 @@ public class Main {
         }
     }
 
+    double nextDouble() throws IOException {
+        return Double.parseDouble(next());
+    }
+
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        long a = fs.nextLong();   // number of test cases
 
-        while (t-- > 0) {
-         long a , b;
+        while(a > 1 ) {
+             if ( a % 2 != 0) {
+                System.out.println("NO");
+                return ;
+             }
+             a /= 2 ;
+        }
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
-
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
-
+        System.out.println("YES");
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"
