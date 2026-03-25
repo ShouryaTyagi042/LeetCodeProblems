@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -87,22 +72,6 @@ public class Main {
         double nextDouble() throws IOException {
             return Double.parseDouble(next());
         }
-
-        String nextLine() throws IOException {
-            StringBuilder sb = new StringBuilder();
-            int c;
-
-            // skip any leftover newline or spaces
-            while ((c = readByte()) != -1 && c == '\n');
-
-            // read until newline
-            while (c != -1 && c != '\n') {
-                sb.append((char) c);
-                c = readByte();
-            }
-
-            return sb.toString();
-        }
     }
 
     static final long MOD = 1_000_000_007L;
@@ -148,25 +117,17 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-         long a , b;
+            String str = fs.next() ;
+            if(str.length() > 10) {
+                out.append(str.charAt(0)).append(str.length() - 2).append(str.charAt(str.length() - 1 )).append('\n') ;
+            } else {
+                out.append(str).append('\n') ;
+            }
+        }
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
-
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+        System.out.println(out);
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"
