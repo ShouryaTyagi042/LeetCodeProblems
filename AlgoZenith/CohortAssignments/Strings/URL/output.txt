@@ -1,0 +1,6 @@
+username: test
+pwd: test
+profile: developer
+role: ELITE
+key: manager
+
