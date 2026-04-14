@@ -1,0 +1,11 @@
+1
+9
+add 3
+add 4
+print 1
+remove
+add 7
+add 2
+print 0
+clear
+print 0
