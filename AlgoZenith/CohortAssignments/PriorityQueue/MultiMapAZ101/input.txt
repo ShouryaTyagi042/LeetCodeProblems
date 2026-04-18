@@ -1,0 +1,11 @@
+1
+9
+add alice 24
+add bob 21
+add alice 23
+add alice 22
+print alice
+erase alice
+print alice
+eraseall alice
+print alice
