@@ -1,0 +1,10 @@
+1
+7
+add 3
+add 2
+add 7
+print
+find 2
+erase 2
+find 2
+erase
