@@ -1,0 +1,15 @@
+1
+13
+add 3
+add 1
+add 5
+add 3
+add 3
+count 3
+erase 3
+print
+eraseall 3
+print
+find 5
+empty
+find 5
