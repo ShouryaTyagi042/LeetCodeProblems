@@ -1,0 +1,10 @@
+1
+8
+insertback 3
+insertback 5
+insertfront 2
+printback
+print 1
+eraseback
+insertfront 1
+printfront
