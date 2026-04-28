@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -173,25 +158,29 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-         long a , b;
-
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
-
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+            int n = fs.nextInt();
+            int k = fs.nextInt() ;
+            int[] arr = new int[n] ;
+            for(int i = 0 ; i < n ;i++) {
+                arr[i] = fs.nextInt() ;
+            }
+            Arrays.sort(arr) ;
+            int left = 0 ;
+            int right = n - 1 ;
+            long ans = 0 ;
+            while(left < right) {
+                if(arr[left] + arr[right] <= k) {
+                    ans += right - left ;
+                    left ++ ;
+                } else {
+                    right -- ;
+                }
+            }
+            out.append(ans * 2).append('\n') ;
+        }
+        System.out.println(out);
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

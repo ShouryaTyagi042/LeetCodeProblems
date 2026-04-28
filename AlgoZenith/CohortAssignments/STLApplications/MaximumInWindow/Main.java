@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -147,16 +132,18 @@ public class Main {
             deque = new ArrayDeque<>() ;
         }
 
+
         void insert(int val) {
             while(!deque.isEmpty() && deque.peekLast() < val ) {
                 deque.pollLast() ;
             }
-            deque.offerFirst(val) ;
+            deque.offerLast(val) ;
         }
 
         int getMax(){
             return deque.peekFirst() ;
         }
+
 
         void remove(int val) {
             if(deque.peekFirst() == val) {
@@ -173,25 +160,28 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-         long a , b;
+            int n = fs.nextInt() ;
+            int k = fs.nextInt() ;
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
+            int[] arr = new int[n] ;
+            MonotoneDeque mq = new MonotoneDeque() ;
+            for(int i = 0 ; i < n ; i++) {
+                arr[i] = fs.nextInt() ;
+            }
 
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+            for(int i = 0 ; i < n ; i++) {
+                int val = arr[i] ;
+                mq.insert(val) ;
+                if(i - k >= 0 ) mq.remove(arr[i-k]) ;
+                if(i >= k - 1) {
+                    out.append(mq.getMax()).append(" ") ;
+                }
+            }
+            out.append('\n') ;
+        }
+        System.out.println(out);
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

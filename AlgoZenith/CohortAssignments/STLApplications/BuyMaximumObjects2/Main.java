@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -140,58 +125,64 @@ public class Main {
         }
     }
 
-    static class MonotoneDeque {
-        Deque<Integer> deque;
-
-        MonotoneDeque() {
-            deque = new ArrayDeque<>() ;
-        }
-
-        void insert(int val) {
-            while(!deque.isEmpty() && deque.peekLast() < val ) {
-                deque.pollLast() ;
-            }
-            deque.offerFirst(val) ;
-        }
-
-        int getMax(){
-            return deque.peekFirst() ;
-        }
-
-        void remove(int val) {
-            if(deque.peekFirst() == val) {
-                deque.pollFirst() ;
-            }
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int n = fs.nextInt() ;
+        int q = fs.nextInt() ;
 
-        while (t-- > 0) {
-         long a , b;
+        long[] arr = new long[n] ;
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
+        for (int i = 0 ; i < n ; i++ ) {
+            arr[i] = fs.nextLong() ;
+        }
 
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+        Arrays.sort(arr) ;
 
+        // build the prefix sum
+        for(int i = 1 ;  i < n ; i++) {
+            arr[i] += arr[i-1] ;
+        }
+
+        for(int i = 0 ; i < q ; i++) {
+            int m = fs.nextInt() ;
+            int ans = getUpperBound(arr, m) ;
+            out.append(ans ).append('\n') ;
+        }
+
+        System.out.println(out);
+
+    }
+
+    public static int getLowerBound(int[] arr, int target) {
+        int start = 0 ;
+        int end = arr.length  ;
+        while( start < end) {
+            int mid = start + ( end - start ) / 2 ;
+            if(arr[mid] < target) {
+                start = mid + 1 ;
+            } else {
+                end = mid ;
+            }
+        }
+        return end ;
+    }
+
+    public static int getUpperBound(long[] arr, int target) {
+        int start = 0 ;
+        int end = arr.length  ;
+        while( start < end) {
+            int mid = start + ( end - start ) / 2 ;
+            if(arr[mid] <= target) {
+                start = mid + 1 ;
+            } else {
+                end = mid ;
+            }
+        }
+        return end ;
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

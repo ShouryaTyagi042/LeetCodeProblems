@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -140,58 +125,58 @@ public class Main {
         }
     }
 
-    static class MonotoneDeque {
-        Deque<Integer> deque;
-
-        MonotoneDeque() {
-            deque = new ArrayDeque<>() ;
-        }
-
-        void insert(int val) {
-            while(!deque.isEmpty() && deque.peekLast() < val ) {
-                deque.pollLast() ;
-            }
-            deque.offerFirst(val) ;
-        }
-
-        int getMax(){
-            return deque.peekFirst() ;
-        }
-
-        void remove(int val) {
-            if(deque.peekFirst() == val) {
-                deque.pollFirst() ;
-            }
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int q = fs.nextInt() ;
 
-        while (t-- > 0) {
-         long a , b;
+        TreeMap<Integer,Integer> map = new TreeMap<>();
+            long sum = 0;
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
+            for(int i=0;i<q;i++) {
 
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+                int query = fs.nextInt();
+
+                if(query == 1) {
+                    int val = fs.nextInt();
+                    map.put(val, map.getOrDefault(val,0)+1);
+                    sum += val;
+                }
+
+                else if(query == 2) {
+                    int val = fs.nextInt();
+
+                    if(map.containsKey(val)) {
+                        int freq = map.get(val);
+
+                        if(freq == 1) map.remove(val);
+                        else map.put(val, freq-1);
+
+                        sum -= val;
+                    }
+                }
+
+                else if(query == 3) {
+                    String val = fs.next() ;
+                    out.append(map.isEmpty() ? -1 : map.firstKey()).append('\n');
+                }
+
+                else if(query == 4) {
+                      String val = fs.next() ;
+                    out.append(map.isEmpty() ? -1 : map.lastKey()).append('\n');
+                }
+
+                else if(query == 5) {
+                      String val = fs.next() ;
+                    out.append(sum).append('\n');
+                }
+            }
+
+        System.out.println(out);
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

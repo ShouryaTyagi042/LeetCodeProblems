@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -140,29 +125,32 @@ public class Main {
         }
     }
 
-    static class MonotoneDeque {
-        Deque<Integer> deque;
-
-        MonotoneDeque() {
-            deque = new ArrayDeque<>() ;
-        }
-
-        void insert(int val) {
-            while(!deque.isEmpty() && deque.peekLast() < val ) {
-                deque.pollLast() ;
-            }
-            deque.offerFirst(val) ;
-        }
-
-        int getMax(){
-            return deque.peekFirst() ;
-        }
-
-        void remove(int val) {
-            if(deque.peekFirst() == val) {
-                deque.pollFirst() ;
+    public static int getLowerBound(int[] arr, int target) {
+        int start = 0 ;
+        int end = arr.length  ;
+        while( start < end) {
+            int mid = start + ( end - start ) / 2 ;
+            if(arr[mid] < target) {
+                start = mid + 1 ;
+            } else {
+                end = mid ;
             }
         }
+        return end ;
+    }
+
+    public static int getUpperBound(int[] arr, int target) {
+        int start = 0 ;
+        int end = arr.length  ;
+        while( start < end) {
+            int mid = start + ( end - start ) / 2 ;
+            if(arr[mid] <= target) {
+                start = mid + 1 ;
+            } else {
+                end = mid ;
+            }
+        }
+        return end ;
     }
 
     // -------- MAIN --------
@@ -173,25 +161,56 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-         long a , b;
+            int n = fs.nextInt() ;
+            int q = fs.nextInt() ;
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
+            int[] arr = new int[n] ;
+            for(int i = 0 ; i < n ; i++) {
+                arr[i] = fs.nextInt() ;
+            }
 
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+            Arrays.sort(arr) ;
+
+            for(int i = 0 ; i < q ; i++) {
+                int query = fs.nextInt() ;
+                int check = fs.nextInt() ;
+
+                if(query == 1) {
+                    int ans = getLowerBound(arr, check) ;
+                    if(ans == arr.length) {
+                        out.append(-1).append(" ") ;
+                    } else {
+                        out.append(arr[ans]).append(" ") ;
+                    }
+                }
+                else if(query == 2) {
+                    int ans = getUpperBound(arr, check) ;
+                    if(ans == arr.length) {
+                        out.append(-1).append(" ") ;
+                    } else {
+                        out.append(arr[ans]).append(" ") ;
+                    }
+                }
+                else if(query == 3) {
+                    if(arr[0] > check) {
+                        out.append(0).append(" ") ;
+                        continue ;
+                    }
+                    int ans = getUpperBound(arr, check) ;
+                    out.append(ans).append(" ") ;
+                }
+                else if(query == 4) {
+                    int ans = getLowerBound(arr, check) ;
+                    out.append(ans).append(" ") ;
+                }
+            }
+
+            out.append('\n') ;
+        }
+
+        System.out.println(out);
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

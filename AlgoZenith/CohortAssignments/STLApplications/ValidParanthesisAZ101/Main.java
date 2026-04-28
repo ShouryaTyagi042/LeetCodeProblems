@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -140,31 +125,6 @@ public class Main {
         }
     }
 
-    static class MonotoneDeque {
-        Deque<Integer> deque;
-
-        MonotoneDeque() {
-            deque = new ArrayDeque<>() ;
-        }
-
-        void insert(int val) {
-            while(!deque.isEmpty() && deque.peekLast() < val ) {
-                deque.pollLast() ;
-            }
-            deque.offerFirst(val) ;
-        }
-
-        int getMax(){
-            return deque.peekFirst() ;
-        }
-
-        void remove(int val) {
-            if(deque.peekFirst() == val) {
-                deque.pollFirst() ;
-            }
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
@@ -173,25 +133,29 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-         long a , b;
+            HashMap<Character, Integer> map = new HashMap<>();
+            map.put('(', 1) ;
+            map.put(')', -1);
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
-
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+            String check = fs.next() ;
+            int currentDepth = 0 ;
+            int ans = 0 ;
+            for(char ch : check.toCharArray()) {
+                int val = map.get(ch) ;
+                currentDepth += val ;
+                if(currentDepth < 0) {
+                    ans += 1 ;
+                    currentDepth = 0 ;
+                }
+            }
+            if(currentDepth > 0) {
+                ans += currentDepth ;
+            }
+            out.append(ans).append('\n') ;
+        }
+        System.out.println(out);
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

@@ -1,0 +1,8 @@
+isabel 1
+ava 8
+emma 11
+sophia 12
+amelia 21
+hannah 5
+bob 20
+alice 34

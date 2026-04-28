@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -173,25 +158,46 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-         long a , b;
+            int n = fs.nextInt() ;
+            long[] arr1 = new long[n] ;
+            long[] arr2 = new long[n] ;
+            for(int i = 0 ; i < n ; i++) {
+                arr1[i] = fs.nextLong() ;
+            }
+            for(int i = 0 ; i < n ; i++) {
+                arr2[i] = fs.nextLong() ;
+            }
+            Pair[] sorted = new Pair[n] ;
+            for(int i = 0 ;  i < n ; i++) {
+                Pair p = new Pair(arr1[i], arr2[i]) ;
+                sorted[i] = p ;
+            }
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
+            Arrays.sort(sorted, (a, b) ->
+                Long.compare(b.x + b.y, a.x + a.y)
+            );
+            long alice = 0 ;
+            long bob = 0 ;
+            for(int i = 0 ; i < n ; i++) {
+                if(i % 2 == 0 ) {
+                    alice += sorted[i].x ;
+                } else {
+                    bob += sorted[i].y ;
+                }
+            }
 
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+            if(alice > bob) {
+                out.append("Alice").append('\n') ;
+            } else if ( bob > alice) {
+                out.append("Bob").append('\n') ;
+            } else {
+                out.append("Tie").append('\n') ;
+            }
+
+        }
+        System.out.println(out);
 
     }
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"
