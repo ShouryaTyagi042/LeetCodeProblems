@@ -158,27 +158,39 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-            long n = fs.nextLong() ;
+            int n = fs.nextInt() ;
             String str = fs.next() ;
-            HashMap<Character, Integer> map = new HashMap<>();
-            long cont = calculateTri(n) ;
-            long ans = 0 ;
-            for(char ch : str.toCharArray()) {
-                if(map.containsKey(ch)) {
-                    continue ;
-                } else {
-                    ans += cont ;
+            int[] last = new int[26] ;
+            Arrays.fill(last, -1); // VERY IMPORTANT
+            int[] prev = new int[n] ;
+            int[] next = new int[n] ;
 
-                }
+            for(int i = 0 ; i < n ; i++) {
+                int c = str.charAt(i) - 'a' ;
+                prev[i] = last[c] ;
+                last[c] = i ;
             }
+            Arrays.fill(last, n); // VERY IMPORTANT
+            for(int i = n-1 ; i >= 0 ; i--) {
+                int c = str.charAt(i) - 'a' ;
+                next[i] = last[c] ;
+                last[c] = i ;
+            }
+            long ans = 0 ;
+           for(int i = 0 ; i < n ; i++) {
+  long left = i - prev[i];
+long right = next[i] - i;
+ans += left * right;
+            }
+
+            out.append(ans).append('\n') ;
+
+
         }
         System.out.println(out);
 
     }
 
-    static long calculateTri(long n) {
-        return ( n * (n  + 1 ) / 2  ) ;
-    }
 
 }
 

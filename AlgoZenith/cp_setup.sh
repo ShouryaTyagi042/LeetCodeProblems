@@ -173,16 +173,13 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-         long a , b;
 
-          a = fs.nextLong() ;
-          b = fs.nextLong() ;
 
-          long ans = solve(a, b) ;
-          System.out.println(ans);
-          }
+        }
+        System.out.println(out);
 
     }
+
 
 }
 
