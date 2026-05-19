@@ -174,32 +174,45 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-            int n = fs.nextInt();
-            TreeMap<Integer, Integer> map = new TreeMap<>() ;
+            int n = fs.nextInt() ;
+            int k = fs.nextInt() ;
+            int[] arr = new int[n] ;
             for(int i = 0 ; i < n ; i++) {
-                int val = fs.nextInt() ;
-                if (map.containsKey(val)) {
-                    map.put(val, map.get(val) + 1) ;
+                arr[i] = fs.nextInt() ;
+            }
+
+            int hi = arr[n-1] - arr[0]   ;
+            int lo = 0 ;
+            int idx = hi ;
+            while (lo <= hi){
+                int mid = lo + (hi - lo) / 2 ;
+                // System.out.println(mid);
+                if(check(arr, n , mid , k) == true) {
+                    idx = mid ;
+                    hi = mid - 1 ;
                 } else {
-                    if(map.higherKey(val) != null) {
-                        int key = map.higherKey(val) ;
-                        map.remove(key) ;
-                        map.put(val, 1) ;
-                    } else {
-                        map.put(val, 1) ;
-                    }
+                    lo = mid + 1 ;
                 }
             }
-            long ans = 0 ;
-            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
-                ans += entry.getValue() ;
-            }
-            out.append(ans).append('\n') ;
+
+            out.append(idx).append('\n') ;
 
         }
         System.out.println(out);
 
     }
 
+    static boolean check(int[] arr, int n , int maxDiff, int k ) {
+        if(maxDiff == 0) return false ;
+        int requiredPoints = 0 ;
+        for(int i = 1 ; i < n ; i++) {
+            int diff = arr[i] - arr[i-1] ;
+            requiredPoints += (( diff + maxDiff  - 1 ) / maxDiff ) - 1 ;
+        }
+        if(requiredPoints <= k) return true ;
+        return false ;
+    }
+
 
 }
+

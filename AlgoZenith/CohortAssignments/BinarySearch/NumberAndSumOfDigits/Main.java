@@ -174,32 +174,51 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-            int n = fs.nextInt();
-            TreeMap<Integer, Integer> map = new TreeMap<>() ;
-            for(int i = 0 ; i < n ; i++) {
-                int val = fs.nextInt() ;
-                if (map.containsKey(val)) {
-                    map.put(val, map.get(val) + 1) ;
+            long n = fs.nextLong() ;
+            long k = fs.nextLong() ;
+
+            if(k == 0 ) {
+                   out.append(n).append('\n') ;
+                   continue ;
+            }
+
+            long hi = n ;
+            long lo = 0 ;
+            long val = -1  ;
+            while (lo <= hi){
+                long mid = lo + (hi - lo) / 2 ;
+                if(check(mid , k) == true) {
+                    val  = mid ;
+                    hi = mid - 1 ;
                 } else {
-                    if(map.higherKey(val) != null) {
-                        int key = map.higherKey(val) ;
-                        map.remove(key) ;
-                        map.put(val, 1) ;
-                    } else {
-                        map.put(val, 1) ;
-                    }
+                    lo = mid + 1 ;
                 }
             }
-            long ans = 0 ;
-            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
-                ans += entry.getValue() ;
+            if(val > 0) {
+                out.append(n - val + 1).append('\n') ;
+            } else if(val == 0){
+                out.append(n).append('\n') ;
+            }  else {
+                out.append(0).append('\n') ;
             }
-            out.append(ans).append('\n') ;
 
         }
         System.out.println(out);
 
     }
 
+    static boolean check(long val, long k  ) {
+        long temp = val ;
+        long sum = 0 ;
+        while (temp > 0 ) {
+            sum += temp % 10 ;
+            temp /= 10 ;
+        }
+
+        if(val - sum >= k) return true ;
+        return false ;
+    }
+
 
 }
+

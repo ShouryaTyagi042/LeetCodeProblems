@@ -174,32 +174,56 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-            int n = fs.nextInt();
-            TreeMap<Integer, Integer> map = new TreeMap<>() ;
+            int n = fs.nextInt() ;
+            int k = fs.nextInt() ;
+            int[] arr = new int[n] ;
+            long hi = 0 ;
+            long lo = 0 ;
             for(int i = 0 ; i < n ; i++) {
-                int val = fs.nextInt() ;
-                if (map.containsKey(val)) {
-                    map.put(val, map.get(val) + 1) ;
-                } else {
-                    if(map.higherKey(val) != null) {
-                        int key = map.higherKey(val) ;
-                        map.remove(key) ;
-                        map.put(val, 1) ;
-                    } else {
-                        map.put(val, 1) ;
-                    }
-                }
+                arr[i] = fs.nextInt() ;
+                hi += (long) arr[i] ;
+            }
+
+            if(k == 1) {
+                out.append(hi).append('\n') ;
+                continue ;
             }
             long ans = 0 ;
-            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
-                ans += entry.getValue() ;
+            while( lo <= hi) {
+                long mid = lo + ( hi - lo ) / 2 ;
+                if(check(arr, mid, k) == true ) {
+                    ans = mid ;
+                    hi = mid - 1 ;
+                } else {
+                    lo = mid + 1 ;
+                }
             }
             out.append(ans).append('\n') ;
-
         }
         System.out.println(out);
 
     }
 
+    static boolean check(int[] arr, long t, int k) {
+        long last_painter = t ;
+        int number = 1 ;
+        for(int i = 0 ; i < arr.length ; i++) {
+            if(last_painter >= arr[i]) {
+                last_painter -= arr[i] ;
+            } else {
+                number ++ ;
+                last_painter = t ;
+                if(last_painter >= arr[i]){
+                    last_painter -= arr[i] ;
+                } else {
+                    return false ;
+                }
+            }
+        }
+        if(number <= k ) return true ;
+        return false ;
+    }
+
 
 }
+

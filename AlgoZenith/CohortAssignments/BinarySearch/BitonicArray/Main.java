@@ -174,32 +174,79 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-            int n = fs.nextInt();
-            TreeMap<Integer, Integer> map = new TreeMap<>() ;
+            int n = fs.nextInt() ;
+            int k = fs.nextInt() ;
+            int[] arr = new int[n] ;
             for(int i = 0 ; i < n ; i++) {
-                int val = fs.nextInt() ;
-                if (map.containsKey(val)) {
-                    map.put(val, map.get(val) + 1) ;
+                arr[i] = fs.nextInt() ;
+            }
+
+            int hi = n - 1 ;
+            int lo = 0 ;
+            int idx = n - 1 ;
+            while (lo <= hi){
+                int mid = lo + (hi - lo) / 2 ;
+                if(check(arr, n , mid) == true) {
+                    idx = mid ;
+                    hi = mid - 1 ;
                 } else {
-                    if(map.higherKey(val) != null) {
-                        int key = map.higherKey(val) ;
-                        map.remove(key) ;
-                        map.put(val, 1) ;
-                    } else {
-                        map.put(val, 1) ;
-                    }
+                    lo = mid + 1 ;
                 }
             }
-            long ans = 0 ;
-            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
-                ans += entry.getValue() ;
+
+            for(int i = 0 ; i < k ; i++) {
+                int target = fs.nextInt() ;
+                if(idx > 0) {
+                int first = binarySearch(arr, target, n , idx - 1, 0  ) ;
+                if(first >= 0 ) {
+                    out.append(first + 1).append(' ') ;
+                }
+                }
+                int second = binarySearchReverse(arr, target, n  , n - 1, idx  ) ;
+                if(second >= 0) {
+                    out.append(second + 1).append(' ') ;
+                }
+                out.append('\n') ;
+
             }
-            out.append(ans).append('\n') ;
 
         }
         System.out.println(out);
 
     }
 
+    static int binarySearch(int[] arr, int target, int n , int hi, int lo ) {
+        while(lo <= hi) {
+            int mid = lo + (hi - lo)/2 ;
+            if(arr[mid] == target ) return mid ;
+            if (arr[mid] > target) {
+                hi = mid - 1 ;
+            } else {
+                lo = mid + 1 ;
+            }
+        }
+        return -1 ;
+    }
+
+    static int binarySearchReverse(int[] arr, int target, int n , int hi, int lo ) {
+        while(lo <= hi) {
+            int mid = lo + (hi - lo)/2 ;
+            if(arr[mid] == target ) return mid ;
+            if (arr[mid] > target) {
+                lo = mid + 1 ;
+            } else {
+                hi = mid - 1 ;
+            }
+        }
+        return -1 ;
+    }
+
+    static boolean check(int[] arr, int n , int idx) {
+        if(idx == n - 1) return true ;
+        if(arr[idx] > arr[idx + 1]) return true ;
+        return false ;
+    }
+
 
 }
+

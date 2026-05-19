@@ -174,32 +174,44 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-            int n = fs.nextInt();
-            TreeMap<Integer, Integer> map = new TreeMap<>() ;
+            int n = fs.nextInt() ;
+            int[] arr = new int[n] ;
             for(int i = 0 ; i < n ; i++) {
-                int val = fs.nextInt() ;
-                if (map.containsKey(val)) {
-                    map.put(val, map.get(val) + 1) ;
+                arr[i] = fs.nextInt() ;
+            }
+
+            int hi = n - 1 ;
+            int lo = 0 ;
+            int idx = n - 1 ;
+            while (lo <= hi){
+                int mid = lo + (hi - lo) / 2 ;
+                if(check(arr, n , mid) == true) {
+                    idx = mid ;
+                    lo = mid + 1 ;
                 } else {
-                    if(map.higherKey(val) != null) {
-                        int key = map.higherKey(val) ;
-                        map.remove(key) ;
-                        map.put(val, 1) ;
-                    } else {
-                        map.put(val, 1) ;
-                    }
+                    hi = mid - 1 ;
                 }
             }
-            long ans = 0 ;
-            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
-                ans += entry.getValue() ;
+            // System.out.println(idx);
+            if(idx == n - 1) {
+                out.append(0).append('\n') ;
+            } else {
+                out.append(idx + 1).append('\n') ;
             }
-            out.append(ans).append('\n') ;
+
+
+
 
         }
         System.out.println(out);
 
     }
 
+    static boolean check(int[] arr, int n , int idx) {
+        if(arr[idx] > arr[n-1]) return true ;
+        return false ;
+    }
+
 
 }
+

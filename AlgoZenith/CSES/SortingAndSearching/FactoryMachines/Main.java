@@ -164,42 +164,49 @@ public class Main {
                 }
             }
             return ans ;
-        }
+    }
 
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-            int n = fs.nextInt();
-            TreeMap<Integer, Integer> map = new TreeMap<>() ;
-            for(int i = 0 ; i < n ; i++) {
-                int val = fs.nextInt() ;
-                if (map.containsKey(val)) {
-                    map.put(val, map.get(val) + 1) ;
-                } else {
-                    if(map.higherKey(val) != null) {
-                        int key = map.higherKey(val) ;
-                        map.remove(key) ;
-                        map.put(val, 1) ;
-                    } else {
-                        map.put(val, 1) ;
-                    }
-                }
-            }
-            long ans = 0 ;
-            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
-                ans += entry.getValue() ;
-            }
-            out.append(ans).append('\n') ;
-
+        int n = fs.nextInt();   // number of test cases
+        int t = fs.nextInt() ;
+        int[] arr = new int[n] ;
+        for(int i = 0 ; i < n ; i++) {
+            arr[i] = fs.nextInt() ;
         }
-        System.out.println(out);
+
+        Arrays.sort(arr) ;
+
+        long lo = 0 ;
+        long hi = (long) t * arr[0] ;
+        long ans = hi ;
+        while(lo <= hi) {
+            long mid = lo + (hi - lo) / 2 ;
+            if(check(t, mid, arr) == true) {
+                ans = mid ;
+                hi = mid - 1 ;
+            } else {
+                lo = mid + 1 ;
+            }
+        }
+        System.out.println(ans);
 
     }
 
 
+    static boolean check(int t, long time, int[] arr) {
+        long ans = 0 ;
+        for(int i = 0 ; i < arr.length ; i++) {
+            ans += (long) time / arr[i] ;
+        }
+
+        if(ans >= t) return true ;
+        return false ;
+    }
+
+
 }
+

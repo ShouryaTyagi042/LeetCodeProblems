@@ -73,6 +73,22 @@ public class Main {
             return Double.parseDouble(next());
         }
 
+        int upperBound(int[] arr, int n , int target) {
+            int hi = n - 1 ;
+            int lo = 0 ;
+            int ans = n ;
+            while(lo <= hi) {
+                int mid = lo + (hi - lo) / 2 ;
+                if(arr[mid] > target ) {
+                    ans = mid ;
+                    hi = mid - 1 ;
+                } else {
+                    lo = mid + 1 ;
+                }
+            }
+            return ans ;
+        }
+
         String nextLine() throws IOException {
             StringBuilder sb = new StringBuilder();
             int c;
@@ -149,8 +165,7 @@ public class Main {
             }
         }
     }
-
-    static int upperBound(int[] arr, int n , int target) {
+     static  int upperBound(int[] arr, int n , int target) {
             int hi = n - 1 ;
             int lo = 0 ;
             int ans = n ;
@@ -171,35 +186,32 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int n = fs.nextInt();   // number of test cases
+        int d = fs.nextInt() ;
 
-        while (t-- > 0) {
-            int n = fs.nextInt();
-            TreeMap<Integer, Integer> map = new TreeMap<>() ;
-            for(int i = 0 ; i < n ; i++) {
-                int val = fs.nextInt() ;
-                if (map.containsKey(val)) {
-                    map.put(val, map.get(val) + 1) ;
-                } else {
-                    if(map.higherKey(val) != null) {
-                        int key = map.higherKey(val) ;
-                        map.remove(key) ;
-                        map.put(val, 1) ;
-                    } else {
-                        map.put(val, 1) ;
-                    }
-                }
-            }
-            long ans = 0 ;
-            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
-                ans += entry.getValue() ;
-            }
-            out.append(ans).append('\n') ;
-
+        int[] arr = new int[n] ;
+        for(int i = 0 ; i < n ; i++) {
+            arr[i] = fs.nextInt() ;
         }
+
+        long ans = 0 ;
+
+        for(int i = 0 ; i < n ; i++) {
+            int limit = arr[i] + d ;
+            int idx = upperBound(arr, n , limit) ;
+            idx -= (i + 1) ;
+            ans += (long) idx * (idx - 1) / 2 ;
+        }
+
+        out.append(ans).append('\n') ;
         System.out.println(out);
+
 
     }
 
 
+
+
+
 }
+
