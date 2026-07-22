@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -197,15 +182,9 @@ public class Main {
     }
 
     static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
+    static Boolean[] vis ;
     static int[] component ;
     static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
 
     static void dfs(int start, int comp) {
         ArrayDeque<Integer> stack = new ArrayDeque<>();
@@ -230,12 +209,56 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int n = fs.nextInt() ;
+        int m = fs.nextInt() ;
+        int q = fs.nextInt() ;
 
-        while (t-- > 0) {
+        graph = new ArrayList<>();
 
-
+        for (int i = 0; i < n + 1; i++) {
+            graph.add(new ArrayList<>());
         }
+
+        for(int i = 0 ; i < m ;i++) {
+            int a, b ;
+            a = fs.nextInt() ;
+            b = fs.nextInt() ;
+            graph.get(a).add(b) ;graph.get(b).add(a) ;
+        }
+
+        vis = new Boolean[n + 1] ;
+        component = new int[n + 1] ;
+        Arrays.fill(vis, false) ;
+        int c = 0 ;
+        for(int i = 1 ; i <= n ; i++) {
+            if(!vis[i]) {
+                c++ ;
+                dfs(i, c) ;
+            }
+        }
+
+        c_size = new int[c + 1] ;
+
+        for(int i = 1 ; i <= n ; i++) {
+            c_size[component[i]] ++ ;
+        }
+
+        for(int i = 0 ; i < q ; i++) {
+            int query = fs.nextInt() ;
+            if(query == 1 ) {
+                int check = fs.nextInt() ;
+                out.append(c_size[component[check]]).append('\n') ;
+            } else {
+                int v1 = fs.nextInt() ;
+                int v2 = fs.nextInt() ;
+                if(component[v1] == component[v2]) {
+                    out.append("YES").append('\n') ;
+                } else {
+                    out.append("NO").append('\n') ;
+                }
+            }
+        }
+
         System.out.println(out);
 
     }
@@ -243,12 +266,3 @@ public class Main {
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

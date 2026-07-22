@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -196,35 +181,6 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] component ;
-    static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
-
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
-
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
-
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
-            }
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
@@ -240,15 +196,44 @@ public class Main {
 
     }
 
+    class EventManager {
+
+
+    class Event {
+        int id ;
+        int priority ;
+
+        Event(int id, int priority) {
+            this.id = id ;
+            this.priority = priority ;
+        }
+    }
+
+    TreeSet<Event> set = new TreeSet<>((a,b) -> {
+
+    });
+
+
+    public EventManager(int[][] events) {
+
+    }
+
+    public void updatePriority(int eventId, int newPriority) {
+
+    }
+
+    public int pollHighest() {
+
+    }
+}
+
+/**
+ * Your EventManager object will be instantiated and called as such:
+ * EventManager obj = new EventManager(events);
+ * obj.updatePriority(eventId,newPriority);
+ * int param_2 = obj.pollHighest();
+ */
+
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

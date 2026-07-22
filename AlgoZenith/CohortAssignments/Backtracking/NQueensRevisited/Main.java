@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -179,76 +164,59 @@ public class Main {
                 }
             }
             return ans ;
-    }
-
-    static long[] fact = new long[1000100];
-
-    static void precompute() {
-        fact[0] = 1L;
-        for(int i=1; i<=1000000; i++) {
-            fact[i] = (fact[i-1] * i) % MOD;
         }
-    }
 
-    static long calculateNCR(int n, int r) {
-        long num = fact[n] ;
-        long dem = ( fact[n-r] * fact[r]) % MOD ;
-        return (num * inverse(dem)) % MOD ;
-    }
-
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] component ;
-    static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
-
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
-
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
-
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
-            }
-        }
-    }
+     static int ans = 0  ;
+     static char[][] board = new char[8][8] ;
+     static int n ;
 
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
+        n = fs.nextInt() ;
+        ArrayList<Integer> list = new ArrayList<>();
+        recur(0, list) ;
+        System.out.println(ans);
+    }
 
-        int t = fs.nextInt();   // number of test cases
+    static void recur(int row, ArrayList<Integer> list) {
+        if(row == n) {
+            ans ++ ;
+            return ;
+        }
 
-        while (t-- > 0) {
+        for(int i = 0 ; i < n ; i++) {
+            if(canPlace(list, row, i)) {
+                list.add(i) ;
+                recur(row + 1, list) ;
+                list.remove(list.size() - 1 ) ;
+            }
+        }
+
+    }
+
+    static boolean canPlace(ArrayList<Integer> list, int row, int col) {
+        for(int i = 0 ; i < list.size()  ; i++) {
+            int prow = i ;
+            int pcol = list.get(i) ;
+
+            if(pcol == col || prow == row) return false ;
+
+            if(Math.abs(prow - row) == Math.abs(pcol - col)) return false ;
+
+            int dr = Math.abs(prow - row);
+            int dc = Math.abs(pcol - col);
+
+            if ((dr == 2 && dc == 1) || (dr == 1 && dc == 2)) {
+                return false ;
+            }
 
 
         }
-        System.out.println(out);
-
+        return true ;
     }
 
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -197,30 +182,15 @@ public class Main {
     }
 
     static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
+    static Boolean[] vis ;
     static int[] component ;
-    static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
-
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
-
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
+    static void dfs(int node, int c) {
+        vis[node] = true ;
+        component[node] = c ;
+        for(int v : graph.get(node)) {
+            if(!vis[v]) {
+                dfs(v, c) ;
             }
         }
     }
@@ -230,12 +200,37 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int n = fs.nextInt() ;
+        int m = fs.nextInt() ;
 
-        while (t-- > 0) {
+        graph = new ArrayList<>();
 
-
+        for (int i = 0; i < n + 1; i++) {
+            graph.add(new ArrayList<>());
         }
+
+        for(int i = 0 ; i < m ;i++) {
+            int a, b ;
+            a = fs.nextInt() ;
+            b = fs.nextInt() ;
+            graph.get(a).add(b) ;graph.get(b).add(a) ;
+        }
+
+        vis = new Boolean[n + 1] ;
+        component = new int[n + 1] ;
+        Arrays.fill(vis, false) ;
+        int c = 0 ;
+        for(int i = 1 ; i <= n ; i++) {
+            if(!vis[i]) {
+                c++ ;
+                dfs(i, c) ;
+            }
+        }
+
+        for(int i = 1 ; i <= n ; i++) {
+            out.append(i).append(" : ").append(component[i]).append('\n') ;
+        }
+
         System.out.println(out);
 
     }
@@ -243,12 +238,3 @@ public class Main {
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -179,76 +164,47 @@ public class Main {
                 }
             }
             return ans ;
-    }
-
-    static long[] fact = new long[1000100];
-
-    static void precompute() {
-        fact[0] = 1L;
-        for(int i=1; i<=1000000; i++) {
-            fact[i] = (fact[i-1] * i) % MOD;
         }
-    }
-
-    static long calculateNCR(int n, int r) {
-        long num = fact[n] ;
-        long dem = ( fact[n-r] * fact[r]) % MOD ;
-        return (num * inverse(dem)) % MOD ;
-    }
-
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] component ;
-    static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
-
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
-
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
-
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
-            }
-        }
-    }
 
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
+        for(int i = 1 ; i < 7 ; i++) {
+            findKthSol(3, 1 , 3 , 2 , i) ;
         }
-        System.out.println(out);
 
     }
+
+static void findKthSol(int disc, int source, int target, int aux, int k) {
+
+    if (disc == 0) return;
+
+    int leftMoves = (1 << (disc - 1)) - 1;
+    int middleMove = leftMoves + 1;
+
+    if (k <= leftMoves) {
+        findKthSol(disc - 1, source, aux, target, k);
+    }
+    else if (k == middleMove) {
+        System.out.println(
+            "Move disk " + disc +
+            " from " + source +
+            " to " + target
+        );
+    }
+    else {
+        findKthSol(
+            disc - 1,
+            aux,
+            target,
+            source,
+            k - middleMove
+        );
+    }
+}
 
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

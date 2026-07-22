@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -196,30 +181,38 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
+    static ArrayList<ArrayList<Character>> graph ;
+    static boolean[][] vis ;
     static int[] component ;
     static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
+    static void dfs(int i, int j, int n , int m ) {
+        ArrayDeque<int []> stack = new ArrayDeque<>();
+        stack.push(new int[]{i,j});
+        vis[i][j] = true;
 
         while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
+            int[] cell = stack.pop();
 
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
+            int row = cell[0] ;
+            int col = cell[1] ;
+
+            int[][] dir = {
+                {1, 0} ,
+                {0, 1} ,
+                {-1, 0} ,
+                {0, -1}
+            } ;
+
+            for(int[] d : dir) {
+                int nr = row + d[0] ;
+                int nc = col + d[1] ;
+
+                if(nr >= 0 && nc >= 0 && nr < n && nc < m) {
+                    if(!vis[nr][nc] && graph.get(nr).get(nc) == '.') {
+                        vis[nr][nc] = true ;
+                        stack.push(new int[]{nr, nc}) ;
+                    }
                 }
             }
         }
@@ -230,25 +223,34 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int n = fs.nextInt() ;
+        int m = fs.nextInt() ;
 
-        while (t-- > 0) {
+        vis = new boolean[n][m] ;
+        graph = new ArrayList<>() ;
 
-
+        for(int i = 0 ; i < n ; i++ ) {
+            graph.add(new ArrayList<>());
+            String floor = fs.next() ;
+            for(int j = 0 ; j < m ; j++) {
+                graph.get(i).add(floor.charAt(j)) ;
+            }
         }
-        System.out.println(out);
+
+        int ans = 0 ;
+        for(int i = 0 ; i < n ; i++) {
+            for(int j = 0 ; j < m ; j++) {
+                if(graph.get(i).get(j) == '.' && !vis[i][j] ) {
+                    dfs(i,j,n,m) ;
+                    ans ++ ;
+                }
+            }
+        }
+
+        System.out.println(ans);
 
     }
 
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -196,59 +181,78 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] component ;
-    static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
+    // -------- MAIN --------
+public static void main(String[] args) throws Exception {
+    FastScanner fs = new FastScanner();
+    StringBuilder out = new StringBuilder();
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
+    int t = fs.nextInt();
 
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
+    while (t-- > 0) {
+        int n = fs.nextInt();
 
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
+        long[] arr = new long[n];
+        long sum = 0;
+
+        for (int i = 0; i < n; i++) {
+            arr[i] = fs.nextLong();
+            sum += arr[i];
+        }
+
+        long start = 0; // minimum possible subarray sum
+        long end = sum;
+
+        long total = 1L * n * (n + 1) / 2;
+
+        // 1-based rank of median
+        long medianRank = (total + 1) / 2;
+
+        long ans = end;
+
+        while (start <= end) {
+            long mid = start + (end - start) / 2;
+
+            if (count(arr, mid) >= medianRank) {
+                ans = mid;
+                end = mid - 1;
+            } else {
+                start = mid + 1;
             }
         }
+
+        out.append(ans).append('\n');
     }
 
-    // -------- MAIN --------
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        StringBuilder out = new StringBuilder();
+    System.out.print(out);
+}
 
-        int t = fs.nextInt();   // number of test cases
+static long count(long[] arr, long k) {
+    int n = arr.length;
 
-        while (t-- > 0) {
+    int tail = 0;
+    int head = -1;
 
+    long sum = 0;
+    long ans = 0;
 
+    while (tail < n) {
+        while (head + 1 < n && sum + arr[head + 1] <= k) {
+            head++;
+            sum += arr[head];
         }
-        System.out.println(out);
 
+        ans += (head - tail + 1);
+
+        if (tail <= head) {
+            sum -= arr[tail];
+            tail++;
+        } else {
+            tail++;
+            head = tail - 1;
+        }
     }
-
+    return ans;
+}
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -196,59 +181,71 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] component ;
-    static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
+    // -------- MAIN --------
+    public static void main(String[] args) throws Exception {
+        FastScanner fs = new FastScanner();
+        StringBuilder out = new StringBuilder();ß
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
+        int n = fs.nextInt();
+        boolean[] vis = new boolean[10] ;
+        for(int i = 1 ; i <= 9 ; i++) {
+            vis[i] = true ;
+            recurse(n, i, vis, 1) ;
+            vis[i] = false ;
+        }
+        System.out.println(ans);
+    }
 
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
+    static int ans = 0 ;
 
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
+    static int[][] pos = {
+    {0, 0}, // dummy for index 0
+    {0, 0}, // 1
+    {0, 1}, // 2
+    {0, 2}, // 3
+    {1, 0}, // 4
+    {1, 1}, // 5
+    {1, 2}, // 6
+    {2, 0}, // 7
+    {2, 1}, // 8
+    {2, 2}  // 9
+   };
+
+   static int[][] cell = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+   };
+
+    static void recurse(int n , int current, boolean vis[] , int currentLength) {
+        if(currentLength == n) {
+            // System.out.println(Arrays.toString(vis));
+            ans++;
+            return ;
+        }
+
+        for(int next = 1 ; next <= 9 ; next++) {
+            if(!vis[next] && isValid(next, current, vis)) {
+                vis[next] = true ;
+                recurse(n, next, vis, currentLength + 1) ;
+                vis[next] = false ;
             }
         }
     }
 
-    // -------- MAIN --------
-    public static void main(String[] args) throws Exception {
-        FastScanner fs = new FastScanner();
-        StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+    static boolean isValid(int next, int curr, boolean[] vis) {
+        int[] nextCor = pos[next] ;
+        int[] currCor = pos[curr] ;
 
-        while (t-- > 0) {
-
-
+        if((nextCor[0] + currCor[0]) % 2 == 0 && (nextCor[1] + currCor[1]) % 2 == 0 ) {
+            int midr = (nextCor[0] + currCor[0] )  / 2;
+            int midc =  (nextCor[1] + currCor[1] ) / 2 ;
+            return vis[cell[midr][midc]] ;
         }
-        System.out.println(out);
-
+        return true ;
     }
 
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

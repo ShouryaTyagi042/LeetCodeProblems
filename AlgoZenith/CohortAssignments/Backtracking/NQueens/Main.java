@@ -166,19 +166,51 @@ public class Main {
             return ans ;
         }
 
+     static int ans = 0  ;
+     static char[][] board = new char[8][8] ;
+
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
+        ArrayList<Integer> list = new ArrayList<>();
+        for(int i = 0 ; i < 8 ; i++) {
+            String row = fs.next();
+            for(int j = 0 ; j < 8 ; j++) {
+                board[i][j] = row.charAt(j) ;
+            }
         }
-        System.out.println(out);
+        recur(0, list) ;
+        System.out.println(ans);
 
+    }
+
+    static void recur(int row, ArrayList<Integer> list) {
+        if(row == 8) {
+            ans ++ ;
+            return ;
+        }
+
+        for(int i = 0 ; i < 8 ; i++) {
+            if(board[row][i] != '*' && canPlace(list, row, i)) {
+                list.add(i) ;
+                recur(row + 1, list) ;
+                list.remove(list.size() - 1 ) ;
+            }
+        }
+
+    }
+
+    static boolean canPlace(ArrayList<Integer> list, int row, int col) {
+        for(int i = 0 ; i < list.size()  ; i++) {
+            int prow = i ;
+            int pcol = list.get(i) ;
+
+            if(pcol == col || prow == row) return false ;
+
+            if(Math.abs(prow - row) == Math.abs(pcol - col)) return false ;
+        }
+        return true ;
     }
 
 

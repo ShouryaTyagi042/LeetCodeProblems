@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -196,59 +181,47 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] component ;
-    static int[] c_size ;
-    static final int[][] DIR = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
-
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
-
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
-
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
-            }
-        }
-    }
-
     // -------- MAIN --------
     public static void main(String[] args) throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int n  = fs.nextInt() ;
+        int k = fs.nextInt() ;
 
-        while (t-- > 0) {
+        StringBuilder current = new StringBuilder();
+        recurse(0,0,current, n/2, k , 0 , -1) ;
+
+    }
 
 
+    static void recurse(int open, int close, StringBuilder current, int n , int k, int maxDepth, int currentDepth) {
+        if(open == n && close == n ) {
+            if(maxDepth == k) {
+                System.out.println(current);
+            }
+            return ;
         }
-        System.out.println(out);
+
+        if(open < n ) {
+            int newDepth = open - close + 1 ;
+            int  newMax = Math.max(currentDepth, maxDepth) ;
+            current.append('(') ;
+            recurse(open + 1 , close, current, n, k , newMax, newDepth) ;
+            current.deleteCharAt(current.length() - 1 ) ;
+        }
+
+        if(open > close ) {
+            int newDepth = open - close - 1 ;
+            int  newMax = Math.max(currentDepth, maxDepth) ;
+            current.append(')') ;
+            recurse(open  , close + 1 , current, n, k , newMax, newDepth) ;
+            current.deleteCharAt(current.length() - 1 ) ;
+        }
+
 
     }
 
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"
