@@ -197,6 +197,10 @@ public class Main {
 
     static boolean[][] vis;
     static int[][] dis;
+    static Cell[][] par ;
+    static final Cell BLOCKED = new Cell(-1, -1);
+    static Cell start ;
+    static Cell end ;
 
     static ArrayDeque<Cell> queue = new ArrayDeque<>();
 
@@ -232,10 +236,12 @@ public class Main {
     static void bfs(Cell start) {
 
         vis = new boolean[n][m];
+        par = new Cell[n][m];
         dis = new int[n][m];
 
         for (int i = 0; i < n; i++) {
             Arrays.fill(dis[i], Integer.MAX_VALUE);
+            Arrays.fill(par[i], BLOCKED) ;
         }
 
         dis[start.row][start.col] = 0;
@@ -252,6 +258,7 @@ public class Main {
 
                 if (dis[next.row][next.col] > dis[cur.row][cur.col]    ) {
                     dis[next.row][next.col] = dis[cur.row][cur.col] + 1;
+                    par[next.row][next.col] = cur ;
                     queue.offer(next);
                 }
             }
@@ -263,7 +270,59 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        n = fs.nextInt() ;
+        m = fs.nextInt() ;
+
+        graph = new ArrayList<String>() ;
+
+        for(int i = 0 ; i < n ; i++) {
+                String row = fs.next();
+                graph.add(row);
+
+                int a = row.indexOf('A');
+                if (a != -1) {
+                    start = new Cell(i, a);
+                }
+
+                int b = row.indexOf('B');
+                if (b != -1) {
+                    end = new Cell(i, b);
+                }
+        }
+
+        bfs(start) ;
+
+        if(vis[end.row][end.col]) {
+            out.append("YES").append('\n') ;
+            out.append(dis[end.row][end.col]).append('\n') ;
+            ArrayList<Cell> path = new ArrayList<>();
+            Cell cur = end ;
+            while(cur != BLOCKED){
+                path.add(cur);
+                cur = par[cur.row][cur.col] ;
+            }
+            Collections.reverse(path) ;
+            for(int i =1 ; i < path.size() ; i++) {
+                Cell prev = path.get(i-1) ;
+                Cell current = path.get(i) ;
+                if(prev.row == current.row) {
+                    if(prev.col > current.col) {
+                        out.append("L");
+                    } else {
+                        out.append("R");
+                    }
+                } else {
+                 if(prev.row > current.row) {
+                       out.append("U");
+                    } else {
+                       out.append("D");
+                    }
+                }
+            }
+
+        } else {
+            out.append("NO") ;
+        }
 
         System.out.println(out);
 

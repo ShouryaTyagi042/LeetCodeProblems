@@ -182,8 +182,7 @@ public class Main {
     }
 
     static int n;
-    static int m;
-    static ArrayList<String> graph;
+    static ArrayList<ArrayList<Integer>> graph;
 
     static class Cell {
         int row;
@@ -197,27 +196,28 @@ public class Main {
 
     static boolean[][] vis;
     static int[][] dis;
+    static Cell start ;
+    static Cell end ;
 
     static ArrayDeque<Cell> queue = new ArrayDeque<>();
 
 
-    static final int[][] DIR = {
-            {1, 0},
-            {-1, 0},
-            {0, 1},
-            {0, -1}
+    static final int[][] dir = {
+        {-2, -1}, {-2, 1},
+        {-1, -2}, {-1, 2},
+        {1, -2}, {1, 2},
+        {2, -1}, {2, 1}
     };
 
     static boolean isValid(int row, int col) {
-        return row >= 0 && row < n &&
-               col >= 0 && col < m &&
-               graph.get(row).charAt(col) != '#';
+        return row > 0 && row <= n &&
+               col > 0 && col <= n ;
     }
 
     static ArrayList<Cell> getNeighbours(Cell curr) {
         ArrayList<Cell> neighbours = new ArrayList<>();
 
-        for (int[] d : DIR) {
+        for (int[] d : dir) {
             int nr = curr.row + d[0];
             int nc = curr.col + d[1];
 
@@ -231,10 +231,10 @@ public class Main {
 
     static void bfs(Cell start) {
 
-        vis = new boolean[n][m];
-        dis = new int[n][m];
+        vis = new boolean[n+1][n+1];
+        dis = new int[n+1][n+1];
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 1; i <= n; i++) {
             Arrays.fill(dis[i], Integer.MAX_VALUE);
         }
 
@@ -263,7 +263,27 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int t = fs.nextInt() ;
+        while(t-- > 0) {
+        n = fs.nextInt() ;
+
+        int srow = fs.nextInt() ;
+        int scol = fs.nextInt() ;
+        start = new Cell(srow, scol) ;
+        int erow = fs.nextInt() ;
+        int ecol = fs.nextInt() ;
+        end = new Cell(erow, ecol) ;
+
+        bfs(start) ;
+
+        if(vis[end.row][end.col]) {
+            out.append(dis[end.row][end.col]).append('\n') ;
+
+        } else {
+            out.append(-1).append('\n') ;
+        }
+
+        }
 
         System.out.println(out);
 

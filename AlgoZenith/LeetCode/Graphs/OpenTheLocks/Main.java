@@ -181,78 +181,30 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static int n;
-    static int m;
-    static ArrayList<String> graph;
-
-    static class Cell {
-        int row;
-        int col;
-
-        Cell(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-    }
-
-    static boolean[][] vis;
-    static int[][] dis;
-
-    static ArrayDeque<Cell> queue = new ArrayDeque<>();
-
-
+    static ArrayList<ArrayList<Integer>> graph ;
+    static boolean[] vis ;
+    static int[] component ;
+    static int[] c_size ;
     static final int[][] DIR = {
-            {1, 0},
-            {-1, 0},
-            {0, 1},
-            {0, -1}
+        {1,0},
+        {-1,0},
+        {0,1},
+        {0,-1}
     };
 
-    static boolean isValid(int row, int col) {
-        return row >= 0 && row < n &&
-               col >= 0 && col < m &&
-               graph.get(row).charAt(col) != '#';
-    }
+    static void dfs(int start, int comp) {
+        ArrayDeque<Integer> stack = new ArrayDeque<>();
+        stack.push(start);
+        vis[start] = true;
 
-    static ArrayList<Cell> getNeighbours(Cell curr) {
-        ArrayList<Cell> neighbours = new ArrayList<>();
+        while (!stack.isEmpty()) {
+            int node = stack.pop();
+            component[node] = comp;
 
-        for (int[] d : DIR) {
-            int nr = curr.row + d[0];
-            int nc = curr.col + d[1];
-
-            if (isValid(nr, nc)) {
-                neighbours.add(new Cell(nr, nc));
-            }
-        }
-
-        return neighbours;
-    }
-
-    static void bfs(Cell start) {
-
-        vis = new boolean[n][m];
-        dis = new int[n][m];
-
-        for (int i = 0; i < n; i++) {
-            Arrays.fill(dis[i], Integer.MAX_VALUE);
-        }
-
-        dis[start.row][start.col] = 0;
-        queue.offer(start);
-
-        while (!queue.isEmpty()) {
-
-            Cell cur = queue.poll();
-
-            if(vis[cur.row][cur.col]) continue ;
-            vis[cur.row][cur.col] = true ;
-
-            for (Cell next : getNeighbours(cur)) {
-
-                if (dis[next.row][next.col] > dis[cur.row][cur.col]    ) {
-                    dis[next.row][next.col] = dis[cur.row][cur.col] + 1;
-                    queue.offer(next);
+            for (int next : graph.get(node)) {
+                if (!vis[next]) {
+                    vis[next] = true;
+                    stack.push(next);
                 }
             }
         }
@@ -263,10 +215,37 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        String start = fs.next() ;
+        ArrayList<String> ans = getNextMoves(start);
+        System.out.println(ans);
 
-        System.out.println(out);
 
+    }
+
+    static ArrayList<String> getNextMoves(String curr) {
+        ArrayList<String> ans = new ArrayList<>();
+        for(int i = 0 ; i < 4 ; i++) {
+            StringBuilder sb = new StringBuilder(curr) ;
+            int val = sb.charAt(i) - '0' ;
+            if(val == 0) {
+                sb.replace(i,i+1, "9") ;
+                ans.add(sb.toString());
+                sb.replace(i,i+1, "1") ;
+                ans.add(sb.toString());
+            } else if (val == 9) {
+                sb.replace(i,i+1, "0") ;
+                ans.add(sb.toString());
+                sb.replace(i,i+1, "8") ;
+                ans.add(sb.toString());
+            } else {
+                sb.replace(i,i+1, String.valueOf(val + 1)) ;
+                ans.add(sb.toString());
+                sb.replace(i,i+1, String.valueOf(val - 1)) ;
+                ans.add(sb.toString());
+            }
+
+        }
+        return ans ;
     }
 
 

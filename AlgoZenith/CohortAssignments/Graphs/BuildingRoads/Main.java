@@ -181,78 +181,24 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static int n;
-    static int m;
-    static ArrayList<String> graph;
+    static ArrayList<ArrayList<Integer>> graph ;
+    static Boolean[] vis ;
+    static int[] component ;
+    static int[] c_size ;
 
-    static class Cell {
-        int row;
-        int col;
+    static void dfs(int start, int comp) {
+        ArrayDeque<Integer> stack = new ArrayDeque<>();
+        stack.push(start);
+        vis[start] = true;
 
-        Cell(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-    }
+        while (!stack.isEmpty()) {
+            int node = stack.pop();
+            component[node] = comp;
 
-    static boolean[][] vis;
-    static int[][] dis;
-
-    static ArrayDeque<Cell> queue = new ArrayDeque<>();
-
-
-    static final int[][] DIR = {
-            {1, 0},
-            {-1, 0},
-            {0, 1},
-            {0, -1}
-    };
-
-    static boolean isValid(int row, int col) {
-        return row >= 0 && row < n &&
-               col >= 0 && col < m &&
-               graph.get(row).charAt(col) != '#';
-    }
-
-    static ArrayList<Cell> getNeighbours(Cell curr) {
-        ArrayList<Cell> neighbours = new ArrayList<>();
-
-        for (int[] d : DIR) {
-            int nr = curr.row + d[0];
-            int nc = curr.col + d[1];
-
-            if (isValid(nr, nc)) {
-                neighbours.add(new Cell(nr, nc));
-            }
-        }
-
-        return neighbours;
-    }
-
-    static void bfs(Cell start) {
-
-        vis = new boolean[n][m];
-        dis = new int[n][m];
-
-        for (int i = 0; i < n; i++) {
-            Arrays.fill(dis[i], Integer.MAX_VALUE);
-        }
-
-        dis[start.row][start.col] = 0;
-        queue.offer(start);
-
-        while (!queue.isEmpty()) {
-
-            Cell cur = queue.poll();
-
-            if(vis[cur.row][cur.col]) continue ;
-            vis[cur.row][cur.col] = true ;
-
-            for (Cell next : getNeighbours(cur)) {
-
-                if (dis[next.row][next.col] > dis[cur.row][cur.col]    ) {
-                    dis[next.row][next.col] = dis[cur.row][cur.col] + 1;
-                    queue.offer(next);
+            for (int next : graph.get(node)) {
+                if (!vis[next]) {
+                    vis[next] = true;
+                    stack.push(next);
                 }
             }
         }
@@ -263,9 +209,34 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int n = fs.nextInt() ;
+        int m = fs.nextInt() ;
 
-        System.out.println(out);
+        graph = new ArrayList<>();
+
+        for (int i = 0; i < n + 1; i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        for(int i = 0 ; i < m ;i++) {
+            int a, b ;
+            a = fs.nextInt() ;
+            b = fs.nextInt() ;
+            graph.get(a).add(b) ;graph.get(b).add(a) ;
+        }
+
+        vis = new Boolean[n + 1] ;
+        component = new int[n + 1] ;
+        Arrays.fill(vis, false) ;
+        int c = 0 ;
+        for(int i = 1 ; i <= n ; i++) {
+            if(!vis[i]) {
+                c++ ;
+                dfs(i, c) ;
+            }
+        }
+
+        System.out.println(c - 1);
 
     }
 

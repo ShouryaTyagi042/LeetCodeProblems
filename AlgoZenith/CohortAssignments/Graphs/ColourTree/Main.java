@@ -61,7 +61,7 @@ public class Main {
             do {
                 c = readByte();
             } while (c <= ' ');
-
+∫
             while (c > ' ') {
                 sb.append((char) c);
                 c = readByte();

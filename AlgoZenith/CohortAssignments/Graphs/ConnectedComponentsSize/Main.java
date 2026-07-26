@@ -181,26 +181,12 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static int n;
-    static int m;
-    static ArrayList<String> graph;
-
-    static class Cell {
-        int row;
-        int col;
-
-        Cell(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-    }
-
-    static boolean[][] vis;
-    static int[][] dis;
-
-    static ArrayDeque<Cell> queue = new ArrayDeque<>();
-
-
+    static ArrayList<ArrayList<Integer>> graph ;
+    static boolean[][] vis ;
+    static int[][] component ;
+    static int[] c_size ;
+    static int n ;
+    static int m ;
     static final int[][] DIR = {
             {1, 0},
             {-1, 0},
@@ -208,51 +194,51 @@ public class Main {
             {0, -1}
     };
 
-    static boolean isValid(int row, int col) {
-        return row >= 0 && row < n &&
-               col >= 0 && col < m &&
-               graph.get(row).charAt(col) != '#';
+
+    static class Cell {
+        int row , col ;
+        Cell(int x, int y) {
+            this.row = x ;
+            this.col = y;
+        }
+    }
+
+    static boolean isValidMove(Cell check) {
+        int row = check.row ;
+        int col = check.col ;
+
+        if(row >= 0 && row < n && col >= 0 && col < m && graph.get(row).get(col) != 1 ) {
+            return true ;
+        }
+
+        return false ;
     }
 
     static ArrayList<Cell> getNeighbours(Cell curr) {
-        ArrayList<Cell> neighbours = new ArrayList<>();
-
-        for (int[] d : DIR) {
-            int nr = curr.row + d[0];
-            int nc = curr.col + d[1];
-
-            if (isValid(nr, nc)) {
-                neighbours.add(new Cell(nr, nc));
+        ArrayList<Cell> ans = new ArrayList<>() ;
+        for(int i = 0 ; i < 4 ; i++) {
+            int nr = curr.row + DIR[i][0] ;
+            int nc = curr.col + DIR[i][1] ;
+            Cell nCell = new Cell(nr, nc) ;
+            if(isValidMove(nCell)) {
+                ans.add(nCell) ;
             }
         }
-
-        return neighbours;
+        return ans ;
     }
 
-    static void bfs(Cell start) {
+    static void dfs(int row, int col,  int comp) {
+        ArrayDeque<Cell> stack = new ArrayDeque<>();
+        stack.push(new Cell(row, col));
+        vis[row][col] = true;
 
-        vis = new boolean[n][m];
-        dis = new int[n][m];
-
-        for (int i = 0; i < n; i++) {
-            Arrays.fill(dis[i], Integer.MAX_VALUE);
-        }
-
-        dis[start.row][start.col] = 0;
-        queue.offer(start);
-
-        while (!queue.isEmpty()) {
-
-            Cell cur = queue.poll();
-
-            if(vis[cur.row][cur.col]) continue ;
-            vis[cur.row][cur.col] = true ;
-
-            for (Cell next : getNeighbours(cur)) {
-
-                if (dis[next.row][next.col] > dis[cur.row][cur.col]    ) {
-                    dis[next.row][next.col] = dis[cur.row][cur.col] + 1;
-                    queue.offer(next);
+        while (!stack.isEmpty()) {
+            Cell curr = stack.pop();
+            component[curr.row][curr.col] = comp;
+            for (Cell next : getNeighbours(curr) ) {
+                if (!vis[next.row][next.col]) {
+                    vis[next.row][next.col] = true;
+                    stack.push(next);
                 }
             }
         }
@@ -263,7 +249,56 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int t = fs.nextInt() ;
+        while(t-- > 0) {
+                  n = fs.nextInt() ;
+        m = fs.nextInt() ;
+
+        graph = new ArrayList<>();
+
+        for (int i = 0; i < n ; i++) {
+            graph.add(new ArrayList<>());
+            for(int j = 0 ; j < m ;j++) {
+              graph.get(i).add(fs.nextInt()) ;
+           }
+        }
+
+        vis = new boolean[n][m] ;
+        component = new int[n][m] ;
+
+        int c = 0 ;
+        for(int i = 0 ; i < n ; i++) {
+            for(int j = 0 ; j < m ; j++) {
+            if(!vis[i][j] && graph.get(i).get(j) == 0 ) {
+                c++ ;
+                dfs(i, j , c) ;
+            }
+            }
+        }
+
+        c_size = new int[c + 1] ;
+
+        for(int i = 0 ; i < n ; i++) {
+            for(int j = 0 ; j < m ; j++  ) {
+            c_size[component[i][j]] ++ ;
+            }
+        }
+
+        for(int i = 0 ; i < n ; i++) {
+            for(int j = 0 ; j < m ; j++) {
+                int val = graph.get(i).get(j) ;
+                if(val == 0) {
+                    int cn = component[i][j] ;
+                    if(c_size[cn] > 1) {
+                        val = c_size[cn] ;
+                    }
+                }
+                out.append(val).append(" ") ;
+            }
+            out.append('\n');
+        }
+        }
+
 
         System.out.println(out);
 
