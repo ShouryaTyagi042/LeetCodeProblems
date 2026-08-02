@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -202,6 +187,9 @@ public class Main {
     static int[] component ;
     static int[] cSize ;
     static boolean isCycle = false ;
+    static boolean isBipartite = true ;
+    static int n ;
+    static int m;
     static final int[][] dir = {
         {1,0},
         {-1,0},
@@ -209,20 +197,15 @@ public class Main {
         {0,-1}
     };
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
-
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
-
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
+    static void dfs(int node) {
+        for(int v : graph.get(node)) {
+            if(col[v] == -1) {
+                col[v] = 1 - col[node] ;
+                dfs(v) ;
+            }
+             if (col[v] == col[node]) {
+                isBipartite = false ;
+                return ;
             }
         }
     }
@@ -241,26 +224,31 @@ public class Main {
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
+        n = fs.nextInt();
+        m = fs.nextInt();
+        graph = new ArrayList<>() ;
+        for(int i = 0 ; i <= n ; i++) {
+            graph.add(new ArrayList<>());
         }
-        System.out.println(out);
+        for(int i = 0 ; i < m ; i++ ) {
+            int x = fs.nextInt();
+            int y = fs.nextInt();
+            graph.get(x).add(y) ;
+            graph.get(y).add(x) ;
+        }
+        col = new int[n+1] ;
+        Arrays.fill(col, -1) ;
+        for(int i = 1 ; i <= n ; i++) {
+            if(col[i] == -1) {
+                col[i] = 0 ;
+                dfs(i) ;
+            }
+        }
+        if(isBipartite) System.out.println("YES");
+        else System.out.println("NO");
 
     }
 
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

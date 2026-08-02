@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -196,58 +181,79 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] col ;
+    static ArrayList<ArrayList<Integer>> graph = new ArrayList<>() ;
+    static int[] col ;static int[] vis ;
     static int[] component ;
-    static int[] cSize ;
-    static boolean isCycle = false ;
-    static final int[][] dir = {
+    static int[] c_size ;
+    static final int[][] DIR = {
         {1,0},
         {-1,0},
         {0,1},
         {0,-1}
     };
+    static int n ;
+    static int m ;
+    static boolean isCycle  = false;
+    static int[] par ;
+    static ArrayList<Integer> anyCycle ;
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
 
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
+    static void dfs(int u) {
+            vis[u] = 2;
 
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
+            for (int v : graph.get(u)) {
+                if (vis[v] == 1) {
+                    par[v] = u;
+                    dfs(v);
+                } else if (vis[v] == 2) {
+                    if(isCycle == false) {
+                        System.out.println("HIT A CYCLE");
+                        int temp = u;
+
+                        while (temp != v) {
+                            anyCycle.add(temp);
+                            temp = par[temp];
+                        }
+
+                        anyCycle.add(v);   // close the cycle
+                    }
+                    isCycle = true ;
                 }
             }
-        }
+
+            vis[u] = 3;
     }
 
+    // -------- MAIN --------
     public static void main(String[] args) throws Exception {
-        new Thread(null, () -> {
-            try {
-                solve();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }, "solve", 1 << 26).start();   // 64 MB stack
-    }
-
-
-    static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
+        n = fs.nextInt();
+        m = fs.nextInt();
+        par = new int[n+1];
+        vis = new int[n+1];
+        anyCycle = new ArrayList<>();
+        Arrays.fill(vis, 1) ;
+        Arrays.fill(par, 1) ;
+        for(int i = 0 ; i <= n ; i++) {
+            graph.add(new ArrayList<>());
         }
+        for(int i = 1 ; i <= m ; i++) {
+            graph.get(fs.nextInt()).add(fs.nextInt());
+        }
+
+
+        for(int i = 1 ; i <= n ; i++) {
+            if(vis[i] == 1) {
+                dfs(i) ;
+            }
+        }
+
+        for(int node : anyCycle) {
+            out.append(node).append(" ") ;
+        }
+
+
         System.out.println(out);
 
     }
@@ -255,12 +261,3 @@ public class Main {
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

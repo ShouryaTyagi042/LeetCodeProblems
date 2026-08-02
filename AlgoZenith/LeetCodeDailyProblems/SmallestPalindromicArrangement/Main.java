@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -245,22 +230,44 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-
-
+            String test = fs.next() ;
+            String ans = smallestPalindrome(test) ;
+            out.append(ans).append('\n') ;
         }
+
         System.out.println(out);
 
     }
 
 
+     static public String smallestPalindrome(String s) {
+        StringBuilder sb = new StringBuilder();
+        int[] freq = new int[26];
+
+        for (char ch : s.toCharArray()) {
+            freq[ch - 'a']++;
+        }
+
+        for (int i = 0; i < 26; i++) {
+            if (freq[i] > 0) {
+                for (int j = 0; j < freq[i] / 2; j++) {
+                    sb.append((char) ('a' + i));
+                }
+                freq[i] -= freq[i] / 2;
+            }
+        }
+
+        for (int i = 25; i >= 0; i--) {
+            if (freq[i] > 0) {
+                for (int j = 0; j < freq[i]; j++) {
+                    sb.append((char) ('a' + i));
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
+
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"
