@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -196,18 +181,34 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] col ;
-    static int[] component ;
-    static int[] cSize ;
-    static boolean isCycle = false ;
+    static char[][] grid;
+    static boolean[][] vis ;
+    static Queue<Integer> queue = new ArrayDeque<>() ;
+    static int maxArea = 0 ;
+    static int bestPerimeter = 0 ;
+    static int currArea = 0 ;
+    static int currPerimeter = 0 ;
     static final int[][] dir = {
         {1,0},
         {-1,0},
         {0,1},
         {0,-1}
     };
+
+    static int permiterContribution(int row, int col, int n) {
+        int ans = 0 ;
+        for(int[] d : dir) {
+            int nr = row + d[0] ;
+            int nc = col + d[1] ;
+            if(nr >= 0 && nr < n && nc >= 0 && nc < n ) {
+             if(grid[nr][nc] == '#' )  {
+                continue ;
+             }
+            }
+            ans ++ ;
+        }
+        return ans ;
+    }
 
     static public class GridHelper {
         // Convert (row, col) -> 1D index
@@ -231,38 +232,57 @@ public class Main {
         }
     }
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
-
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
-
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
-            }
-        }
-    }
-
-
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
+        int n = fs.nextInt();
+        grid = new char[n][n] ;
+        vis = new boolean[n][n] ;
+        for(int i = 0  ; i < n ; i++) {
+            String gridRow = fs.next();
+            grid[i] = gridRow.toCharArray() ;
         }
+
+        for(int i = 0 ; i < n ; i++) {
+            for(int j = 0 ; j < n ; j++) {
+                if(!vis[i][j] && grid[i][j] == '#') {
+                    currArea = 1;
+                    currPerimeter = permiterContribution(i, j, n);
+                    queue.offer(GridHelper.toId(i, j, n)) ;
+                    vis[i][j] = true ;
+                    while(!queue.isEmpty()) {
+                        int cellId = queue.poll() ;
+                        int row = GridHelper.getRow(cellId, n ) ;
+                        int col = GridHelper.getCol(cellId, n ) ;
+                        for(int[] d : dir) {
+                            int nr = row + d[0] ;
+                            int nc = col + d[1] ;
+                            if(nr >= 0 && nr < n && nc >= 0 && nc < n ) {
+                                if(grid[nr][nc] == '.' || vis[nr][nc] )  {
+                                        continue ;
+                                }
+                                vis[nr][nc] = true ;
+                                currArea ++ ;
+                                currPerimeter += permiterContribution(nr, nc, n) ;
+                                queue.offer(GridHelper.toId(nr,nc,n));
+                            }
+                        }
+                    }
+                    if(maxArea < currArea) {
+                        maxArea = currArea ;
+                        bestPerimeter = currPerimeter ;
+                    } else if (maxArea == currArea) {
+                        bestPerimeter = Math.min(bestPerimeter, currPerimeter) ;
+                    }
+                }
+            }
+        }
+
+        out.append(maxArea).append(" ").append(bestPerimeter) ;
         System.out.println(out);
 
     }
+
 
     public static void main(String[] args) throws Exception {
         new Thread(null, () -> {
@@ -275,14 +295,6 @@ public class Main {
     }
 
 
+
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

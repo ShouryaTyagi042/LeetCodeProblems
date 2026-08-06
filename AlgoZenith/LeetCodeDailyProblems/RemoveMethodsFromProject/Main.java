@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -274,15 +259,59 @@ public class Main {
         }, "solve", 1 << 26).start();   // 64 MB stack
     }
 
+    class Solution {
+    List<List<Integer>> graph;
+    boolean[] suspicious;
+
+    public List<Integer> remainingMethods(int n, int k, int[][] invocations) {
+        graph = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        for (int[] edge : invocations) {
+            graph.get(edge[0]).add(edge[1]);
+        }
+
+        suspicious = new boolean[n];
+        dfs(k);
+
+        // Check if any non-suspicious method invokes a suspicious one.
+        for (int[] edge : invocations) {
+            int u = edge[0];
+            int v = edge[1];
+
+            if (!suspicious[u] && suspicious[v]) {
+                List<Integer> ans = new ArrayList<>();
+                for (int i = 0; i < n; i++) {
+                    ans.add(i);
+                }
+                return ans;
+            }
+        }
+
+        // Remove all suspicious methods.
+        List<Integer> ans = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if (!suspicious[i]) {
+                ans.add(i);
+            }
+        }
+
+        return ans;
+    }
+
+    private void dfs(int node) {
+        suspicious[node] = true;
+
+        for (int next : graph.get(node)) {
+            if (!suspicious[next]) {
+                dfs(next);
+            }
+        }
+    }
+}
+
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

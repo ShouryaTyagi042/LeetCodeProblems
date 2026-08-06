@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -197,6 +182,9 @@ public class Main {
     }
 
     static ArrayList<ArrayList<Integer>> graph ;
+    static ArrayList<Integer> topo ;
+    static PriorityQueue<Integer> q = new PriorityQueue<>();
+    static int[] indeg ;
     static boolean[] vis ;
     static int[] col ;
     static int[] component ;
@@ -249,16 +237,52 @@ public class Main {
         }
     }
 
+static void kahns(int n) {
+    for (int i = 1; i <= n; i++) {
+        if (indeg[i] == 0) {
+            q.offer(i);
+        }
+    }
+
+    while (!q.isEmpty()) {
+        int node = q.poll();
+        topo.add(node);
+
+        for (int v : graph.get(node)) {
+            indeg[v]--;
+            if (indeg[v] == 0) {
+                q.offer(v);
+            }
+        }
+    }
+}
+
 
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
+        int n = fs.nextInt() ;
+        int m = fs.nextInt() ;
+        graph = new ArrayList<>() ;
+        topo =  new ArrayList<>() ;
+        indeg = new int[n+1] ;
+        for(int i = 0 ; i <= n ; i++)  {
+            graph.add(new ArrayList<>()) ;
+        }
+        for(int j = 0 ; j < m ; j++ ){
+                int x = fs.nextInt() ;
+                int y = fs.nextInt() ;
+                graph.get(x).add(y) ;
+                indeg[y]++ ;
+        }
+        kahns(n);
+        if(topo.size() != n) {
+            out.append(-1).append('\n') ;
+        } else {
+            for(int x : topo) {
+                out.append(x).append(" ") ;
+            }
+            out.append('\n') ;
         }
         System.out.println(out);
 
@@ -277,12 +301,3 @@ public class Main {
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

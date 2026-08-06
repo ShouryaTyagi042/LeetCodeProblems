@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -209,28 +194,6 @@ public class Main {
         {0,-1}
     };
 
-    static public class GridHelper {
-        // Convert (row, col) -> 1D index
-        public static int toId(int i, int j, int m) {
-            return i * m + j;
-        }
-
-        // Convert 1D index -> row
-        public static int getRow(int id, int m) {
-            return id / m;
-        }
-
-        // Convert 1D index -> column
-        public static int getCol(int id, int m) {
-            return id % m;
-        }
-
-        // Convert 1D index -> {row, col}
-        public static int[] toCell(int id, int m) {
-            return new int[]{id / m, id % m};
-        }
-    }
-
     static void dfs(int start, int comp) {
         ArrayDeque<Integer> stack = new ArrayDeque<>();
         stack.push(start);
@@ -249,21 +212,6 @@ public class Main {
         }
     }
 
-
-    static void solve() throws Exception {
-        FastScanner fs = new FastScanner();
-        StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
-        }
-        System.out.println(out);
-
-    }
-
     public static void main(String[] args) throws Exception {
         new Thread(null, () -> {
             try {
@@ -275,14 +223,65 @@ public class Main {
     }
 
 
+    static void solve() throws Exception {
+        FastScanner fs = new FastScanner();
+        StringBuilder out = new StringBuilder();
+
+        int t = fs.nextInt();   // number of test cases
+
+        while (t-- > 0) {
+            int n = fs.nextInt() ;
+            int[] nums = new int[n] ;
+            for(int i = 0 ; i < n ; i++) {
+                nums[i] = fs.nextInt() ;
+            }
+            boolean ans = stoneGameIII(nums) ;
+            System.out.println(ans);
+        }
+        System.out.println(out);
+
+    }
+
+    static int[] dp ;
+
+    static public String stoneGameIII(int[] nums) {
+        int n = nums.length ;
+        dp = new int[n+1] ;
+        dp[n] = 0 ;
+        for(int l = n - 1  ; l >= 0 ; l--) {
+                            int best = -INF;
+                            int take = 0;
+        for (int k = 1; k <= 3; k++) {
+            if(l + k <= nums.length ) {
+                take += nums[l + k - 1] ;
+                best = Math.max(best, take - dp[l+k]) ;
+            }
+        }
+            dp[l] = best ;
+        }
+
+        if(dp[0] == 0) {
+            return "Tie" ;
+        } else if (dp[0] > 0) {
+            return "Alice" ;
+        }
+        return "Bob" ;
+    }
+
+    static int recurse(int i, int nums ) {
+        if(i >= nums.length) return 0 ;
+        if(i == nums.length - 1 ) return nums[i] ;
+        int best = -INF;
+        int take = 0;
+        for (int k = 1; k <= 3; k++) {
+            if(i + k <= nums.length ) {
+                take += nums[i + k - 1] ;
+                best = Math.max(best, take - recurse(i+k, nums)) ;
+            }
+        }
+        return best ;
+    }
+
+
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

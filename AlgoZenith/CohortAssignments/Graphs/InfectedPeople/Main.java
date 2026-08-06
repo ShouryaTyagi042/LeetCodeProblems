@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -196,12 +181,11 @@ public class Main {
         return (num * inverse(dem)) % MOD ;
     }
 
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] col ;
-    static int[] component ;
-    static int[] cSize ;
-    static boolean isCycle = false ;
+    static int[][] grid ;
+    static int[][] dis ;
+    static final int INF = Integer.MAX_VALUE ;
+    static Queue<Integer> queue = new ArrayDeque<>();
+    static ArrayList<Integer> list = new ArrayList<>();
     static final int[][] dir = {
         {1,0},
         {-1,0},
@@ -231,38 +215,67 @@ public class Main {
         }
     }
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
-
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
-
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
-                }
-            }
-        }
-    }
-
 
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
+        int n = fs.nextInt() ;
+        int m = fs.nextInt() ;
+        grid = new int[n][m] ;
+        dis = new int[n][m] ;
+        for(int i = 0 ; i < n ; i++) {
+            Arrays.fill(dis[i], INF) ;
+            for(int j = 0 ; j < m ; j++) {
+                int val = fs.nextInt() ;
+                grid[i][j] = val ;
+                if(val == 2 ) {
+                    dis[i][j] = 0 ;
+                    queue.offer(GridHelper.toId(i,j,m)) ;
+                } else if (val == 1) {
+                    list.add(GridHelper.toId(i,j,m)) ;
+                }
+            }
         }
+
+        while(!queue.isEmpty()) {
+            int cell = queue.poll() ;
+            int row = GridHelper.getRow(cell , m ) ;
+            int col = GridHelper.getCol(cell  , m ) ;
+
+
+            for(int[] d : dir) {
+                int nr = row + d[0] ;
+                int nc = col + d[1] ;
+                if(nr >= 0 && nr < n && nc >= 0 && nc < m ) {
+                    if(grid[nr][nc] == 0) continue ;
+                    if(dis[nr][nc] != INF) continue ;
+                    dis[nr][nc] = dis[row][col] + 1;
+                    queue.offer(GridHelper.toId(nr,nc,m)) ;
+                }
+            }
+        }
+
+        int ans = 0 ;
+
+        for(int cell : list) {
+            int row = GridHelper.getRow(cell , m ) ;
+            int col = GridHelper.getCol(cell , m ) ;
+            if(dis[row][col] == INF) {
+                System.out.println(-1);
+                return ;
+            } else {
+                ans = Math.max(ans, dis[row][col]) ;
+            }
+        }
+
+        out.append(ans) ;
+
         System.out.println(out);
 
+
+
     }
+
 
     public static void main(String[] args) throws Exception {
         new Thread(null, () -> {
@@ -277,12 +290,3 @@ public class Main {
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"

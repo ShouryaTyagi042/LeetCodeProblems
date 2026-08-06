@@ -1,18 +1,3 @@
-#!/bin/bash
-
-# Check if folder name is provided
-if [ -z "$1" ]; then
-  echo "Usage: ./cp_setup.sh <folder_name>"
-  exit 1
-fi
-
-FOLDER_NAME="$1"
-
-# Create folder
-mkdir -p "$FOLDER_NAME"
-
-# Create Main.java with basic template
-cat > "$FOLDER_NAME/Main.java" << EOF
 import java.io.*;
 import java.util.*;
 
@@ -197,6 +182,8 @@ public class Main {
     }
 
     static ArrayList<ArrayList<Integer>> graph ;
+    static Queue<Integer> q= new ArrayDeque<>();
+    static int[] indeg ;
     static boolean[] vis ;
     static int[] col ;
     static int[] component ;
@@ -231,36 +218,57 @@ public class Main {
         }
     }
 
-    static void dfs(int start, int comp) {
-        ArrayDeque<Integer> stack = new ArrayDeque<>();
-        stack.push(start);
-        vis[start] = true;
+        static void kahns(int n) {
+            for (int i = 1; i <= n; i++) {
+                if (indeg[i] == 0) {
+                    q.offer(i);
+                }
+            }
 
-        while (!stack.isEmpty()) {
-            int node = stack.pop();
-            component[node] = comp;
+            while (!q.isEmpty()) {
+                int node = q.poll();
+                topo.add(node);
 
-            for (int next : graph.get(node)) {
-                if (!vis[next]) {
-                    vis[next] = true;
-                    stack.push(next);
+                for (int v : graph.get(node)) {
+                    indeg[v]--;
+                    if (indeg[v] == 0) {
+                        q.offer(v);
+                    }
                 }
             }
         }
-    }
 
+
+    static long[] dp ;
+    static ArrayList<Integer> topo = new ArrayList<>() ;
 
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
-
+        int n = fs.nextInt() ;
+        int m = fs.nextInt() ;
+        indeg = new int[n+1] ;
+        topo = new ArrayList<>() ;
+        graph = new ArrayList<>() ;
+        for(int i = 0 ; i <= n ; i++) {
+            graph.add(new ArrayList<>()) ;
         }
-        System.out.println(out);
+        for(int i = 0 ; i < m ; i++) {
+            int x = fs.nextInt() ;
+            int y = fs.nextInt() ;
+            graph.get(x).add(y) ;
+            indeg[y] ++ ;
+        }
+        kahns(n) ;
+        dp = new long[n+1] ;
+        dp[1] = 1 ;
+        for(int node : topo) {
+            for(int v : graph.get(node)) {
+                dp[v] = (dp[node] + dp[v]) % MOD ;
+            }
+        }
+
+        System.out.println(dp[n]);
 
     }
 
@@ -277,12 +285,3 @@ public class Main {
 
 }
 
-EOF
-
-# Create input.txt
-touch "$FOLDER_NAME/input.txt"
-
-# Create expected.txt
-touch "$FOLDER_NAME/expected.txt"
-
-echo "✅ Folder '$FOLDER_NAME' created with Main.java and input.txt"
