@@ -209,9 +209,7 @@ public class Main {
         }
     }
 
-    static ArrayList<ArrayList<Edge>> graph ;
-    static int[] dis ;
-    static Deque<Integer> dq ;
+    static ArrayList<ArrayList<Integer>> graph ;
     static boolean[] vis ;
     static int[] col ;
     static int[] component ;
@@ -224,6 +222,44 @@ public class Main {
         {0,-1}
     };
 
+  class Solution {
+
+    static int[][] dp;
+    static int[] suffix;
+
+    public int stoneGameII(int[] piles) {
+        int n = piles.length;
+
+        suffix = new int[n];
+        dp = new int[n + 1][n + 1];
+
+        // Build suffix sum
+        suffix[n - 1] = piles[n - 1];
+
+        for (int i = n - 2; i >= 0; i--) {
+            suffix[i] = piles[i] + suffix[i + 1];
+        }
+
+        // DP
+        for (int i = n - 1; i >= 0; i--) {
+            for (int m = 1; m <= n; m++) {
+
+                for (int x = 1; x <= Math.min(2 * m, n - i); x++) {
+
+                    dp[i][m] = Math.max(
+                        dp[i][m],
+                        suffix[i] - dp[i + x][Math.max(m, x)]
+                    );
+                }
+            }
+        }
+
+        return dp[0][1];
+    }
+}
+
+
+
 
 
     static void solve() throws Exception {
@@ -233,52 +269,6 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-            int n = fs.nextInt() ;
-            int m = fs.nextInt() ;
-            dis = new int[n+1] ;
-            graph = new ArrayList<>() ;
-            for(int i = 0 ; i <= n ; i++) {
-                graph.add(new ArrayList<>());
-            }
-
-            for(int i = 0 ; i < m ;i++) {
-                int u = fs.nextInt() ;
-                int v = fs.nextInt() ;
-                graph.get(u).add(new Edge(v, 0));
-                graph.get(v).add(new Edge(u, 1));
-            }
-
-            int INF = Integer.MAX_VALUE ;
-
-            Arrays.fill(dis, INF) ;
-
-            dq = new ArrayDeque<>() ;
-
-            dis[1] = 0 ;
-
-            dq.offerFirst(1) ;
-
-            while(!dq.isEmpty()) {
-                int node = dq.pollFirst() ;
-                for(Edge e : graph.get(node)) {
-                    int to  = e.to ;
-                    int wt  = e.wt ;
-                    if(dis[to] > dis[node] + wt) {
-                        dis[to] = dis[node] + wt ;
-                        if(wt == 0 ) {
-                            dq.offerFirst(to) ;
-                        } else {
-                            dq.offerLast(to) ;
-                        }
-                    }
-                }
-            }
-
-            if(dis[n] == INF) {
-                out.append(-1).append('\n') ;
-            } else {
-                out.append(dis[n]).append('\n') ;
-            }
 
         }
         System.out.println(out);
@@ -297,4 +287,3 @@ public class Main {
 
 
 }
-

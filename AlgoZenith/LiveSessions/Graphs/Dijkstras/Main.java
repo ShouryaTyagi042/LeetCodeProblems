@@ -201,28 +201,42 @@ public class Main {
 
     static public class Edge {
         int to ;
-        int wt ;
+        long wt ;
 
-        Edge(int to, int wt) {
+        Edge(int to, long wt) {
             this.to = to ;
             this.wt = wt;
         }
     }
 
     static ArrayList<ArrayList<Edge>> graph ;
-    static int[] dis ;
-    static Deque<Integer> dq ;
     static boolean[] vis ;
-    static int[] col ;
-    static int[] component ;
-    static int[] cSize ;
-    static boolean isCycle = false ;
-    static final int[][] dir = {
-        {1,0},
-        {-1,0},
-        {0,1},
-        {0,-1}
-    };
+    static long[] dist ;
+    static PriorityQueue<Edge> pq = new PriorityQueue<>((a,b) -> Long.compare(a.wt, b.wt));
+
+    static final long INF = 1_000_000_000_000_000_000L;
+
+
+    static void dijkstra(int sc) {
+        dist[sc] = 0 ;
+        pq.offer(new Edge(sc, 0)) ;
+        while(!pq.isEmpty()) {
+            Edge edge = pq.poll() ;
+            int node = edge.to ;
+            long wt = edge.wt ;
+            if(vis[node]) continue ;
+            vis[node] = true ;
+            for(Edge neigh : graph.get(node)) {
+                int neighNode = neigh.to ;
+                long neighWt = neigh.wt ;
+                if(dist[neighNode] > dist[node] + neighWt) {
+                    dist[neighNode] = dist[node] + neighWt ;
+                    pq.offer(new Edge(neighNode, dist[neighNode])) ;
+                }
+            }
+        }
+
+    }
 
 
 
@@ -235,51 +249,31 @@ public class Main {
         while (t-- > 0) {
             int n = fs.nextInt() ;
             int m = fs.nextInt() ;
-            dis = new int[n+1] ;
             graph = new ArrayList<>() ;
+            vis = new boolean[100100] ;
+            dist = new long[100100] ;
+            Arrays.fill(dist, INF ) ;
             for(int i = 0 ; i <= n ; i++) {
-                graph.add(new ArrayList<>());
+                graph.add(new ArrayList<>()) ;
             }
 
-            for(int i = 0 ; i < m ;i++) {
-                int u = fs.nextInt() ;
-                int v = fs.nextInt() ;
-                graph.get(u).add(new Edge(v, 0));
-                graph.get(v).add(new Edge(u, 1));
+            for(int j = 0 ; j < m ; j++) {
+                int x = fs.nextInt() ;
+                int y = fs.nextInt() ;
+                long wt = fs.nextLong() ;
+                graph.get(x).add(new Edge(y, wt)) ;
             }
 
-            int INF = Integer.MAX_VALUE ;
+            dijkstra(1) ;
 
-            Arrays.fill(dis, INF) ;
-
-            dq = new ArrayDeque<>() ;
-
-            dis[1] = 0 ;
-
-            dq.offerFirst(1) ;
-
-            while(!dq.isEmpty()) {
-                int node = dq.pollFirst() ;
-                for(Edge e : graph.get(node)) {
-                    int to  = e.to ;
-                    int wt  = e.wt ;
-                    if(dis[to] > dis[node] + wt) {
-                        dis[to] = dis[node] + wt ;
-                        if(wt == 0 ) {
-                            dq.offerFirst(to) ;
-                        } else {
-                            dq.offerLast(to) ;
-                        }
-                    }
+            for(int i = 1 ; i <= n ; i++) {
+                if(dist[i] != INF) {
+                    out.append(dist[i]).append(" ") ;
+                } else {
+                    out.append(-1).append(" ") ;
                 }
             }
-
-            if(dis[n] == INF) {
-                out.append(-1).append('\n') ;
-            } else {
-                out.append(dis[n]).append('\n') ;
-            }
-
+            out.append('\n') ;
         }
         System.out.println(out);
 
@@ -297,4 +291,3 @@ public class Main {
 
 
 }
-

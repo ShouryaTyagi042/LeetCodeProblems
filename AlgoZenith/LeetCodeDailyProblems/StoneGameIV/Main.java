@@ -209,9 +209,9 @@ public class Main {
         }
     }
 
-    static ArrayList<ArrayList<Edge>> graph ;
-    static int[] dis ;
-    static Deque<Integer> dq ;
+    static final long INF = 1_000_000_000_000_000_000L;
+
+    static ArrayList<ArrayList<Integer>> graph ;
     static boolean[] vis ;
     static int[] col ;
     static int[] component ;
@@ -233,52 +233,6 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
-            int n = fs.nextInt() ;
-            int m = fs.nextInt() ;
-            dis = new int[n+1] ;
-            graph = new ArrayList<>() ;
-            for(int i = 0 ; i <= n ; i++) {
-                graph.add(new ArrayList<>());
-            }
-
-            for(int i = 0 ; i < m ;i++) {
-                int u = fs.nextInt() ;
-                int v = fs.nextInt() ;
-                graph.get(u).add(new Edge(v, 0));
-                graph.get(v).add(new Edge(u, 1));
-            }
-
-            int INF = Integer.MAX_VALUE ;
-
-            Arrays.fill(dis, INF) ;
-
-            dq = new ArrayDeque<>() ;
-
-            dis[1] = 0 ;
-
-            dq.offerFirst(1) ;
-
-            while(!dq.isEmpty()) {
-                int node = dq.pollFirst() ;
-                for(Edge e : graph.get(node)) {
-                    int to  = e.to ;
-                    int wt  = e.wt ;
-                    if(dis[to] > dis[node] + wt) {
-                        dis[to] = dis[node] + wt ;
-                        if(wt == 0 ) {
-                            dq.offerFirst(to) ;
-                        } else {
-                            dq.offerLast(to) ;
-                        }
-                    }
-                }
-            }
-
-            if(dis[n] == INF) {
-                out.append(-1).append('\n') ;
-            } else {
-                out.append(dis[n]).append('\n') ;
-            }
 
         }
         System.out.println(out);
@@ -297,4 +251,3 @@ public class Main {
 
 
 }
-
