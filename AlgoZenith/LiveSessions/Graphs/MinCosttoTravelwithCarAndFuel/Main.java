@@ -201,17 +201,29 @@ public class Main {
 
     static public class Edge {
         int to ;
-        int wt ;
+        int petrol ;
+        int dist ;
 
-        Edge(int to, int wt) {
+        Edge(int to, int petrol, int dist) {
             this.to = to ;
-            this.wt = wt;
+            this.petrol = petrol ;
+            this.dist = dist ;
+        }
+    }
+
+    static public class State {
+        int node ;
+        int petrol ;
+
+        State(int node, int petrol) {
+            this.node = node ;
+            this.petrol = petrol ;
         }
     }
 
     static final long INF = 1_000_000_000_000_000_000L;
 
-    static ArrayList<ArrayList<Integer>> graph ;
+    static ArrayList<ArrayList<Edge>> graph ;
     static boolean[] vis ;
     static int[] col ;
     static int[] component ;
@@ -224,35 +236,37 @@ public class Main {
         {0,-1}
     };
 
-    class Solution {
-        static boolean[] dp ;
-        public boolean winnerSquareGame(int n) {
-            dp = new boolean[n+1] ;
-            for(int i = 1 ; i <= n ; i++) {
-                for(int k=1 ; k*k <=n ; k++) {
-                    if(dp[n-k*k] == false ) {
-                        dp[i] = true ;
-                        break ;
-                    }
-                }
-            }
-            return dp[n] ;
-        }
-    }
 
+    ß
 
 
 
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-
-        int t = fs.nextInt();   // number of test cases
-
-        while (t-- > 0) {
-
+        int n = fs.nextInt() ;
+        int m = fs.nextInt() ;
+        graph.add(new ArrayList<>()) ;
+        for(int i = 0 ; i <= n ; i++) {
+            graph.add(new ArrayList<>()) ;
         }
-        System.out.println(out);
+
+        for(int i = 0 ; i < m ; i++) {
+            int p, d , a , b ;
+            p = fs.nextInt() ;
+            d = fs.nextInt() ;
+            a = fs.nextInt() ;
+            b = fs.nextInt() ;
+            graph.get(a).add(new Edge(b,p,d)) ;
+            graph.get(b).add(new Edge(a,p,d)) ;
+        }
+
+        int startNode = 1 ;
+        int endNode = n ;
+
+        State start = new State(startNode,0) ;
+
+
 
     }
 

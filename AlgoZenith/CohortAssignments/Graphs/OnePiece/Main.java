@@ -199,62 +199,69 @@ public class Main {
         }
     }
 
-    static public class Edge {
-        int to ;
-        int wt ;
 
-        Edge(int to, int wt) {
-            this.to = to ;
-            this.wt = wt;
-        }
-    }
-
-    static final long INF = 1_000_000_000_000_000_000L;
-
-    static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
-    static int[] col ;
-    static int[] component ;
-    static int[] cSize ;
-    static boolean isCycle = false ;
+    static int[][] graph ;
+    static int[][] dist ;
+    static ArrayDeque<Integer> deque = new ArrayDeque<>();
     static final int[][] dir = {
-        {1,0},
-        {-1,0},
         {0,1},
-        {0,-1}
+        {0,-1},
+        {1,0},
+        {-1,0}
     };
-
-    class Solution {
-        static boolean[] dp ;
-        public boolean winnerSquareGame(int n) {
-            dp = new boolean[n+1] ;
-            for(int i = 1 ; i <= n ; i++) {
-                for(int k=1 ; k*k <=n ; k++) {
-                    if(dp[n-k*k] == false ) {
-                        dp[i] = true ;
-                        break ;
-                    }
-                }
-            }
-            return dp[n] ;
-        }
-    }
-
 
 
 
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
+        int n = fs.nextInt() ;
+        int m = fs.nextInt();
+        graph = new int[n+1][m+1] ;
+        for(int i = 1 ; i <=n ; i++) {
+            for(int j = 1 ; j <= m ; j++) {
+                graph[i][j] = fs.nextInt() ;
+            }
+        }
 
-        int t = fs.nextInt();   // number of test cases
+        int INF = Integer.MAX_VALUE - 1 ;
 
-        while (t-- > 0) {
+        dist = new int[n+1][m+1] ;
+        for(int i = 0 ; i <=n ; i++) {
+            Arrays.fill(dist[i], INF) ;
+        }
+
+        dist[1][1] = 0 ;
+        deque.offerFirst(GridHelper.toId(1,1,m+1)) ;
+        while(!deque.isEmpty()) {
+            int id = deque.pollFirst() ;
+            int col = GridHelper.getCol(id, m+1 ) ;
+            int row = GridHelper.getRow(id, m+1 ) ;
+            int wind = graph[row][col] ;
+
+            for(int i = 0 ; i < 4 ; i++) {
+                int[] d = dir[i] ;
+                int newRow = row + d[0] ;
+                int newCol = col + d[1] ;
+                if(newRow <= n && newRow > 0 && newCol <= m && newCol > 0) {
+                int wt = i + 1 == wind ? 0 : 1 ;
+                if(dist[newRow][newCol] > dist[row][col] + wt) {
+                    dist[newRow][newCol] = dist[row][col] + wt ;
+                    if(wt == 0) {
+                        deque.offerFirst(GridHelper.toId(newRow, newCol, m+1)) ;
+                    } else {
+                        deque.offerLast(GridHelper.toId(newRow, newCol, m+1)) ;
+                    }
+                }
+                }
+
+            }
 
         }
-        System.out.println(out);
+        System.out.println(dist[n][m]);
 
     }
+
 
     public static void main(String[] args) throws Exception {
         new Thread(null, () -> {

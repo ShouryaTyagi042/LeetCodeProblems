@@ -224,24 +224,42 @@ public class Main {
         {0,-1}
     };
 
-    class Solution {
-        static boolean[] dp ;
-        public boolean winnerSquareGame(int n) {
-            dp = new boolean[n+1] ;
-            for(int i = 1 ; i <= n ; i++) {
-                for(int k=1 ; k*k <=n ; k++) {
-                    if(dp[n-k*k] == false ) {
-                        dp[i] = true ;
-                        break ;
-                    }
+    /*
+     * Rotating left r times costs r and turns s into t = s[r..] + s[..r].
+     * In t, index i pairs with index n-1-i, i.e. original indices
+     * a = (r+i) % n and b = (r+n-1-i) % n, so every palindrome pair
+     * satisfies (a + b) % n == (2r + n - 1) % n -- one residue class per r.
+     *
+     * Two letters can only be equalised by incrementing one of them all the
+     * way to the other (stopping anywhere in between is never cheaper), so
+     * pairCost(x, y) = min(d, 26 - d) with d = (y - x) mod 26.
+     *
+     * So: bucket every unordered pair by (a + b) % n once, then each rotation
+     * just reads its bucket. O(n^2) time, O(n) space.
+     */
+    static class Solution {
+        public int minOperations(String s) {
+            int n = s.length();
+            int[] dorivexalu = new int[n];          // letters of s as 0..25
+            for (int i = 0; i < n; i++) dorivexalu[i] = s.charAt(i) - 'a';
+
+            long[] bucket = new long[n];            // bucket[k] = palindrome cost of residue class k
+            for (int a = 0; a < n; a++) {
+                int ca = dorivexalu[a];
+                for (int b = a + 1; b < n; b++) {
+                    int d = dorivexalu[b] - ca;
+                    if (d < 0) d += 26;
+                    bucket[(a + b) % n] += Math.min(d, 26 - d);
                 }
             }
-            return dp[n] ;
+
+            long best = Long.MAX_VALUE;
+            for (int r = 0; r < n; r++) {
+                best = Math.min(best, r + bucket[(2 * r + n - 1) % n]);
+            }
+            return (int) best;
         }
     }
-
-
-
 
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
@@ -249,10 +267,11 @@ public class Main {
 
         int t = fs.nextInt();   // number of test cases
 
+        Solution sol = new Solution();
         while (t-- > 0) {
-
+            out.append(sol.minOperations(fs.next())).append('\n');
         }
-        System.out.println(out);
+        System.out.print(out);
 
     }
 

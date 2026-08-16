@@ -224,23 +224,6 @@ public class Main {
         {0,-1}
     };
 
-    class Solution {
-        static boolean[] dp ;
-        public boolean winnerSquareGame(int n) {
-            dp = new boolean[n+1] ;
-            for(int i = 1 ; i <= n ; i++) {
-                for(int k=1 ; k*k <=n ; k++) {
-                    if(dp[n-k*k] == false ) {
-                        dp[i] = true ;
-                        break ;
-                    }
-                }
-            }
-            return dp[n] ;
-        }
-    }
-
-
 
 
     static void solve() throws Exception {
@@ -250,7 +233,35 @@ public class Main {
         int t = fs.nextInt();   // number of test cases
 
         while (t-- > 0) {
+                        for (int i = 1; i <= n - 1; i++) {
 
+                for (Edge e : edges) {
+
+                    int u = e.u;
+                    int v = e.v;
+                    int w = e.w;
+
+                    if (dist[u] != INF &&
+                        dist[u] + w < dist[v]) {
+
+                        dist[v] = dist[u] + w;
+                    }
+                }
+            }
+
+            // Extra iteration
+            for (Edge e : edges) {
+
+                int u = e.u;
+                int v = e.v;
+                int w = e.w;
+
+                if (dist[u] != INF &&
+                    dist[u] + w < dist[v]) {
+
+                    System.out.println("Negative cycle exists");
+                }
+            }
         }
         System.out.println(out);
 

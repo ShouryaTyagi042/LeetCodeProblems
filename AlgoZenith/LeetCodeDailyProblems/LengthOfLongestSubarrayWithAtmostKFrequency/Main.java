@@ -224,22 +224,42 @@ public class Main {
         {0,-1}
     };
 
-    class Solution {
-        static boolean[] dp ;
-        public boolean winnerSquareGame(int n) {
-            dp = new boolean[n+1] ;
-            for(int i = 1 ; i <= n ; i++) {
-                for(int k=1 ; k*k <=n ; k++) {
-                    if(dp[n-k*k] == false ) {
-                        dp[i] = true ;
-                        break ;
+   class Solution {
+        static HashMap<Integer, Integer> map ;
+        public int maxSubarrayLength(int[] arr, int k) {
+            int n = arr.length ;
+            int ans = 0 ;
+            int tail = 0 ;
+            int head = -1 ;
+            map = new HashMap<>();
+            while(tail < n) {
+                while(head + 1 < n && (isValid(arr[head+1],k)) ){
+                    map.put(arr[head+1] , map.getOrDefault(arr[head+1], 0) + 1 ) ;
+                    head ++ ;
+                }
+                ans = Math.max(ans, head - tail + 1) ;
+                if(tail <= head) {
+                    if(map.getOrDefault(arr[tail] , 0) == 1 ) {
+                        map.remove(arr[tail]) ;
+                    } else {
+                        map.put(arr[tail], map.get(arr[tail]) - 1) ;
                     }
+                    tail ++ ;
+                } else {
+                    tail ++ ;
+                    head = tail - 1 ;
                 }
             }
-            return dp[n] ;
+            return ans ;
+        }
+        public boolean isValid(int check, int k ) {
+            int existing = map.getOrDefault(check, 0) ;
+            if(existing + 1 <= k) {
+                return true ;
+            }
+            return false ;
         }
     }
-
 
 
 

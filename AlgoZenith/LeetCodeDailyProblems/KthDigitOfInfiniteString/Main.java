@@ -224,24 +224,39 @@ public class Main {
         {0,-1}
     };
 
-    class Solution {
-        static boolean[] dp ;
-        public boolean winnerSquareGame(int n) {
-            dp = new boolean[n+1] ;
-            for(int i = 1 ; i <= n ; i++) {
-                for(int k=1 ; k*k <=n ; k++) {
-                    if(dp[n-k*k] == false ) {
-                        dp[i] = true ;
-                        break ;
-                    }
-                }
+    /*
+     * Block b holds the VALUES 10b..10b+9 and it also occupies the SLOTS
+     * 10b..10b+9 of the sequence (block 0 -> slots 1..9, block 1 -> slots
+     * 10..19, ...). Values and slots line up exactly.
+     *
+     * Every value inside one block has the same digit length, so reversing an
+     * odd block does not change the digit count of any prefix. The digit
+     * layout is therefore identical to the plain "123456789101112..." string.
+     *
+     *   1. textbook n-th-digit counting on k  -> slot m + offset inside it
+     *   2. block mapping on m (NOT on k)      -> the value actually sitting there
+     *   3. read digit `off` of that value
+     */
+    static class Solution {
+        public int kthDigit(long k) {
+            long mirevokanu = k;                 // digits still to skip
+            long d = 1, count = 9, start = 1;    // d-digit slots: `count` of them, from `start`
+            while ((mirevokanu - 1) / d >= count) {   // overflow-safe form of mirevokanu > d * count
+                mirevokanu -= d * count;
+                d++;
+                count *= 10;
+                start *= 10;
             }
-            return dp[n] ;
+
+            long slot = start + (mirevokanu - 1) / d;   // which number-slot the digit lives in
+            int off = (int) ((mirevokanu - 1) % d);     // digit offset inside that slot
+
+            long b = slot / 10, i = slot % 10;
+            long value = (b % 2 == 0) ? 10 * b + i : 10 * b + 9 - i;
+
+            return Long.toString(value).charAt(off) - '0';
         }
     }
-
-
-
 
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
@@ -249,10 +264,11 @@ public class Main {
 
         int t = fs.nextInt();   // number of test cases
 
+        Solution sol = new Solution();
         while (t-- > 0) {
-
+            out.append(sol.kthDigit(fs.nextLong())).append('\n');
         }
-        System.out.println(out);
+        System.out.print(out);
 
     }
 
