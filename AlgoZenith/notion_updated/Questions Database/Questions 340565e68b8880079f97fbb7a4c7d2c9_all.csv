@@ -1,0 +1,232 @@
+﻿Name,Created time,Difficulty,Due At,Form,Framework,Link,Mistakes,Notes,Source,Topics
+Generating Permutations AZ101,"April 12, 2026 7:34 PM",Medium,"June 23, 2026",Two Pointers,"  1. First decreasing element from right.
+  2. swap with just bigger element
+  3. reverse the suffix to get the smallest value",https://maang.in/problems/Generating-Permutations-AZ101-366?resourceUrl=pl3436-rs366&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"Traverse from right and find first index i such that:arr[i] < arr[i+1]
+→ this is the pivot.
+If no such index exists:
+→ array is in descending order.
+Reverse entire array (smallest permutation).
+Traverse from right again and find first element greater than arr[i].
+Swap that element with arr[i].
+Reverse the subarray from i+1 to end.",,"Arrays, Two Pointers"
+Queues AZ101,"April 14, 2026 9:24 AM",Easy,"June 5, 2026",,,https://maang.in/problems/Queue-AZ101-349?resourceUrl=pl3437-rs349&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Queues
+Queues using 2 stacks,"April 14, 2026 9:52 AM",Easy,"June 13, 2026",,"  1. Optimisation: Only transfer elements to out queue when it empty, otherwise it always hold the front elem of queue",https://maang.in/problems/Queue-using-2-Stacks-AZ101-350?resourceUrl=pl3437-rs350&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,"Queues, Stacks"
+Good Sequence AZ101,"April 15, 2026 9:50 AM",Easy,"June 11, 2026",,"  1. use the (Map.Entry<T, T> entry : map.entrySet())",https://maang.in/problems/Good-Sequence-AZ101-375?resourceUrl=pl3438-rs375&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,HashMap
+Magical Candy,"April 16, 2026 11:13 PM",Easy,"June 12, 2026",,"  1. Use PQ to fetch the largest element every time",https://maang.in/problems/The-Magical-Candy-Bag-AZ101-365?resourceUrl=pl3439-rs365&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Priority Queue
+Reduce the Array,"April 17, 2026 10:00 AM",Easy,"June 17, 2026",,"  1. Use PQ to repeatedly fetch the smallest two elements and merge",https://maang.in/problems/Reduce-the-Array-AZ101-376?resourceUrl=pl3439-rs376&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Priority Queue
+Multi Map AZ101,"April 18, 2026 4:27 PM",Easy,"June 6, 2026",,"  1. use a combination of string to queue map to create a multi map",https://maang.in/problems/Multimap-AZ101-363?resourceUrl=pl3439-rs363&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,"HashMap, Queues"
+Set Operations AZ101,"April 18, 2026 5:16 PM",Easy,"June 9, 2026",,,https://maang.in/problems/Set-Operations-AZ101-372?resourceUrl=pl3440-rs372&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Sets
+Towers AZ101,"April 18, 2026 11:46 PM",Medium,"June 19, 2026",,"  1. Use TreeMap to implement Multiset.
+  2. Iterate and find higher_key if found replace existing otherwise append
+  3. answer is sum of frequencies of elem in treemap.",https://maang.in/problems/Towers-AZ101-362?resourceUrl=pl3441-rs362&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"  1. We needed upper bound with frequency
+  2. So we used a treemap as it gives us both",,MultiSets
+Deque AZ101,"April 19, 2026 2:05 PM",Easy,"June 19, 2026",,,"https://maang.in/problems/Deque-AZ101-353?resourceUrl=pl3442-rs353&returnUrl=[""/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments""]",,,,Deque
+Indexed Set,"April 19, 2026 2:35 PM",Easy,"June 6, 2026",,"  1. Use Arraylist and BS to implement Indexed Set, Ordered Set",https://maang.in/problems/Indexed-Set-367?resourceUrl=pl3442-rs367&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,"Arrays, Binary Search, Indexed Set"
+Design Event Manager,"April 19, 2026 7:58 PM",Medium,"June 17, 2026",,"  1. Use a combination of Set and HashMap and create a static private class to define event.
+  2. Use TreeSet comparator property to sort the events",https://leetcode.com/problems/design-event-manager/description/,,,,"HashMap, Sets"
+Find Median from Data Stream,"April 22, 2026 9:46 AM",Medium,"June 12, 2026",,"  1. Partition into maxHeap and minHeap 
+  2. Add to maxHeap then balance both the heaps so that , size difference is always less than equal to 1.",https://leetcode.com/problems/find-median-from-data-stream/,,"  1. We need to split the array
+  2. we use max and min heap to keep elem sorted",,Heaps
+Buy Maximum Objects II,"April 24, 2026 9:11 AM",Easy,"July 13, 2026",,"  1. User PF Sum to get logn in queries",https://maang.in/problems/Buy-Maximum-Objects-II-74?resourceUrl=pl3443-rs74&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,"Arrays, PrefixSum"
+"STL Searching ","April 24, 2026 9:57 AM",Easy,"June 11, 2026",Upper/Lower Bound,,https://maang.in/problems/STL-Searching-395?resourceUrl=pl3443-rs395&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"For queries of no of elem < x or smallest number > x , think of upper and lower bound",,"Arrays, Binary Search"
+Valid Paranthesis AZ101,"April 26, 2026 11:58 AM",Easy,"June 15, 2026",,"  1. Maintain a depth counter to maintain the depth
+  2. Incase of multiple characters use a stack , push opening to stack and then match the stack top with closing bracket.","https://maang.in/problems/Valid-Parentheses-AZ101-348?resourceUrl=pl3444-rs348&returnUrl=[""/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments""]",,,,"Arrays, Stacks"
+Maximum in Window,"April 26, 2026 6:54 PM",Medium,"June 19, 2026",Sliding Window,"  1. Create MQ which supports insert, removal, max/min retrieval
+  2. insert → remove existing greater/min elements then add
+  3. remove → if arr[i-k] == first, then remove first
+  4. retrieval → first elem of the deque",https://maang.in/problems/Maximum-in-Window-77?resourceUrl=pl3445-rs77&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,"Arrays, Deque, MultiSets"
+"Count subarrays with sum k ","April 27, 2026 9:41 AM",Medium,"June 22, 2026",PrefixSUM,"  1. Use a combination of prefix sum and hash map to make it a two sum problem.",https://leetcode.com/problems/subarray-sum-equals-k/submissions/,Two Pointers do not work on negative numbers,"  1. Whenever you see sum of a range type, try to think of PrefixSum
+  2. For faster Lookup HashMaps",,"HashMap, PrefixSum"
+Count the Pairs,"April 27, 2026 10:04 AM",Medium,"June 5, 2026","Atomic Contribution, Two Pointers, Upper/Lower Bound","  1. Sort the array 
+  2. Use two pointers or upper/lower bound to get number of elements",https://maang.in/problems/Count-the-Pairs-396?resourceUrl=pl3446-rs396&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"The observation is:
+For every element A[i], count how many indices j can pair with it such that:
+A[i] + A[j] ≤ X
+So instead of thinking:
+Check every pair (i, j)
+you think:
+How many valid partners does A[i] contribute to?",,"Arrays, Two Pointers"
+Interesting Game,"April 28, 2026 9:34 AM",Medium,"June 19, 2026",Greedy,"  1. Create a pair and sort on the basis of sum of pair elements",https://maang.in/problems/Interesting-Game-76?resourceUrl=pl3446-rs76&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,"Arrays, Greedy"
+"Count unique char in String ","May 1, 2026 7:53 PM",Hard,"May 26, 2026",Atomic Contribution,"  1. for every index store the next and prev occurence of the character at index",https://maang.in/problems/Count-Unique-Char-in-Substrings-63?resourceUrl=pl4655-rs63&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"For substring/subarray problems where the answer is additive in nature (total sum/count over all intervals), think in terms of element contribution instead of enumerating intervals.
+Fix an index i and ask:
+How many intervals does this index contribute to?
+In this problem, s[i] contributes only in substrings where it is the unique occurrence of that character, which reduces the problem to finding valid left and right boundaries around i.",,Arrays
+Minimise the Dot,"May 4, 2026 9:50 AM",Easy,"June 23, 2026",Greedy,,https://maang.in/problems/Minimizing-Dot-Problem-96?resourceUrl=pl4961-rs96&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"  1. Int x Int multiplication overflows before assignment to long",,Greedy
+Max Points on Line,"May 5, 2026 9:35 AM",Hard,"May 28, 2026",Greedy,"  1. use gcd to get reduced fractions
+  2. make a map of slope to frequency",https://leetcode.com/problems/max-points-on-a-line/description/,,"  1. using array or pair to store fractions
+  2. using string notation to store in map",,Greedy
+Fibonacci Breakdown,"May 5, 2026 9:59 AM",Medium,"June 4, 2026",Greedy,"  1. Find the largest fib number < k 
+  2. subtract from k and repeat","https://maang.in/problems/Fibonacci-Breakdown-224?resourceUrl=pl4957-rs224&returnUrl=[""/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments""]",,"Every number can be written as a sum of non-consecutive Fibonacci numbers, uniquely.",,Greedy
+Fast Solving,"May 5, 2026 11:10 PM",Medium,"June 9, 2026",Greedy,"  1. first sweep from left to right 
+  2. then sweep from right to left using the max operator.","https://maang.in/problems/Fast-Solving-225?resourceUrl=pl4958-rs225&returnUrl=[""/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments""]",,"The important pattern is:
+Local dependency constraints+Need globally minimum sum
+This often suggests:
+Greedily assign the minimum feasible value.
+Then another observation appears:
+Each index depends on both left and right neighbors.
+A single traversal cannot satisfy both independently.
+So split constraints into:
+• left-to-right dependencies
+• right-to-left dependencies
+and combine them.",,Arrays
+Make it Smooth,"May 6, 2026 10:39 PM",Medium,"June 11, 2026",Sweep Line,"  1. sweep from right to left , for the first elem of increasing sub array, make it = to the previous elem",https://maang.in/problems/Make-it-smooth-222?resourceUrl=pl4958-rs222&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"The key observation is:
+An operation can increase an entire non-decreasing segment together.
+So the only “bad places” are where:
+A[i] < A[i-1]
+because those positions violate the final non-decreasing condition.
+Now think locally.
+If: A[i-1] - A[i] = d
+then A[i] needs at least d extra increments.",,Arrays
+"Find Peak ","May 10, 2026 7:46 PM",,,,"  1. check if the next element is increasing → lo = mid + 1",https://leetcode.com/problems/find-peak-element/,,"Intermediate Value Theorem, if the next value is greater than the current, at least one peak exists to the right",,"Arrays, Binary Search"
+Points on Line,"May 11, 2026 10:36 PM",Medium,"May 30, 2026","Binary Search, Contribution Technique, Sliding Window","  1. Fix a point and then user upper bound 
+  2. use nc2 to get the number of triplets",https://codeforces.com/problemset/problem/251/A,,"When you see:
+• sorted array
+• distance/range constraint
+• count subsets/subarrays inside valid range
+think:
+Sliding window + combinatorics
+because valid elements form a contiguous range.
+The additive contribution idea here is:
+For each right endpoint r:
+How many triplets contributewith r as the farthest point?
+That contribution is:
+C(number of valid previous points, 2)",,"Arrays, Binary Search"
+Factory Machines,"May 12, 2026 12:07 AM",Medium,"June 10, 2026",BS on Ans (Atomic Cont),"  1. calculate the max and min time to complete the task
+  2. do BS to find out the optimal time",https://cses.fi/problemset/task/1620/,,Individual items sum should be greater than or equal to a value → it becomes a 0 0 0 1 1 1 question,,Binary Search
+Famous Painter Partition,"May 12, 2026 9:14 AM",Medium,"August 10, 2026",BS on Ans (Sweep Based),We sweep over the array to find the number of painters required and check it with available,https://maang.in/problems/Famous-Painter-Partition-Problem-472,,"if k painters are able to finish optimally then k+1 will also and so on, so it is a monotonic function, we can use Binary Search",AlgoZenith,Binary Search
+Rotated Sorted Array,"May 16, 2026 12:48 PM",Easy,"July 13, 2026",Binary Search,"  1. Check function is arr[idx] > arr[n-1]",https://maang.in/problems/Rotated-Sorted-Array-108?resourceUrl=pl3459-rs108&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Binary Search
+Bitonic Array,"May 16, 2026 5:34 PM",Easy,"July 12, 2026",Binary Search,"  1. Check function is arr[mid] > arr[mid+1]",https://maang.in/problems/Bitonic-Array-107?resourceUrl=pl3459-rs107&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Binary Search
+Number & Sum of Digits,"May 16, 2026 5:58 PM",Easy,"June 16, 2026",Binary Search,"  1. find the smallest value X that satisfies the question, then ans = N - X + 1 ",https://maang.in/problems/Number-Sum-of-Digit-26?resourceUrl=pl3459-rs26&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Binary Search
+Min Max Difference,"May 16, 2026 6:47 PM",Medium,"May 22, 2026",BS on Ans (Sweep Based),"  1. calculate the number of points required to get the max diff 
+  2. no of points += (d + max - 1 ) / max - 1 ",https://maang.in/problems/Minimise-Max-Diff-46?resourceUrl=pl3460-rs46&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"The answer is the max difference between immediate points, if we can make this diff using x points then, we can make any max diff greater than the current diff. 
+There is a value above which every value satisfies → check function in binary search",,Binary Search
+Kth Sum Value,"May 17, 2026 4:04 PM",Medium,"June 8, 2026",BS on Ans (Atomic Cont),"  1. Iterate over the smaller array and then do BS on the second array to get upper bound
+  2. sum these values and use binary search on anwer",https://maang.in/problems/Kth-Sum-Value-102?resourceUrl=pl3461-rs102&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"Not swapping the array, this caused O(n) time iteration on the longer array","Sorting the arrays would not make a difference to answers, so we can do BS. Also this was Kth Smallest Type value question",,Binary Search
+Consecutive Ones,"May 21, 2026 1:11 PM",Medium,,,,https://maang.in/problems/Consecutive-one-44?resourceUrl=pl3461-rs44&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Two Pointers
+Classroom,"May 23, 2026 9:08 PM",Medium,"May 27, 2026",BS on Ans (Sweep Based),"  1. Sort the array, min dis  = 1, max = arr[n-1] - arr[0]
+  2. Use binary search on ans to greedily place students",https://maang.in/problems/ClassRoom-471?resourceUrl=pl3462-rs471&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,Tried taking a two pointer approach instead of a lastPos val for check function,"If we can place more than k students for min dist x , then we can place more than k for x - 1 , which makes a monotonic function, thus we can use BS on Ans",,Binary Search
+Good Pairs,"May 23, 2026 10:03 PM",Medium,"May 26, 2026",Two Pointers,"  1. Sort the difference of arrays
+  2. Use two pointer to find the answer",https://maang.in/problems/Good-Pairs-AZ101-377?resourceUrl=pl3462-rs377&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Two Pointers
+Maximise The Fraction,"May 24, 2026 9:27 AM",Hard,"May 26, 2026",BS on Ans (Atomic Cont),"  1. Use BS on real range, use a max heap to get biggest k numbers
+  2. use a - x.b >0 as the monotonic function",https://maang.in/problems/Maximise-the-fraction-105?resourceUrl=pl3462-rs105&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Binary Search
+Container with Most Water,"May 24, 2026 1:06 PM",Medium,"June 9, 2026",Two Pointers Form 2,"  1. we start from extreme ends and then move inside
+  2. we update the pointer for the min value amongst the two",https://leetcode.com/problems/container-with-most-water/solutions/,,"to maximise the area we will first max the |i-j| part, clearly indicating we should be at extreme parts, which mean we need some sort of two pointer
+for min value part maximisation we will move the left or right pointer according to min value amongst, thus it is a form 2 for two pointer",,Two Pointers
+Number of Subarray with at most K sum,"May 24, 2026 2:15 PM",Medium,"June 7, 2026",Two Pointers Form 1,"  1. increase subarray size till checks are passing
+  2. add to ans head - tail + 1, as number of sub arrays have been asked",https://maang.in/problems/Number-of-Subarray-with-sum-at-most-K-59?resourceUrl=pl3467-rs59&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"the question fits the equation
+Find the ___ satisfying Criteria.
+# of , min len , max len, sum of all, sum of len of all subarrays",,Two Pointers
+3 Sum,"May 26, 2026 7:41 PM",Medium,"June 4, 2026",Two Pointers Form 2,"  1. For i ,j ,k fix j and then use two pointers approach with form 2",https://maang.in/problems/3-Sum-65?resourceUrl=pl3476-rs65&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"  1. Array should be sorted
+  2. long - Integer.MIN_VALUE can exceed integer values","2 Sum, 3 Sum, Container with most water comes under form 2 of two pointers.",,Two Pointers
+Smallest Range Covering Elements from K Lists,"May 31, 2026 5:21 PM",Hard,"June 3, 2026",Two Pointers Form 1,"  1. save the matrix in form of pairs and sort the created list
+  2. do two pointers form 1 on the sorted list",https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/description/,,,,Two Pointers
+N Queens,"May 31, 2026 6:35 PM",Hard,"August 4, 2026",LCCM,"  1. use LCCM, L → rows, Choice → columns, Check → no diagonals and column same, Move → push to ans list",https://leetcode.com/problems/n-queens/,,"We need to explore all choices so we go with LCCM 
+To check if two points are on the same diagonal
+Math.abs(y2 - y1) == Math.abs(x2 - x1) ",LeetCode,Backtracking LCCM
+Longest Repeating Character Replacement,"June 3, 2026 10:42 AM",Medium,"June 5, 2026","Sliding Window, Two Pointers",,https://leetcode.com/problems/longest-repeating-character-replacement/,Mistake was assuming that the character at the left pointer (s.charAt(tail)) must be the character the whole window is converted into.,"Template Recognition
+Whenever you see:""Longest/maximum window after changing/removing at most k elements""
+ask:Can I express validity as windowSize - something <= k?
+For Character Replacement:
+windowSize - maxFrequency <= k
+That's the property the sliding window maintains. Your original code instead tried:
+windowSize - frequency(leftCharacter) <= k
+which is the wrong ""something"".",,Two Pointers
+Kth Permutation Easy,"June 7, 2026 2:08 PM",Hard,"June 14, 2026",Kth Solution,"  1. Fixing the first digit creates (n-1)! permutations.
+  2. Each choice belongs to a block of size (n-1)!.
+  3. Find the block containing k:
+  4. Determine which available number's block contains the k-th permutation.
+  5. Choose that number:
+  6. Add it to the answer and remove it from the available numbers.
+  7. Convert k to its position within the chosen block:",https://maang.in/problems/Kth-Permutation-easy-version-476?resourceUrl=pl3523-rs476&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"K-th Solution Pattern
+Goal: Find the k-th valid solution without generating all solutions.
+Key Insight:Use counting to skip entire blocks of solutions instead of generating them one by one.",,Recursion
+N Queens Revisited,"June 7, 2026 7:36 PM",Medium,"August 4, 2026",LCCM,"Same as the N Queens , just with the knight conditions",https://maang.in/problems/NQueens-Revisited-143?resourceUrl=pl3524-rs143&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Backtracking LCCM
+Generate Valid Parentheses LCCM,"June 9, 2026 10:12 AM",Medium,"June 13, 2026",LCCM,"  1. Level → number of open and closed 
+  2. Choice → both the parantheses
+  3. Check → can only add closing if closing > opening
+  4. maintain maxDepth at every stage",https://maang.in/problems/Generate-Balanced-Parenthesis-medium-version-485?resourceUrl=pl3524-rs485&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"Recursion State Rule:
+Each recursive call represents its own state. Never overwrite the parent's state when exploring a child. Instead, compute a new child state and pass it to the recursive call.
+Example:
+• Parent: currentDepth = 2, maxDepth = 2
+• Add '('
+• Child: currentDepth = 3, maxDepth = 3
+Pass (3, 3) to the child, but keep the parent as (2, 2).
+For mutable objects (e.g., StringBuilder), undo changes after recursion. For primitive state (int), create new variables (newDepth, newMax) instead of modifying the parent's variables.",,,Backtracking LCCM
+Android Unlock Pattern,"June 10, 2026 10:43 AM",Hard,"June 14, 2026",LCCM,,https://maang.in/problems/Android-Unlock-Pattern-486?resourceUrl=pl3524-rs486&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"Mistakes & Learnings (Android Unlock Pattern)
+• Started DFS only from cell 1 instead of considering all possible starting cells (1..9).
+• Did not count the starting cell as already selected, causing pattern lengths to be off by one.
+• Tried to determine skipped/intermediate cells using cell numbers ((next + curr) / 2) instead of using the actual grid coordinates.
+• Used || when checking for a valid midpoint; a midpoint cell exists only when both row and column midpoints are integers (&&).
+• Forgot to backtrack the starting cell (vis[i] = false) after each DFS call, causing state leakage between different starting positions.
+• Key takeaway: For grid-based backtracking problems, model the board geometry (coordinates) rather than relying on numbering patterns, and carefully verify that every state change has a matching rollback during backtracking.",,,Backtracking LCCM
+Median of Sub arrays,"June 11, 2026 10:07 AM",Hard,"June 25, 2026",BS on Ans (Atomic Cont),,https://maang.in/problems/Median-of-Subarray-Sum-45?resourceUrl=pl3477-rs45&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"  1. int x int overflows before long ",,,"Binary Search, Two Pointers"
+Easy Graph Queries,"July 19, 2026 11:17 PM",Easy,"August 2, 2026",,Use component numbering framework,https://maang.in/problems/Easy-Graph-Queries-400?resourceUrl=pl3545-rs400&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"Use stack DS instead of recursively calling the DFS function ",,,Graphs
+One Edge,"July 19, 2026 11:55 PM",Medium,"July 26, 2026",DFS,"Find out the connected components size, and then find out number of ordered pairs",https://maang.in/problems/One-Edge-196?resourceUrl=pl3545-rs196&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"Multiplying all sizes of cc, meant finding out number of representatives to connect all cc.
+However, choosing representatives is not enough to connect the graph.
+You still have to decide how those representatives are connected.
+For k components, the number of trees on the chosen representatives is given by Cayley's theorem",,,Graphs
+Find Number of Rooms,"July 20, 2026 10:30 PM",Medium,"July 27, 2026",Flood Fill,Visit every cell and do DFS on every node to find out the connected components number,https://maang.in/problems/Find-the-Number-of-Rooms-191?resourceUrl=pl3546-rs191&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Graphs
+Colour Tree,"July 20, 2026 10:48 PM",Medium,"July 27, 2026",,Create adjacency list to find out degree of vertices,https://maang.in/problems/Colour-Tree-416?resourceUrl=pl3546-rs416&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,,Graphs
+Labryinth,"July 23, 2026 11:59 PM",Medium,"July 30, 2026","BFS, Single Source Shortest Path (SSSP)","Use BFS on start cell to get the shortest path distance to the end cell, also store parent of the cell whose distance got updated",https://cses.fi/problemset/task/1193/,,,,Graphs
+Nearest Exit From Entrance,"July 24, 2026 12:06 AM",Medium,"August 5, 2026","BFS, Single Source Shortest Path (SSSP)",Use SSP then traverse on the boundary cells skipping the entrance and find the shortest distance,https://leetcode.com/problems/nearest-exit-from-entrance-in-maze/submissions/2078779758/,,"DFS gives the optimal answer in first go, so as soon as you reach a border cell we can exit",,Graphs
+Building Roads,"July 25, 2026 9:43 PM",Easy,"August 8, 2026",DFS,Finding out number of components present inside the graph,https://maang.in/problems/Building-Roads-192?resourceUrl=pl3547-rs192&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Connected Components Size,"July 25, 2026 10:23 PM",Medium,"August 3, 2026","DFS, Flood Fill","Maintain the components[][] and c_size[] arrays, then iterate over the graph ",https://maang.in/problems/Connected-Component-Size-684?resourceUrl=pl3547-rs684&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Number of Islands,"July 25, 2026 10:43 PM",Medium,"August 4, 2026","BFS, DFS, Flood Fill","Maintain a component number variable, increment it as you start bfs/dfs on an unvisited node",https://leetcode.com/problems/number-of-islands/description/,,,LeetCode,Graphs
+KWALK,"July 26, 2026 1:30 PM",Medium,"August 5, 2026","BFS, Single Source Shortest Path (SSSP)","Save start and end state, run bfs to get the shortest path ",https://maang.in/problems/KWALK-607?resourceUrl=pl3547-rs607&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Shortest Path in Binary Matrix,"July 26, 2026 1:38 PM",Medium,"August 7, 2026","BFS, Single Source Shortest Path (SSSP)","The direction vector becomes the 8 moves, only semantic difference vis[start] = 1 instead of 0",https://leetcode.com/problems/shortest-path-in-binary-matrix/submissions/2081752591/,dis[start] = 1 instead of regular 0,,LeetCode,Graphs
+"Round Trip ","July 26, 2026 8:04 PM",Medium,"August 6, 2026","Cycle Detection, DFS",if you stumble upon an already visited node then there is a cycle,https://maang.in/problems/Round-Trip-194?resourceUrl=pl3548-rs194&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,do not process if you find parent in the neighbours for undirected graphs,,AlgoZenith,Graphs
+Creating Teams,"July 26, 2026 10:25 PM",Medium,"August 8, 2026","Bipartite Graphs, DFS","If neighbour colour is equal to the parent node, then the graph is not bipartite",https://maang.in/problems/Creating-Teams-193?resourceUrl=pl3548-rs193&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Round Trip II,"July 26, 2026 10:36 PM",Medium,"August 9, 2026","Cycle Detection, DFS",if a cycle between nodes is found then the answer is yes,https://maang.in/problems/Round-Trip-II-388?resourceUrl=pl3548-rs388&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"  1. Not reassigning the global isCycle boolean variable
+  2. if isCycle is true, not point of doing DFS again",,AlgoZenith,Graphs
+Possible Bipartition,"July 26, 2026 10:41 PM",Medium,"August 12, 2026","Bipartite Graphs, DFS","The dislikes array becomes the edges for the graphs, then we need to check if the graph is bipartite or not",https://leetcode.com/problems/possible-bipartition/submissions/2082352602/,,,LeetCode,Graphs
+Smallest Palindromic Arrangement II,"July 29, 2026 10:21 PM",Hard,,,,https://leetcode.com/problems/smallest-palindromic-rearrangement-ii/?envType=daily-question&envId=2026-07-29,,"For a palindrome to exist:
+• Even length: every character must have even frequency.
+• Odd length: exactly one character can have odd frequency.
+• The odd-frequency character is fixed at the middle position.",LeetCode,"Maths, Permuations"
+Monsters,"July 29, 2026 11:56 PM",Medium,"August 5, 2026","BFS, Multi Source Shortest Path","For every cell find out the time to reach for person, and min time for any monster to reach there ",https://cses.fi/problemset/task/1194,"Use char[][] for grid instead of ArrayList<ArrayList<Character>> 
+Primitive BFS queue (int[]) instead of ArrayDeque<Cell> → avoids object creation and GC overhead.
+Encode (row, col) as row * m + col → avoids storing Cell objects in the queue.
+Use char[][] parent instead of Cell[][] parent → store only the direction (U/D/L/R) needed for path reconstruction.
+Early exit if A starts on boundary → no BFS needed.
+Prune unsafe player moves immediately using playerTime < monsterTime → never explore cells where a monster arrives earlier or simultaneously.
+Early exit on first safe boundary reached by player BFS → BFS guarantees it is a shortest escape; no need to explore the remaining grid.",,CSES,Graphs
+Rotting Organges,"July 30, 2026 12:04 AM",Medium,"August 11, 2026","BFS, Multi Source Shortest Path","Put all rotting oranges into queue, find out the max time to reach a normal orange",https://leetcode.com/problems/rotting-oranges/description/,,,LeetCode,Graphs
+Predict The Winner,"August 1, 2026 10:38 PM",Medium,"August 8, 2026",Interval DP,"Define the state on a subarray: dp[l][r] represents the answer for interval [l, r].
+Identify the choices at the current interval (e.g., pick left or pick right).
+Express the current state using answers from smaller intervals (derive the recurrence).
+Define the base case (usually l == r).
+Fill the DP table in an order that ensures all dependent intervals are already computed (typically l from n-1 → 0 and r from l → n-1).",https://leetcode.com/problems/predict-the-winner/submissions/2090352416/?envType=daily-question&envId=2026-08-01,,,LeetCode Problem Of The Day,DP
+Infected People,"August 2, 2026 1:20 PM",Medium,"August 12, 2026","BFS, Multi Source Shortest Path",Insert all the infected people into the queue,https://maang.in/problems/Infected-People-589?resourceUrl=pl3549-rs589&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,intialise ans with 0; for edge case in which all people are already infected,,AlgoZenith,Graphs
+Area & Perimeter Of Connected Component,"August 2, 2026 2:09 PM",Hard,"August 16, 2026","BFS, DFS, Flood Fill","Start DFS/BFS from every cell, calculate size of connected components and perimeter contribution of cell",https://maang.in/problems/Area-and-Perimeter-of-Connected-Components-422?resourceUrl=pl3549-rs422&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"• Started BFS from every unvisited cell instead of only unvisited # cells.
+• Didn't mark the starting cell as visited before pushing it into the queue.
+• Didn't count the starting cell in currArea.
+• Didn't add the starting cell's perimeter contribution to currPerimeter.",,AlgoZenith,Graphs
+Stone Game III,"August 3, 2026 11:21 PM",Hard,"August 3, 2026",Game Dp,"the recurrence relation would be derived from the index, there can be 3 moves at a time",https://leetcode.com/problems/stone-game-iii/?envType=daily-question&envId=2026-08-03,,"Whenever you see a new problem, mentally go through these four questions:
+1. Can I solve it recursively? Express the answer using smaller problems.
+2. Do recursive calls repeat? If yes → DP.
+3. What uniquely defines a state? Those variables become your DP dimensions.
+4. Can I derive a recurrence? Use previously computed states.",LeetCode Problem Of The Day,"DP, Recursion"
+Smallest Permutation,"August 5, 2026 12:23 AM",Medium,"August 12, 2026","BFS, Topological Ordering",use a priority queue in Kahns algorithm to sort the node added in topo,https://maang.in/problems/Smallest-Permutation-898?resourceUrl=pl3550-rs898&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Complete the Game,"August 5, 2026 11:45 PM",Medium,"August 19, 2026","DP, Topological Ordering","Traverse the nodes edges in topological sort order 
+use dp array to store the number of paths uptill this node",https://maang.in/problems/Complete-the-Game-432?resourceUrl=pl3550-rs432&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"A good way to think about DP on DAGs is:Topological order is the order in which DP dependencies are satisfied.
+Whenever the recurrence is of the formdp[v] depends only on predecessors,dp[v] \text{ depends only on predecessors},dp[v] depends only on predecessors,
+a topological traversal is usually the correct processing order. This pattern appears frequently in competitive programming.",AlgoZenith,Graphs
+Edge Reverse,"August 6, 2026 11:18 PM",Medium,"August 20, 2026","0-1 BFS, BFS","  • When adding an edge to the graph , add a reverse edge with weight as 1
+  • do 0-1 BFS from the starting node
+",https://maang.in/problems/Edge-Reverse-900?resourceUrl=pl3553-rs900&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Stone Game II — LeetCode 1140,"August 9, 2026 3:54 PM",Medium,"August 16, 2026","Game Dp, MniMax DP, Suffix Sum","DP on (index, M) + optimal opponent subtraction",https://leetcode.com/problems/stone-game-ii/?envType=daily-question&envId=2026-08-09,Initially forgot to populate suffix with piles; also important to iterate i backwards and include X = 2M.,"dp[i][M] = maximum stones the current player can obtain from i onward. suffix[i] is the total stones remaining. After choosing X, the opponent gets dp[i+X][max(M,X)], so current player's final amount is suffix[i] - opponent's optimal amount. Iterate i backwards because states depend on i+X. Base case: dp[n][M] = 0.",LeetCode Problem Of The Day,DP
+Shortest Route I,"August 9, 2026 10:12 PM",Medium,"August 23, 2026","BFS, Dijkstras, Single Source Shortest Path (SSSP)",Graph → Weighted Directed Graph → Single-Source Shortest Path → Min-Heap,https://maang.in/problems/Shortest-Path-I-207?resourceUrl=pl3594-rs207&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Burn Them All,"August 9, 2026 10:38 PM",Medium,"August 23, 2026","BFS, Dijkstras, Single Source Shortest Path (SSSP)","Run Dijkstra from the source to get earliest fire-arrival time dist[u] for every node.For every edge (u, v, w), calculate when the entire edge burns.
+Take the maximum edge-burning time.",https://maang.in/problems/Burn-them-All-618?resourceUrl=pl3594-rs618&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"  • Used integer division for half-time, turning 2.5 into 2.
+  • Defining static values for arrays sizes, not using dynamic values from input","if |dist[u] - dist[v]| >= w, the earlier fire burns the whole edge: min(dist[u], dist[v]) + w.
+Otherwise, fires approach each other from both ends, so finish time is (dist[u] + dist[v] + w) / 2.",AlgoZenith,Graphs
+Stone Game IV,"August 10, 2026 10:13 PM",Hard,"August 17, 2026","Bottom Up Dp, Game Dp",Winning/Losing State DP → winning state is if for any k { k*k ≤ n } dp[n] = true if dp[n-k^2] = false,https://leetcode.com/problems/stone-game-iv/submissions/2101829163/?envType=daily-question&envId=2026-08-10,Used n instead of i inside the inner loop; initially used k² < n instead of k² <= i.,"dp[i] = whether the current player can force a win with i stones. Base: dp[0] = false. Recurrence: dp[i] = true if there exists a square k² <= i such that dp[i-k²] == false; otherwise false. Once one losing state is found, stop checking for that i.",LeetCode Problem Of The Day,DP
+Length of Longest Subarray With at Most K Frequency,"August 12, 2026 10:18 PM",Medium,"August 26, 2026","Two Pointers, Two Pointers Form 1","Maintain a map of frequencies and then use the form 1 template for two pointers for isValid ",https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/description/?envType=daily-question&envId=2026-08-12,Cleared the whole window when invalid instead of removing arr[tail]; missed overlapping valid subarrays.,,LeetCode Problem Of The Day,"Arrays, Two Pointers"
+Budget Travelling,"August 15, 2026 2:23 PM",Hard,"August 22, 2026","BFS, Dijkstras, Single Source Shortest Path (SSSP)","cost[city][fuel] = minimum money spent from source to reach city with exactly fuel remaining. From (city,fuel): buy 1 fuel → (city,fuel+1) with +price[city]; drive edge of weight w → (nextCity,fuel-w) with +0, if fuel >= w.",https://maang.in/problems/Budget-Travelling-615?resourceUrl=pl3597-rs615&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"In Java, shadowed the cost[][] array with local long cost; allocated second dimension using m instead of capacity; used n instead of dest for the final answer.","Graph → State (city, fuel) → Dijkstra",AlgoZenith,Graphs
+One Peice,"August 15, 2026 3:35 PM",Hard,"August 23, 2026","0-1 BFS, BFS","use directions array to move into 4 directions, if the direction follows the node wind then wt = 0 otherwise 1",https://maang.in/problems/One-Piece-902?resourceUrl=pl3553-rs902&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,"Grid Helper was using 0 based indexing, so colliding on the last cell ",,AlgoZenith,Graphs
+Bellman Ford Revisited,"August 15, 2026 7:35 PM",Medium,"August 20, 2026","BFS, Bellman Ford, Single Source Shortest Path (SSSP)",Negate all the edges to make the question minimum path finding,https://maang.in/problems/BellmanFord-Revisited-209?resourceUrl=pl3595-rs209&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Snakes & Ladder,"August 16, 2026 5:50 PM",Medium,"August 25, 2026",BFS,"  • Maintain a nextNode array to jump cells
+  • the movement can be from 1 to 6
+",https://maang.in/problems/Snakes-and-Ladders-927?resourceUrl=pl3598-rs927&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,Initially only printed when 100 was popped; failed to output -1 when unreachable. Also used 0 as a sentinel for missing snake/ladder instead of initializing nextNode[i] = i.,,AlgoZenith,Graphs
+Shortest Path II,"August 16, 2026 6:08 PM",Medium,"August 30, 2026","BFS, Floyd Warshall",Direct Floyd Warshall,https://maang.in/problems/Shortest-Path-II-208?resourceUrl=pl3596-rs208&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,,AlgoZenith,Graphs
+Jump Game,"August 20, 2026 10:11 AM",Hard,"August 27, 2026","BFS, Dijkstras, Super Node","Model adjacent positions as bidirectional edges of cost b. For every distinct value, create one virtual node: index → virtual costs 0, virtual → index costs a, allowing jumps between equal-valued indices in O(1) graph structure instead of quadratic edges.",https://maang.in/problems/Jump-Game-897?resourceUrl=pl3599-rs897&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D," dist/vis size, missing INF initialization, int overflow risk, unnecessary Dijkstra parameter.","Java note: map.computeIfAbsent(x, k -> new ArrayList<>()).add(i) replaces the verbose containsKey/put/get pattern and creates the list only when the key is absent.",AlgoZenith,Graphs
+All Pairs Shortest Path,"August 21, 2026 10:00 AM",Medium,"September 2, 2026",Floyd Warshall,"Relax the nodes in the reverse order of the removed nodes , then after each main iteration calculate the sum of shortest distances of all pairs",https://maang.in/problems/All-Pairs-Shortest-Path-431?resourceUrl=pl3596-rs431&returnUrl=%5B%22/cohorts/AZ-Premium-Cohort-14-70?tab%3Dassignments%22%5D,,"Floyd–Warshall gradually allows vertices as intermediate nodes. For each newly added k, compare direct i→j with i→k→j. Since vertices are deleted, process the order in reverse so the graph is built back. After adding k, relax all pairs, then sum distances only among active vertices",AlgoZenith,Graphs
