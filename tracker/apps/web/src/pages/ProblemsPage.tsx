@@ -4,6 +4,8 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import type { ProblemQuery } from '@tracker/shared'
 import { api } from '../lib/api'
 import Filters from '../components/Filters'
+import SearchBox, { type PickKind } from '../components/SearchBox'
+import ActiveFilters from '../components/ActiveFilters'
 import { Chip, Empty, difficultyTone, inputCls } from '../components/ui'
 
 export default function ProblemsPage() {
@@ -14,10 +16,17 @@ export default function ProblemsPage() {
   // debounce the search box so typing doesn't fire a request per keystroke
   useEffect(() => {
     const t = setTimeout(() => {
-      const next = new URLSearchParams(sp)
-      term ? next.set('q', term) : next.delete('q')
-      next.delete('page')
-      if (next.toString() !== sp.toString()) setSp(next, { replace: true })
+      // Functional update: this fires 250ms late, so building from a
+      // captured `sp` could wipe a filter picked in the meantime.
+      setSp(
+        (prev) => {
+          const next = new URLSearchParams(prev)
+          term ? next.set('q', term) : next.delete('q')
+          next.delete('page')
+          return next
+        },
+        { replace: true },
+      )
     }, 250)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -33,10 +42,12 @@ export default function ProblemsPage() {
   })
 
   const patch = (p: Record<string, string | undefined>) => {
-    const next = new URLSearchParams(sp)
-    for (const [k, v] of Object.entries(p)) v ? next.set(k, v) : next.delete(k)
-    next.delete('page')
-    setSp(next)
+    setSp((prev) => {
+      const next = new URLSearchParams(prev)
+      for (const [k, v] of Object.entries(p)) v ? next.set(k, v) : next.delete(k)
+      next.delete('page')
+      return next
+    })
   }
 
   const total = list.data?.total ?? 0
@@ -47,12 +58,17 @@ export default function ProblemsPage() {
       <Filters facets={facets.data} value={value} onChange={patch} />
 
       <div className="min-w-0 flex-1">
-        <div className="mb-4 flex items-center gap-3">
-          <input
-            className={inputCls}
-            placeholder="Search titles, approaches, notes, mistakes…"
+        <div className="mb-3 flex items-start gap-3">
+          <SearchBox
             value={term}
-            onChange={(e) => setTerm(e.target.value)}
+            onChange={setTerm}
+            facets={facets.data}
+            onPick={(kind: PickKind, v: string) => {
+              // Picking a facet replaces the free-text search with the filter —
+              // keeping both would usually return nothing.
+              setTerm('')
+              patch({ [kind]: v, q: undefined })
+            }}
           />
           <select
             className={inputCls + ' w-40'}
@@ -64,6 +80,16 @@ export default function ProblemsPage() {
             <option value="difficulty">Difficulty</option>
           </select>
         </div>
+
+        <ActiveFilters
+          value={value}
+          facets={facets.data}
+          onClear={(k) => patch({ [k]: undefined })}
+          onClearAll={() =>
+            patch({ topic: undefined, pattern: undefined, source: undefined,
+                    difficulty: undefined, status: undefined })
+          }
+        />
 
         <div className="mb-2 text-[12px] text-[#8b949e]">
           {list.isLoading ? 'Loading…' : `${total} problem${total === 1 ? '' : 's'}`}
