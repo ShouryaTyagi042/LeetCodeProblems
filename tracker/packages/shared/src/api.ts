@@ -53,8 +53,12 @@ export function createApi(opts: ApiOptions) {
     listProblems: (q: ProblemQuery = {}) =>
       req<Paged<ProblemSummary>>(`/api/problems${qs(q as Record<string, unknown>)}`),
 
+    // Encode per segment so a slug keeps its '/' as a real path separator
+    // rather than %2F, which many proxies reject.
     getProblem: (slugOrId: string) =>
-      req<ProblemDetail>(`/api/problems/${encodeURIComponent(slugOrId)}`),
+      req<ProblemDetail>(
+        `/api/problems/${slugOrId.split('/').map(encodeURIComponent).join('/')}`,
+      ),
 
     updateProblem: (id: string, body: UpdateProblemInput) =>
       req<ProblemDetail>(`/api/problems/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),

@@ -63,12 +63,27 @@ app.get('/api/problems', async (req) => {
   return { items: items.map(toSummary), total, page, perPage }
 })
 
-app.get('/api/problems/:key', async (req, reply) => {
-  const { key } = req.params as { key: string }
-  const p = await prisma.problem.findFirst({
+async function findProblem(key: string) {
+  return prisma.problem.findFirst({
     where: { OR: [{ id: key }, { slug: key }] },
     include: DETAIL_INCLUDE as any,
   })
+}
+
+// Slugs contain a slash ('graphs/dijkstras'). Accept it as two path
+// segments as well as one encoded segment: %2F is rejected outright by
+// nginx and several other proxies, so the two-segment form is the one
+// that will keep working once this is hosted for the mobile app.
+app.get('/api/problems/:topic/:name', async (req, reply) => {
+  const { topic, name } = req.params as { topic: string; name: string }
+  const p = await findProblem(`${topic}/${name}`)
+  if (!p) return reply.code(404).send({ message: 'not found' })
+  return toDetail(p)
+})
+
+app.get('/api/problems/:key', async (req, reply) => {
+  const { key } = req.params as { key: string }
+  const p = await findProblem(key)
   if (!p) return reply.code(404).send({ message: 'not found' })
   return toDetail(p)
 })
