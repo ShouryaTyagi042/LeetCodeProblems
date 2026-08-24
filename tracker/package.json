@@ -1,0 +1,23 @@
+{
+  "name": "dsa-tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:push": "pnpm --filter @tracker/db push",
+    "db:studio": "pnpm --filter @tracker/db studio",
+    "sync": "pnpm --filter @tracker/tools run sync",
+    "import:notion": "pnpm --filter @tracker/tools run import-notion",
+    "seed": "pnpm sync && pnpm import:notion",
+    "api": "pnpm --filter @tracker/api dev",
+    "web": "pnpm --filter @tracker/web dev",
+    "dev": "concurrently -n api,web -c cyan,magenta \"pnpm api\" \"pnpm web\"",
+    "build": "pnpm -r build"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "concurrently": "^9.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "pnpm@9.4.0"
+}

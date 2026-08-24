@@ -1,0 +1,19 @@
+{
+  "name": "@tracker/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "build": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@tracker/db": "workspace:*",
+    "@tracker/shared": "workspace:*",
+    "@tracker/tools": "workspace:*",
+    "fastify": "^5.2.0"
+  },
+  "devDependencies": { "tsx": "^4.19.2", "typescript": "^5.7.2" }
+}

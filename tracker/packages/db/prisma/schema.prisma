@@ -1,0 +1,122 @@
+// DSA Practice Tracker — data model (AlgoZenith/WEBAPP_PLAN.md §5)
+//
+// SQLite for local single-user use. To move to Postgres later, change
+// `provider` to "postgresql" and point DATABASE_URL at the server; no
+// model changes are needed (nothing here uses SQLite-specific types).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Problem {
+  id            String    @id @default(cuid())
+  slug          String    @unique // 'graphs/dijkstras'
+  title         String
+  folderPath    String    @unique // 'topics/Graphs/Dijkstras' — the sync key
+  source        String? // AlgoZenith | LeetCode | CSES | AtCoder | Codeforces
+  judgeUrl      String?
+  difficulty    String? // Easy | Medium | Hard
+  status        String    @default("unsolved") // unsolved | solved | needs_review
+  firstSolvedAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  topics    ProblemTopic[]
+  patterns  ProblemPattern[]
+  solutions Solution[]
+  testcases Testcase[]
+  note      Note?
+  reviews   Review[]
+
+  @@index([status])
+  @@index([difficulty])
+  @@index([source])
+}
+
+model Topic {
+  id       String         @id @default(cuid())
+  name     String         @unique // 'Two Pointers'
+  slug     String         @unique // 'two-pointers'
+  problems ProblemTopic[]
+}
+
+model Pattern {
+  id       String           @id @default(cuid())
+  name     String           @unique // '0-1 BFS'
+  slug     String           @unique
+  problems ProblemPattern[]
+}
+
+model ProblemTopic {
+  problemId String
+  topicId   String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  topic     Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, topicId])
+  @@index([topicId])
+}
+
+model ProblemPattern {
+  problemId String
+  patternId String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  pattern   Pattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, patternId])
+  @@index([patternId])
+}
+
+model Solution {
+  id        String   @id @default(cuid())
+  problemId String
+  language  String   @default("java")
+  code      String
+  filePath  String // relative to the AlgoZenith root
+  loc       Int      @default(0)
+  syncedAt  DateTime @default(now())
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, filePath])
+}
+
+model Testcase {
+  id        String  @id @default(cuid())
+  problemId String
+  input     String
+  expected  String
+  ord       Int     @default(0)
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, ord])
+}
+
+model Note {
+  problemId String   @id
+  framework String? // the approach, in your words
+  notes     String?
+  mistakes  String? // what you got wrong
+  updatedAt DateTime @updatedAt
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+// Append-only review history (Phase 3). Seeded from Notion's `Due At`
+// so scheduling does not restart from zero.
+model Review {
+  id           String    @id @default(cuid())
+  problemId    String
+  reviewedAt   DateTime  @default(now())
+  outcome      String? // again | hard | good | easy
+  ease         Float     @default(2.5)
+  intervalDays Int       @default(0)
+  dueAt        DateTime?
+  problem      Problem   @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+  @@index([dueAt])
+}
