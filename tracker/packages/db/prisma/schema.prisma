@@ -21,6 +21,9 @@ model Problem {
   source        String? // AlgoZenith | LeetCode | CSES | AtCoder | Codeforces
   judgeUrl      String?
   difficulty    String? // Easy | Medium | Hard
+  // Sortable rank for difficulty: ordering the string alphabetically gives
+  // Easy < Hard < Medium. Kept in step with `difficulty` on every write.
+  difficultyRank Int?
   status        String    @default("unsolved") // unsolved | solved | needs_review
   firstSolvedAt DateTime?
   createdAt     DateTime  @default(now())
@@ -36,6 +39,8 @@ model Problem {
 
   @@index([status])
   @@index([difficulty])
+  @@index([difficultyRank])
+  @@index([createdAt])
   @@index([source])
 }
 

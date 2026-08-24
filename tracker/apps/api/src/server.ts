@@ -1,7 +1,10 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import { getPrisma } from '@tracker/db'
-import { slugify, type Facets, type Stats } from '@tracker/shared'
+import {
+  difficultyRank, parseSort, slugify,
+  type Facets, type SortSpec, type Stats,
+} from '@tracker/shared'
 import { DETAIL_INCLUDE, SUMMARY_INCLUDE, toDetail, toSummary } from './serialize.js'
 import { scaffoldFolder } from './scaffold.js'
 import { registerReviewRoutes } from './review.js'
@@ -25,6 +28,34 @@ app.get('/api/health', async () => ({ ok: true }))
 registerReviewRoutes(app)
 
 // ---------- Phase 1: read ----------
+
+/**
+ * Multi-key ordering from 'field:dir,field:dir'. Keys apply in the order
+ * given, so 'difficulty:asc,title:asc' is difficulty first, title as the
+ * tie-break. A stable final key keeps pagination from repeating or
+ * dropping rows when many rows tie.
+ */
+function buildOrderBy(raw?: string): any[] {
+  const specs: SortSpec[] = parseSort(raw)
+  // Unset values go last in both directions. SQLite would otherwise sort
+  // NULL first, so ascending by "next review" would lead with the problems
+  // that have no review scheduled at all.
+  const nl = (dir: string) => ({ sort: dir, nulls: 'last' })
+  const mapped = specs.map((s) => {
+    switch (s.field) {
+      // Sort on the numeric rank, not the string: alphabetically Easy <
+      // Hard < Medium, which is not the order anyone means.
+      case 'difficulty': return { difficultyRank: nl(s.dir) }
+      case 'created': return { createdAt: s.dir }
+      case 'source': return { source: nl(s.dir) }
+      default: return { [s.field]: s.dir }
+    }
+  })
+  if (!mapped.length) mapped.push({ title: 'asc' })
+  if (!specs.some((s) => s.field === 'title')) mapped.push({ title: 'asc' })
+  mapped.push({ id: 'asc' })
+  return mapped
+}
 
 app.get('/api/problems', async (req) => {
   const q = req.query as Record<string, string | undefined>
@@ -51,10 +82,7 @@ app.get('/api/problems', async (req) => {
   }
   if (!where.AND.length) delete where.AND
 
-  const orderBy =
-    q.sort === 'recent' ? { createdAt: 'desc' as const }
-    : q.sort === 'difficulty' ? { difficulty: 'asc' as const }
-    : { title: 'asc' as const }
+  const orderBy = buildOrderBy(q.sort)
 
   const [items, total] = await Promise.all([
     prisma.problem.findMany({
@@ -182,6 +210,7 @@ app.patch('/api/problems/:id', async (req, reply) => {
   for (const k of ['title', 'source', 'judgeUrl', 'difficulty', 'status'] as const) {
     if (k in b) data[k] = b[k]
   }
+  if ('difficulty' in b) data.difficultyRank = difficultyRank(b.difficulty)
   if (Object.keys(data).length) await prisma.problem.update({ where: { id }, data })
   await setTags(id, b.topics, 'topic')
   await setTags(id, b.patterns, 'pattern')
@@ -249,6 +278,7 @@ app.post('/api/problems', async (req, reply) => {
       slug: `${slugify(topicDir)}/${slugify(folderName)}`,
       folderPath,
       difficulty: b.difficulty ?? null,
+      difficultyRank: difficultyRank(b.difficulty),
       source: b.source ?? null,
       judgeUrl: b.judgeUrl ?? null,
       status: 'unsolved',

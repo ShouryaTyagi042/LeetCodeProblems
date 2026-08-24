@@ -20,13 +20,14 @@ export function toSummary(p: any): ProblemSummary {
       p.note && (p.note.framework || p.note.notes || p.note.mistakes),
     ),
     loc: (p.solutions ?? []).reduce((a: number, s: any) => a + (s.loc ?? 0), 0),
+    createdAt: p.createdAt?.toISOString?.() ?? String(p.createdAt),
+    dueAt: p.card?.due?.toISOString?.() ?? null,
   }
 }
 
 export function toDetail(p: any): ProblemDetail {
   return {
     ...toSummary(p),
-    createdAt: p.createdAt?.toISOString?.() ?? String(p.createdAt),
     firstSolvedAt: p.firstSolvedAt?.toISOString?.() ?? null,
     note: p.note
       ? {
@@ -53,6 +54,7 @@ export const DETAIL_INCLUDE = {
   solutions: true,
   testcases: { orderBy: { ord: 'asc' } },
   note: true,
+  card: { select: { due: true } },
 } as const
 
 export const SUMMARY_INCLUDE = {
@@ -60,4 +62,5 @@ export const SUMMARY_INCLUDE = {
   patterns: { include: { pattern: true } },
   solutions: { select: { loc: true } },
   note: { select: { framework: true, notes: true, mistakes: true } },
+  card: { select: { due: true } },
 } as const

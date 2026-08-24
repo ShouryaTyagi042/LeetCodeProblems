@@ -12,7 +12,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { parse } from 'csv-parse/sync'
 import { getPrisma } from '@tracker/db'
-import { seedCard, slugify } from '@tracker/shared'
+import { difficultyRank, seedCard, slugify } from '@tracker/shared'
 import { ALGO_ROOT } from './paths.js'
 
 const prisma = getPrisma()
@@ -101,6 +101,7 @@ export async function importNotion(opts: { quiet?: boolean } = {}) {
       where: { id: problemId },
       data: {
         difficulty: row.Difficulty?.trim() || null,
+        difficultyRank: difficultyRank(row.Difficulty?.trim()),
         source: row.Source?.trim() || null,
         judgeUrl: row.Link?.trim() || null,
         // Notion's title is more readable than the folder name

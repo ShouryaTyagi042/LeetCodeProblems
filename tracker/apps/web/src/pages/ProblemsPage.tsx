@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import type { ProblemQuery } from '@tracker/shared'
+import { formatSort, parseSort, type ProblemQuery } from '@tracker/shared'
 import { api } from '../lib/api'
 import Filters from '../components/Filters'
 import SearchBox, { type PickKind } from '../components/SearchBox'
 import ActiveFilters from '../components/ActiveFilters'
+import SortControl from '../components/SortControl'
 import { Chip, Empty, difficultyTone, inputBase } from '../components/ui'
 
 export default function ProblemsPage() {
@@ -73,15 +74,10 @@ export default function ProblemsPage() {
               patch({ [kind]: v, q: undefined })
             }}
           />
-          <select
-            className={`${inputBase} w-36 shrink-0`}
-            value={value.sort ?? 'title'}
-            onChange={(e) => patch({ sort: e.target.value })}
-          >
-            <option value="title">A–Z</option>
-            <option value="recent">Recent</option>
-            <option value="difficulty">Difficulty</option>
-          </select>
+          <SortControl
+            value={parseSort(value.sort)}
+            onChange={(specs) => patch({ sort: specs.length ? formatSort(specs) : undefined })}
+          />
         </div>
 
         <ActiveFilters
@@ -129,8 +125,14 @@ export default function ProblemsPage() {
               {p.difficulty && (
                 <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>
               )}
-              <span className="w-14 shrink-0 text-right text-[11px] text-[#6e7681]">
-                {p.loc || ''} {p.loc ? 'LOC' : ''}
+              <span
+                title={`created ${p.createdAt.slice(0, 10)}`}
+                className="w-14 shrink-0 text-right text-[11px] text-[#6e7681]"
+              >
+                {shortDate(p.createdAt)}
+              </span>
+              <span className="w-12 shrink-0 text-right text-[11px] text-[#6e7681]">
+                {p.loc || ''}
               </span>
             </Link>
           ))}
@@ -158,4 +160,10 @@ export default function ProblemsPage() {
       </div>
     </div>
   )
+}
+
+/** '12 Apr' — compact enough for a table column. */
+function shortDate(iso: string): string {
+  const d = new Date(iso)
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
 }

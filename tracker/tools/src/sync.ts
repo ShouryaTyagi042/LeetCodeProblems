@@ -12,7 +12,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { getPrisma } from '@tracker/db'
-import { humanize, newCard, slugify } from '@tracker/shared'
+import { UNKNOWN_CREATED_AT, humanize, newCard, slugify } from '@tracker/shared'
 import { ALGO_ROOT, TOPICS_DIR, TOPIC_DISPLAY, assertLayout } from './paths.js'
 
 const prisma = getPrisma()
@@ -113,6 +113,10 @@ export async function sync(opts: { quiet?: boolean } = {}) {
       const p = await prisma.problem.create({
         data: {
           slug: s.slug, title: s.title, folderPath: s.folderPath, status: s.status,
+          // The filesystem carries no creation date. import() overwrites
+          // this for the problems Notion knows about; the rest keep the
+          // sentinel rather than pretending they were created today.
+          createdAt: new Date(UNKNOWN_CREATED_AT),
         },
       })
       row = { id: p.id, slug: p.slug, folderPath: p.folderPath, status: p.status }

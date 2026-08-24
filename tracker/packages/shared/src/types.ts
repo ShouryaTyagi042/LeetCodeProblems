@@ -4,6 +4,76 @@
 export const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const
 export type Difficulty = (typeof DIFFICULTIES)[number]
 
+/**
+ * Stand-in creation date for problems whose real one is unknown — anything
+ * the filesystem scan finds that has no Notion row. Without it these rows
+ * take `now()`, which makes every unknown problem look like it was created
+ * the day the database was built and swamps the top of a Created sort.
+ * A fixed date in the past groups them honestly instead.
+ */
+export const UNKNOWN_CREATED_AT = '2026-01-01T00:00:00.000Z'
+
+/** Difficulty as a sortable number; alphabetical order would be wrong. */
+export const DIFFICULTY_RANK: Record<Difficulty, number> = {
+  Easy: 1, Medium: 2, Hard: 3,
+}
+export function difficultyRank(d?: string | null): number | null {
+  return d && d in DIFFICULTY_RANK ? DIFFICULTY_RANK[d as Difficulty] : null
+}
+
+// ---------- sorting ----------
+
+// 'due' is deliberately absent: it lives on the Card relation, and Prisma
+// cannot place nulls last through a relation, so ascending would always
+// lead with the problems that have no review scheduled at all. Sorting by
+// it correctly needs Problem.dueAt denormalised — not worth the drift risk
+// until it is actually wanted.
+export const SORT_FIELDS = [
+  'title', 'difficulty', 'created', 'status', 'source',
+] as const
+export type SortField = (typeof SORT_FIELDS)[number]
+
+export const SORT_LABEL: Record<SortField, string> = {
+  title: 'Title',
+  difficulty: 'Difficulty',
+  created: 'Created',
+  status: 'Status',
+  source: 'Source',
+}
+
+/** What asc/desc mean for each field, so the UI can say it plainly. */
+export const SORT_DIR_LABEL: Record<SortField, { asc: string; desc: string }> = {
+  title: { asc: 'A → Z', desc: 'Z → A' },
+  difficulty: { asc: 'Easy first', desc: 'Hard first' },
+  created: { asc: 'Oldest first', desc: 'Newest first' },
+  status: { asc: 'A → Z', desc: 'Z → A' },
+  source: { asc: 'A → Z', desc: 'Z → A' },
+}
+
+export type SortDir = 'asc' | 'desc'
+export interface SortSpec { field: SortField; dir: SortDir }
+
+/** Parse 'difficulty:desc,created:asc'. Tolerates the old single-value forms. */
+export function parseSort(raw?: string | null): SortSpec[] {
+  if (!raw) return []
+  const out: SortSpec[] = []
+  for (const part of raw.split(',')) {
+    const [f, d] = part.trim().split(':')
+    if (!f) continue
+    // Legacy value from before multi-sort existed.
+    if (f === 'recent') { out.push({ field: 'created', dir: 'desc' }); continue }
+    if (!(SORT_FIELDS as readonly string[]).includes(f)) continue
+    const field = f as SortField
+    if (out.some((s) => s.field === field)) continue // no duplicate keys
+    out.push({ field, dir: d === 'desc' ? 'desc' : 'asc' })
+  }
+  return out
+}
+
+export function formatSort(specs: SortSpec[]): string {
+  return specs.map((s) => `${s.field}:${s.dir}`).join(',')
+}
+
 export const STATUSES = ['unsolved', 'solved', 'needs_review'] as const
 export type Status = (typeof STATUSES)[number]
 
@@ -51,11 +121,13 @@ export interface ProblemSummary {
   patterns: Tag[]
   hasNote: boolean
   loc: number
+  createdAt: string
+  /** Next scheduled review, or null if the problem has no card. */
+  dueAt: string | null
 }
 
 /** Full detail — includes code and test cases. */
 export interface ProblemDetail extends ProblemSummary {
-  createdAt: string
   firstSolvedAt: string | null
   note: Note | null
   solutions: Solution[]
