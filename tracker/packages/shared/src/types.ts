@@ -53,6 +53,23 @@ export const SORT_DIR_LABEL: Record<SortField, { asc: string; desc: string }> = 
 export type SortDir = 'asc' | 'desc'
 export interface SortSpec { field: SortField; dir: SortDir }
 
+/**
+ * Applied when the URL carries no sort. Defined here rather than in the
+ * server or the UI so the two cannot disagree about what "default" means
+ * and show one order while applying another.
+ */
+export const DEFAULT_SORT: readonly SortSpec[] = [
+  { field: 'created', dir: 'desc' },
+]
+
+/** True when `specs` is just the default, so the URL can stay clean. */
+export function isDefaultSort(specs: SortSpec[]): boolean {
+  return (
+    specs.length === DEFAULT_SORT.length &&
+    specs.every((s, i) => s.field === DEFAULT_SORT[i].field && s.dir === DEFAULT_SORT[i].dir)
+  )
+}
+
 /** Parse 'difficulty:desc,created:asc'. Tolerates the old single-value forms. */
 export function parseSort(raw?: string | null): SortSpec[] {
   if (!raw) return []

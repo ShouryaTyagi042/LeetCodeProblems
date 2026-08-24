@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  SORT_DIR_LABEL, SORT_FIELDS, SORT_LABEL,
-  type SortField, type SortSpec,
+  DEFAULT_SORT, SORT_DIR_LABEL, SORT_FIELDS, SORT_LABEL,
+  isDefaultSort, type SortField, type SortSpec,
 } from '@tracker/shared'
 import { cx } from './ui'
 
@@ -114,14 +114,16 @@ export default function SortControl({
             </>
           )}
 
-          {value.length > 0 && (
+          {!isDefaultSort(value) && (
             <button
-              onClick={() => onChange([])}
+              onClick={() => onChange([...DEFAULT_SORT])}
               className={cx(
                 'mt-2 w-full rounded px-2 py-1 text-[11px] text-[#8b949e] hover:bg-[#21262d]',
               )}
             >
-              Reset to default (Title ↑)
+              Reset to default ({DEFAULT_SORT.map(
+                (s) => `${SORT_LABEL[s.field]} ${s.dir === 'asc' ? '↑' : '↓'}`,
+              ).join(', ')})
             </button>
           )}
         </div>

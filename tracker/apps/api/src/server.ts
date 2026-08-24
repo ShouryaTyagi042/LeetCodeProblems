@@ -2,7 +2,7 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import { getPrisma } from '@tracker/db'
 import {
-  difficultyRank, parseSort, slugify,
+  DEFAULT_SORT, difficultyRank, parseSort, slugify,
   type Facets, type SortSpec, type Stats,
 } from '@tracker/shared'
 import { DETAIL_INCLUDE, SUMMARY_INCLUDE, toDetail, toSummary } from './serialize.js'
@@ -36,7 +36,8 @@ registerReviewRoutes(app)
  * dropping rows when many rows tie.
  */
 function buildOrderBy(raw?: string): any[] {
-  const specs: SortSpec[] = parseSort(raw)
+  const parsed = parseSort(raw)
+  const specs: SortSpec[] = parsed.length ? parsed : [...DEFAULT_SORT]
   // Unset values go last in both directions. SQLite would otherwise sort
   // NULL first, so ascending by "next review" would lead with the problems
   // that have no review scheduled at all.
@@ -51,7 +52,8 @@ function buildOrderBy(raw?: string): any[] {
       default: return { [s.field]: s.dir }
     }
   })
-  if (!mapped.length) mapped.push({ title: 'asc' })
+  // Title is a readable tie-break — without it the 126 problems sharing the
+  // unknown-date sentinel would come back in arbitrary order.
   if (!specs.some((s) => s.field === 'title')) mapped.push({ title: 'asc' })
   mapped.push({ id: 'asc' })
   return mapped

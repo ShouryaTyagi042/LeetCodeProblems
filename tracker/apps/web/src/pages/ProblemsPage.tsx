@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import { formatSort, parseSort, type ProblemQuery } from '@tracker/shared'
+import {
+  DEFAULT_SORT, formatSort, isDefaultSort, parseSort, type ProblemQuery,
+} from '@tracker/shared'
 import { api } from '../lib/api'
 import Filters from '../components/Filters'
 import SearchBox, { type PickKind } from '../components/SearchBox'
@@ -75,8 +77,14 @@ export default function ProblemsPage() {
             }}
           />
           <SortControl
-            value={parseSort(value.sort)}
-            onChange={(specs) => patch({ sort: specs.length ? formatSort(specs) : undefined })}
+            value={parseSort(value.sort).length ? parseSort(value.sort) : [...DEFAULT_SORT]}
+            onChange={(specs) =>
+              // Leave the param off when it matches the default, so a plain
+              // /problems link and the default view stay the same URL.
+              patch({
+                sort: specs.length && !isDefaultSort(specs) ? formatSort(specs) : undefined,
+              })
+            }
           />
         </div>
 
