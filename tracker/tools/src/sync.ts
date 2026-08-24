@@ -12,7 +12,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { getPrisma } from '@tracker/db'
-import { humanize, slugify } from '@tracker/shared'
+import { humanize, newCard, slugify } from '@tracker/shared'
 import { ALGO_ROOT, TOPICS_DIR, TOPIC_DISPLAY, assertLayout } from './paths.js'
 
 const prisma = getPrisma()
@@ -101,7 +101,7 @@ export async function sync(opts: { quiet?: boolean } = {}) {
   // row and silently lose its notes and review history.
   const byBase = new Map(existing.map((p) => [p.folderPath.split('/').pop()!, p]))
 
-  let created = 0, updated = 0, moved = 0
+  let created = 0, updated = 0, moved = 0, cards = 0
   const seen = new Set<string>()
 
   for (const s of scanned) {
@@ -158,6 +158,31 @@ export async function sync(opts: { quiet?: boolean } = {}) {
       where: { problemId: row.id, filePath: { notIn: s.javaFiles.map((f) => f.filePath) } },
     })
 
+    // A solved problem is reviewable, so make sure it has a scheduling
+    // card. Never touch one that already exists — that would reset real
+    // review history on an ordinary re-sync.
+    if (s.status === 'solved') {
+      const existing = await prisma.card.findUnique({ where: { problemId: row.id } })
+      if (!existing) {
+        const c = newCard(new Date())
+        await prisma.card.create({
+          data: {
+            problemId: row.id,
+            due: new Date(c.due),
+            stability: c.stability,
+            difficulty: c.difficulty,
+            elapsedDays: c.elapsedDays,
+            scheduledDays: c.scheduledDays,
+            reps: c.reps,
+            lapses: c.lapses,
+            state: c.state,
+            lastReview: null,
+          },
+        })
+        cards++
+      }
+    }
+
     if (s.input.trim() || s.expected.trim()) {
       await prisma.testcase.upsert({
         where: { problemId_ord: { problemId: row.id, ord: 0 } },
@@ -174,8 +199,8 @@ export async function sync(opts: { quiet?: boolean } = {}) {
     log('  Not deleted. Re-run after a rename, or remove them in the app.')
   }
 
-  log(`\ncreated ${created} | updated ${updated} | moved ${moved} | orphaned ${orphans.length}`)
-  return { created, updated, removed: orphans.length }
+  log(`\ncreated ${created} | updated ${updated} | moved ${moved} | new cards ${cards} | orphaned ${orphans.length}`)
+  return { created, updated, removed: orphans.length, cards }
 }
 
 const isMain = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]))

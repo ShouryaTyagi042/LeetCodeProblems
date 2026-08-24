@@ -2,8 +2,9 @@
 // app both use this — only the baseUrl differs.
 
 import type {
-  CreateProblemInput, Facets, Paged, ProblemDetail, ProblemQuery,
-  ProblemSummary, Stats, Tag, UpdateNoteInput, UpdateProblemInput,
+  CreateProblemInput, Facets, ForecastDay, GradeResult, Paged, ProblemDetail,
+  CardInfo, ProblemQuery, ProblemSummary, ReviewQueue, ReviewStats, Stats, Tag,
+  UpdateNoteInput, UpdateProblemInput,
 } from './types.js'
 
 export class ApiError extends Error {
@@ -77,6 +78,21 @@ export function createApi(opts: ApiOptions) {
     topics: () => req<Tag[]>('/api/topics'),
     patterns: () => req<Tag[]>('/api/patterns'),
     sync: () => req<{ created: number; updated: number; removed: number }>('/api/sync', { method: 'POST' }),
+
+    // ---- review ----
+    reviewQueue: (limit = 30) => req<ReviewQueue>(`/api/review/queue?limit=${limit}`),
+    reviewStats: () => req<ReviewStats>('/api/review/stats'),
+    reviewForecast: (days = 14) => req<ForecastDay[]>(`/api/review/forecast?days=${days}`),
+    gradeProblem: (problemId: string, rating: string, durationMs?: number) =>
+      req<GradeResult>(`/api/review/${problemId}/grade`, {
+        method: 'POST',
+        body: JSON.stringify({ rating, durationMs }),
+      }),
+    setSuspended: (problemId: string, suspended: boolean) =>
+      req<CardInfo>(`/api/review/${problemId}/suspend`, {
+        method: 'POST',
+        body: JSON.stringify({ suspended }),
+      }),
   }
 }
 

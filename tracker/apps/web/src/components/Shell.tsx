@@ -7,6 +7,11 @@ export default function Shell() {
   const qc = useQueryClient()
   const { pathname } = useLocation()
   const stats = useQuery({ queryKey: ['stats'], queryFn: api.stats })
+  const review = useQuery({
+    queryKey: ['review', 'stats'],
+    queryFn: api.reviewStats,
+    staleTime: 0,
+  })
   const sync = useMutation({
     mutationFn: api.sync,
     onSuccess: () => qc.invalidateQueries(),
@@ -19,6 +24,32 @@ export default function Shell() {
           <Link to="/problems" className="text-sm font-semibold tracking-tight">
             DSA<span className="text-[#58a6ff]">Tracker</span>
           </Link>
+
+          <nav className="flex items-center gap-1 text-[13px]">
+            <Link
+              to="/problems"
+              className={
+                'rounded px-2 py-1 ' +
+                (pathname.startsWith('/problems') ? 'bg-[#21262d] text-[#e6edf3]' : 'text-[#8b949e] hover:text-[#e6edf3]')
+              }
+            >
+              Problems
+            </Link>
+            <Link
+              to="/review"
+              className={
+                'flex items-center gap-1.5 rounded px-2 py-1 ' +
+                (pathname === '/review' ? 'bg-[#21262d] text-[#e6edf3]' : 'text-[#8b949e] hover:text-[#e6edf3]')
+              }
+            >
+              Review
+              {!!review.data?.due && (
+                <span className="rounded-full bg-[#1f6feb] px-1.5 text-[10px] font-semibold text-white">
+                  {review.data.due}
+                </span>
+              )}
+            </Link>
+          </nav>
 
           {stats.data && (
             <div className="hidden gap-4 text-[11px] text-[#8b949e] sm:flex">

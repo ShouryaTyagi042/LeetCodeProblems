@@ -12,7 +12,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { parse } from 'csv-parse/sync'
 import { getPrisma } from '@tracker/db'
-import { slugify } from '@tracker/shared'
+import { seedCard, slugify } from '@tracker/shared'
 import { ALGO_ROOT } from './paths.js'
 
 const prisma = getPrisma()
@@ -151,13 +151,46 @@ export async function importNotion(opts: { quiet?: boolean } = {}) {
       notes++
     }
 
-    // Seed scheduling from Notion's Due At so Phase 3 does not restart at zero.
+    // Seed scheduling from Notion's Due At so Phase 3 does not restart at
+    // zero. Only ever seeds a card that has never been graded here —
+    // a real review in this app always wins over the imported date.
     const due = parseDate(row['Due At'])
     if (due) {
-      const already = await prisma.review.findFirst({ where: { problemId } })
-      if (!already) {
+      // "Already graded here" means a rating exists — that is the actual
+      // definition, and unlike the `seeded` flag it cannot be wrong for
+      // rows that predate the flag.
+      const graded = await prisma.review.findFirst({
+        where: { problemId, rating: { not: null } },
+      })
+      if (!graded) {
+        const created = parseDate(row['Created time'])
+        const c = seedCard({ due, createdAt: created })
+        await prisma.card.upsert({
+          where: { problemId },
+          update: {
+            due: new Date(c.due), stability: c.stability, difficulty: c.difficulty,
+            elapsedDays: c.elapsedDays, scheduledDays: c.scheduledDays,
+            reps: c.reps, lapses: c.lapses, state: c.state,
+            lastReview: c.lastReview ? new Date(c.lastReview) : null,
+          },
+          create: {
+            problemId,
+            due: new Date(c.due), stability: c.stability, difficulty: c.difficulty,
+            elapsedDays: c.elapsedDays, scheduledDays: c.scheduledDays,
+            reps: c.reps, lapses: c.lapses, state: c.state,
+            lastReview: c.lastReview ? new Date(c.lastReview) : null,
+          },
+        })
+        // Drop any previous un-graded placeholder for this problem so
+        // re-running the import does not accumulate duplicates.
+        await prisma.review.deleteMany({ where: { problemId, rating: null } })
         await prisma.review.create({
-          data: { problemId, dueAt: due, outcome: null, intervalDays: 0 },
+          data: {
+            problemId, dueAt: due, seeded: true, state: c.state,
+            stability: c.stability, difficulty: c.difficulty,
+            scheduledDays: c.scheduledDays,
+            reviewedAt: c.lastReview ? new Date(c.lastReview) : new Date(),
+          },
         })
         reviews++
       }

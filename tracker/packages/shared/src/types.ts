@@ -126,3 +126,53 @@ export interface CreateProblemInput {
   judgeUrl?: string | null
   scaffold?: boolean
 }
+
+// ---------- Phase 3: spaced repetition ----------
+
+export interface CardInfo {
+  due: string
+  stability: number
+  difficulty: number
+  reps: number
+  lapses: number
+  state: 'new' | 'learning' | 'review' | 'relearning'
+  lastReview: string | null
+  suspended: boolean
+  /** Negative when the card is not due yet. */
+  overdueDays: number
+}
+
+export interface ReviewQueueItem {
+  problem: ProblemSummary
+  card: CardInfo
+}
+
+export interface ReviewQueue {
+  items: ReviewQueueItem[]
+  /** Total due right now, which may exceed the returned page. */
+  dueTotal: number
+  newTotal: number
+}
+
+export interface ReviewStats {
+  due: number
+  /** Due for more than a day — the part of `due` that is a genuine backlog. */
+  backlog: number
+  newCards: number
+  reviewedToday: number
+  totalCards: number
+  suspended: number
+  /** Correct share of graded reviews in the last 30 days, or null if none. */
+  retention30d: number | null
+}
+
+export interface ForecastDay {
+  date: string
+  count: number
+}
+
+export interface GradeResult {
+  card: CardInfo
+  /** What each button would do next, for the following card render. */
+  intervals: Record<string, { due: string; label: string }>
+}
