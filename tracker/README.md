@@ -9,13 +9,20 @@ review scheduling on top.
 
 ```bash
 cd tracker
-pnpm install
-pnpm db:push        # create tracker.db from the Prisma schema
-pnpm seed           # sync (repo -> DB), then import Notion metadata
-pnpm dev            # api on :5174, web on :5173
+./start.sh
 ```
 
-Open http://localhost:5173.
+Open http://localhost:5173. That is the whole setup — the script installs
+dependencies, creates and seeds the database on first run, frees the two
+ports if a previous run is still holding them, and starts both servers.
+
+```bash
+./start.sh --seed    # re-sync the repo and re-import Notion first
+./start.sh --fresh   # rebuild the database from scratch, then seed
+```
+
+The underlying commands (`pnpm db:push`, `pnpm seed`, `pnpm dev`) still work
+if you would rather drive them individually.
 
 ## What it does
 
@@ -33,6 +40,13 @@ Open http://localhost:5173.
 - Create a problem, which shells out to `cp_setup.sh` to scaffold the folder.
 - Notion is no longer needed. `notion_updated/` stays as an archive.
 
+**Topic revision** — separate from per-problem review. `/revision` lists
+every topic with a fixed ladder: 3 days → 1 week → 2 weeks → 1 month, then
+monthly. Sweep a topic, mark it *Solid* to climb a rung or *Shaky* to drop
+back to 3 days. It is deliberately not FSRS: that models recall of one
+specific item, whereas sweeping a whole topic has no single right answer to
+fit a model to.
+
 **Phase 3 — spaced repetition**
 - FSRS scheduling (via `ts-fsrs`), seeded from the 84 Notion `Due At` dates
   so nothing restarts from zero.
@@ -42,6 +56,8 @@ Open http://localhost:5173.
   `1`-`4`.
 - Due badge in the nav, backlog and retention stats, and a forecast of the
   next two weeks.
+- Every problem in the tree gets a card. There is no solved/unsolved flag —
+  anything committed here is solved by definition.
 
 ## Design notes
 

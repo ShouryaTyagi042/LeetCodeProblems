@@ -1,8 +1,9 @@
 import type { FastifyInstance } from 'fastify'
 import { getPrisma } from '@tracker/db'
 import {
-  RATINGS, RATING_NAME, RATING_VALUE, grade, newCard, preview,
-  type CardInfo, type RatingName, type SrsCard,
+  RATINGS, RATING_NAME, RATING_VALUE, grade, newCard, newTopicRevision,
+  preview, reviseTopic, topicIntervalLabel,
+  type CardInfo, type RatingName, type SrsCard, type TopicOutcome,
 } from '@tracker/shared'
 import { SUMMARY_INCLUDE, toSummary } from './serialize.js'
 
@@ -201,6 +202,101 @@ export function registerReviewRoutes(app: FastifyInstance) {
     })
 
     return { card: toInfo(updated, now), intervals: preview(next, now) }
+  })
+
+  // ---------- topic-level revision ----------
+
+  /**
+   * One row per topic, due first. Topics with no revision row yet are
+   * treated as due now rather than hidden, so a topic never silently
+   * drops out of rotation just because it has never been swept.
+   */
+  app.get('/api/revision/topics', async () => {
+    const now = new Date()
+    const topics = await prisma.topic.findMany({
+      include: {
+        revision: true,
+        _count: { select: { problems: true } },
+      },
+      orderBy: { name: 'asc' },
+    })
+
+    // Problems due per topic, in one query rather than one per topic.
+    const dueByTopic = new Map<string, number>()
+    const dueLinks = await prisma.problemTopic.findMany({
+      where: { problem: { card: { is: { due: { lte: now }, suspended: false } } } },
+      select: { topicId: true },
+    })
+    for (const l of dueLinks) {
+      dueByTopic.set(l.topicId, (dueByTopic.get(l.topicId) ?? 0) + 1)
+    }
+
+    const rows = topics
+      .filter((t) => t._count.problems > 0)
+      .map((t) => {
+        const r = t.revision
+        const due = r?.due ?? now
+        const step = r?.step ?? 0
+        return {
+          topic: { id: t.id, name: t.name, slug: t.slug, count: t._count.problems },
+          problems: t._count.problems,
+          problemsDue: dueByTopic.get(t.id) ?? 0,
+          due: due.toISOString(),
+          step,
+          reps: r?.reps ?? 0,
+          lastReviewedAt: r?.lastReviewedAt?.toISOString() ?? null,
+          overdueDays: Math.floor((now.getTime() - due.getTime()) / DAY),
+          // `step` is the rung that will be applied, so label it directly.
+          nextIntervalLabel: topicIntervalLabel(step),
+        }
+      })
+
+    rows.sort((a, b) => a.due.localeCompare(b.due) || a.topic.name.localeCompare(b.topic.name))
+    return rows
+  })
+
+  app.post('/api/revision/topics/:slug', async (req, reply) => {
+    const { slug } = req.params as { slug: string }
+    const { outcome } = req.body as { outcome?: string }
+    if (outcome !== 'good' && outcome !== 'again') {
+      return reply.code(400).send({ message: "outcome must be 'good' or 'again'" })
+    }
+
+    const topic = await prisma.topic.findUnique({
+      where: { slug },
+      include: { revision: true },
+    })
+    if (!topic) return reply.code(404).send({ message: 'topic not found' })
+
+    const now = new Date()
+    const current = topic.revision ?? newTopicRevision(now)
+    const next = reviseTopic(
+      { step: current.step, reps: current.reps },
+      outcome as TopicOutcome,
+      now,
+    )
+
+    const saved = await prisma.topicRevision.upsert({
+      where: { topicId: topic.id },
+      update: {
+        due: new Date(next.due), step: next.step, reps: next.reps,
+        lastReviewedAt: new Date(next.lastReviewedAt!),
+      },
+      create: {
+        topicId: topic.id,
+        due: new Date(next.due), step: next.step, reps: next.reps,
+        lastReviewedAt: new Date(next.lastReviewedAt!),
+      },
+    })
+
+    return {
+      topic: { id: topic.id, name: topic.name, slug: topic.slug },
+      due: saved.due.toISOString(),
+      step: saved.step,
+      reps: saved.reps,
+      lastReviewedAt: saved.lastReviewedAt?.toISOString() ?? null,
+      nextIntervalLabel: topicIntervalLabel(saved.step),
+    }
   })
 
   app.post('/api/review/:problemId/suspend', async (req, reply) => {

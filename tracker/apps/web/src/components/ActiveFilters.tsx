@@ -1,11 +1,11 @@
 import type { Facets } from '@tracker/shared'
 
-const KEYS = ['topic', 'pattern', 'source', 'difficulty', 'status'] as const
+const KEYS = ['topic', 'pattern', 'source', 'difficulty'] as const
 type Key = (typeof KEYS)[number]
 
 const LABEL: Record<Key, string> = {
   topic: 'topic', pattern: 'pattern', source: 'source',
-  difficulty: 'difficulty', status: 'status',
+  difficulty: 'difficulty',
 }
 
 /** slug -> display name, so a chip reads "0-1 BFS" not "0-1-bfs". */

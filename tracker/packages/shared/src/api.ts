@@ -4,7 +4,7 @@
 import type {
   CreateProblemInput, Facets, ForecastDay, GradeResult, Paged, ProblemDetail,
   CardInfo, ProblemQuery, ProblemSummary, ReviewQueue, ReviewStats, Stats, Tag,
-  UpdateNoteInput, UpdateProblemInput,
+  TopicRevisionRow, UpdateNoteInput, UpdateProblemInput,
 } from './types.js'
 
 export class ApiError extends Error {
@@ -88,6 +88,13 @@ export function createApi(opts: ApiOptions) {
         method: 'POST',
         body: JSON.stringify({ rating, durationMs }),
       }),
+    topicRevisions: () => req<TopicRevisionRow[]>('/api/revision/topics'),
+    reviseTopic: (slug: string, outcome: 'good' | 'again') =>
+      req<{ due: string; step: number; nextIntervalLabel: string }>(
+        `/api/revision/topics/${encodeURIComponent(slug)}`,
+        { method: 'POST', body: JSON.stringify({ outcome }) },
+      ),
+
     setSuspended: (problemId: string, suspended: boolean) =>
       req<CardInfo>(`/api/review/${problemId}/suspend`, {
         method: 'POST',

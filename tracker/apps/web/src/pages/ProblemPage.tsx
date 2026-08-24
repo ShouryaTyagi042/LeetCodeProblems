@@ -32,7 +32,6 @@ export default function ProblemPage() {
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <h1 className="text-lg font-semibold">{p.title}</h1>
           {p.difficulty && <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>}
-          <Chip tone={p.status === 'solved' ? 'green' : 'default'}>{p.status}</Chip>
           {p.source && <Chip>{p.source}</Chip>}
           {p.judgeUrl && (
             <a href={p.judgeUrl} target="_blank" rel="noreferrer"
@@ -75,7 +74,7 @@ export default function ProblemPage() {
             </div>
           ) : (
             <div className="rounded-lg border border-[#262d36] p-8 text-center text-[13px] text-[#6e7681]">
-              No solution file yet. Scaffolded but unsolved.
+              No solution file in this folder yet.
             </div>
           )}
         </section>

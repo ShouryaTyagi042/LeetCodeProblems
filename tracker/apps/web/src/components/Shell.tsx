@@ -12,6 +12,12 @@ export default function Shell() {
     queryFn: api.reviewStats,
     staleTime: 0,
   })
+  const topics = useQuery({
+    queryKey: ['revision', 'topics'],
+    queryFn: api.topicRevisions,
+    staleTime: 0,
+  })
+  const topicsDue = topics.data?.filter((t) => t.overdueDays >= 0).length ?? 0
   const sync = useMutation({
     mutationFn: api.sync,
     onSuccess: () => qc.invalidateQueries(),
@@ -36,6 +42,20 @@ export default function Shell() {
               Problems
             </Link>
             <Link
+              to="/revision"
+              className={
+                'flex items-center gap-1.5 rounded px-2 py-1 ' +
+                (pathname === '/revision' ? 'bg-[#21262d] text-[#e6edf3]' : 'text-[#8b949e] hover:text-[#e6edf3]')
+              }
+            >
+              Topics
+              {!!topicsDue && (
+                <span className="rounded-full bg-[#8957e5] px-1.5 text-[10px] font-semibold text-white">
+                  {topicsDue}
+                </span>
+              )}
+            </Link>
+            <Link
               to="/review"
               className={
                 'flex items-center gap-1.5 rounded px-2 py-1 ' +
@@ -54,7 +74,6 @@ export default function Shell() {
           {stats.data && (
             <div className="hidden gap-4 text-[11px] text-[#8b949e] sm:flex">
               <span><b className="text-[#e6edf3]">{stats.data.problems}</b> problems</span>
-              <span><b className="text-[#56d364]">{stats.data.solved}</b> solved</span>
               <span><b className="text-[#e6edf3]">{stats.data.withNotes}</b> with notes</span>
               <span><b className="text-[#e6edf3]">{stats.data.patterns}</b> patterns</span>
             </div>

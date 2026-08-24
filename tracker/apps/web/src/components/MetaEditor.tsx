@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { DIFFICULTIES, STATUSES, type ProblemDetail } from '@tracker/shared'
+import { DIFFICULTIES, type ProblemDetail } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Field, inputCls } from './ui'
 import TagInput from './TagInput'
@@ -19,7 +19,6 @@ export default function MetaEditor({ problem }: { problem: ProblemDetail }) {
   const initPatterns = problem.patterns.map((t) => t.name)
 
   const [difficulty, setDifficulty] = useState(problem.difficulty ?? '')
-  const [status, setStatus] = useState(problem.status)
   const [source, setSource] = useState(problem.source ?? '')
   const [judgeUrl, setJudgeUrl] = useState(problem.judgeUrl ?? '')
   const [topics, setTopics] = useState<string[]>(initTopics)
@@ -28,7 +27,6 @@ export default function MetaEditor({ problem }: { problem: ProblemDetail }) {
   // Re-seed when navigating between problems without unmounting.
   useEffect(() => {
     setDifficulty(problem.difficulty ?? '')
-    setStatus(problem.status)
     setSource(problem.source ?? '')
     setJudgeUrl(problem.judgeUrl ?? '')
     setTopics(problem.topics.map((t) => t.name))
@@ -37,7 +35,6 @@ export default function MetaEditor({ problem }: { problem: ProblemDetail }) {
 
   const dirty =
     difficulty !== (problem.difficulty ?? '') ||
-    status !== problem.status ||
     source !== (problem.source ?? '') ||
     judgeUrl !== (problem.judgeUrl ?? '') ||
     !same(topics, initTopics) ||
@@ -47,7 +44,6 @@ export default function MetaEditor({ problem }: { problem: ProblemDetail }) {
     mutationFn: () =>
       api.updateProblem(problem.id, {
         difficulty: (difficulty || null) as any,
-        status: status as any,
         source: source.trim() || null,
         judgeUrl: judgeUrl.trim() || null,
         topics,
@@ -64,21 +60,13 @@ export default function MetaEditor({ problem }: { problem: ProblemDetail }) {
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Difficulty">
-          <select className={inputCls} value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}>
-            <option value="">—</option>
-            {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
-          </select>
-        </Field>
-        <Field label="Status">
-          <select className={inputCls} value={status}
-            onChange={(e) => setStatus(e.target.value as any)}>
-            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </Field>
-      </div>
+      <Field label="Difficulty">
+        <select className={inputCls} value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value)}>
+          <option value="">—</option>
+          {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
+        </select>
+      </Field>
 
       <Field label="Source">
         <ComboInput

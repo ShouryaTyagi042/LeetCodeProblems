@@ -24,7 +24,6 @@ model Problem {
   // Sortable rank for difficulty: ordering the string alphabetically gives
   // Easy < Hard < Medium. Kept in step with `difficulty` on every write.
   difficultyRank Int?
-  status        String    @default("unsolved") // unsolved | solved | needs_review
   firstSolvedAt DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -37,7 +36,6 @@ model Problem {
   card      Card?
   reviews   Review[]
 
-  @@index([status])
   @@index([difficulty])
   @@index([difficultyRank])
   @@index([createdAt])
@@ -49,6 +47,23 @@ model Topic {
   name     String         @unique // 'Two Pointers'
   slug     String         @unique // 'two-pointers'
   problems ProblemTopic[]
+  revision TopicRevision?
+}
+
+// Topic-level revision, separate from per-problem scheduling.
+//
+// Deliberately a fixed ladder (3d, 1w, 2w, 1mo) rather than FSRS: FSRS
+// models recall of one specific item, whereas sweeping a whole topic is a
+// different activity with no single right/wrong answer to fit a model to.
+model TopicRevision {
+  topicId        String    @id
+  due            DateTime
+  step           Int       @default(0) // index into TOPIC_LADDER_DAYS
+  reps           Int       @default(0)
+  lastReviewedAt DateTime?
+  topic          Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([due])
 }
 
 model Pattern {

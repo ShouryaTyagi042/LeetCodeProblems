@@ -22,7 +22,6 @@ interface ScannedProblem {
   slug: string
   title: string
   topicName: string
-  status: 'solved' | 'unsolved'
   javaFiles: { filePath: string; code: string; loc: number }[]
   input: string
   expected: string
@@ -65,8 +64,6 @@ export function scanRepo(): ScannedProblem[] {
         slug: `${slugify(topicDir)}/${slugify(probDir)}`,
         title: humanize(probDir),
         topicName,
-        // expected.txt is the only signal the repo carries for "did I finish this"
-        status: expected.trim() ? 'solved' : 'unsolved',
         javaFiles,
         input,
         expected,
@@ -91,7 +88,7 @@ export async function sync(opts: { quiet?: boolean } = {}) {
   log(`scanned ${scanned.length} problem folders under ${TOPICS_DIR}`)
 
   const existing = await prisma.problem.findMany({
-    select: { id: true, slug: true, folderPath: true, status: true },
+    select: { id: true, slug: true, folderPath: true },
   })
   const byPath = new Map(existing.map((p) => [p.folderPath, p]))
   const bySlug = new Map(existing.map((p) => [p.slug, p]))
@@ -112,14 +109,14 @@ export async function sync(opts: { quiet?: boolean } = {}) {
     if (!row) {
       const p = await prisma.problem.create({
         data: {
-          slug: s.slug, title: s.title, folderPath: s.folderPath, status: s.status,
+          slug: s.slug, title: s.title, folderPath: s.folderPath,
           // The filesystem carries no creation date. import() overwrites
           // this for the problems Notion knows about; the rest keep the
           // sentinel rather than pretending they were created today.
           createdAt: new Date(UNKNOWN_CREATED_AT),
         },
       })
-      row = { id: p.id, slug: p.slug, folderPath: p.folderPath, status: p.status }
+      row = { id: p.id, slug: p.slug, folderPath: p.folderPath }
       created++
     } else {
       if (row.folderPath !== s.folderPath) {
@@ -128,11 +125,9 @@ export async function sync(opts: { quiet?: boolean } = {}) {
         // The old topic link is stale after a move between topics.
         await prisma.problemTopic.deleteMany({ where: { problemId: row.id } })
       }
-      // Never downgrade a manually-set status back to unsolved.
-      const status = row.status === 'needs_review' ? row.status : s.status
       await prisma.problem.update({
         where: { id: row.id },
-        data: { slug: s.slug, folderPath: s.folderPath, title: s.title, status },
+        data: { slug: s.slug, folderPath: s.folderPath, title: s.title },
       })
       updated++
     }
@@ -162,10 +157,11 @@ export async function sync(opts: { quiet?: boolean } = {}) {
       where: { problemId: row.id, filePath: { notIn: s.javaFiles.map((f) => f.filePath) } },
     })
 
-    // A solved problem is reviewable, so make sure it has a scheduling
-    // card. Never touch one that already exists — that would reset real
-    // review history on an ordinary re-sync.
-    if (s.status === 'solved') {
+    // Everything in the tree is solved by definition — it would not be
+    // committed otherwise — so every problem is reviewable. Never touch a
+    // card that already exists: that would reset real review history on an
+    // ordinary re-sync.
+    {
       const existing = await prisma.card.findUnique({ where: { problemId: row.id } })
       if (!existing) {
         const c = newCard(new Date())

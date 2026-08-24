@@ -42,7 +42,7 @@ function buildOrderBy(raw?: string): any[] {
   // NULL first, so ascending by "next review" would lead with the problems
   // that have no review scheduled at all.
   const nl = (dir: string) => ({ sort: dir, nulls: 'last' })
-  const mapped = specs.map((s) => {
+  const mapped: any[] = specs.map((s): any => {
     switch (s.field) {
       // Sort on the numeric rank, not the string: alphabetically Easy <
       // Hard < Medium, which is not the order anyone means.
@@ -67,7 +67,6 @@ app.get('/api/problems', async (req) => {
 
   const where: any = { AND: [] as any[] }
   if (q.difficulty) where.AND.push({ difficulty: q.difficulty })
-  if (q.status) where.AND.push({ status: q.status })
   if (q.source) where.AND.push({ source: q.source })
   if (q.topic) where.AND.push({ topics: { some: { topic: { slug: q.topic } } } })
   if (q.pattern) where.AND.push({ patterns: { some: { pattern: { slug: q.pattern } } } })
@@ -122,12 +121,11 @@ app.get('/api/problems/:key', async (req, reply) => {
 })
 
 app.get('/api/facets', async (): Promise<Facets> => {
-  const [topics, patterns, sources, difficulties, statuses] = await Promise.all([
+  const [topics, patterns, sources, difficulties] = await Promise.all([
     prisma.topic.findMany({ include: { _count: { select: { problems: true } } }, orderBy: { name: 'asc' } }),
     prisma.pattern.findMany({ include: { _count: { select: { problems: true } } }, orderBy: { name: 'asc' } }),
     prisma.problem.groupBy({ by: ['source'], _count: true }),
     prisma.problem.groupBy({ by: ['difficulty'], _count: true }),
-    prisma.problem.groupBy({ by: ['status'], _count: true }),
   ])
   const clean = (rows: any[], key: string) =>
     rows.filter((r) => r[key]).map((r) => ({ name: r[key] as string, count: r._count as number }))
@@ -137,14 +135,12 @@ app.get('/api/facets', async (): Promise<Facets> => {
     patterns: patterns.map((p) => ({ id: p.id, name: p.name, slug: p.slug, count: p._count.problems })),
     sources: clean(sources, 'source'),
     difficulties: clean(difficulties, 'difficulty'),
-    statuses: clean(statuses, 'status'),
   }
 })
 
 app.get('/api/stats', async (): Promise<Stats> => {
-  const [problems, solved, withNotes, withMistakes, topics, patterns, loc] = await Promise.all([
+  const [problems, withNotes, withMistakes, topics, patterns, loc] = await Promise.all([
     prisma.problem.count(),
-    prisma.problem.count({ where: { status: 'solved' } }),
     prisma.note.count(),
     prisma.note.count({ where: { NOT: { mistakes: null } } }),
     prisma.topic.count(),
@@ -152,7 +148,7 @@ app.get('/api/stats', async (): Promise<Stats> => {
     prisma.solution.aggregate({ _sum: { loc: true } }),
   ])
   return {
-    problems, solved, unsolved: problems - solved, withNotes, withMistakes,
+    problems, withNotes, withMistakes,
     topics, patterns, totalLoc: loc._sum.loc ?? 0,
   }
 })
@@ -209,7 +205,7 @@ app.patch('/api/problems/:id', async (req, reply) => {
   if (!exists) return reply.code(404).send({ message: 'not found' })
 
   const data: any = {}
-  for (const k of ['title', 'source', 'judgeUrl', 'difficulty', 'status'] as const) {
+  for (const k of ['title', 'source', 'judgeUrl', 'difficulty'] as const) {
     if (k in b) data[k] = b[k]
   }
   if ('difficulty' in b) data.difficultyRank = difficultyRank(b.difficulty)
@@ -283,7 +279,6 @@ app.post('/api/problems', async (req, reply) => {
       difficultyRank: difficultyRank(b.difficulty),
       source: b.source ?? null,
       judgeUrl: b.judgeUrl ?? null,
-      status: 'unsolved',
       topics: { create: { topicId: topicRow.id } },
     },
   })

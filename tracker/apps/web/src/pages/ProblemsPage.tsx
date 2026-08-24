@@ -94,7 +94,7 @@ export default function ProblemsPage() {
           onClear={(k) => patch({ [k]: undefined })}
           onClearAll={() =>
             patch({ topic: undefined, pattern: undefined, source: undefined,
-                    difficulty: undefined, status: undefined })
+                    difficulty: undefined })
           }
         />
 
@@ -113,13 +113,6 @@ export default function ProblemsPage() {
                 (i ? 'border-t border-[#1c2129]' : '')
               }
             >
-              <span
-                title={p.status}
-                className={
-                  'h-1.5 w-1.5 shrink-0 rounded-full ' +
-                  (p.status === 'solved' ? 'bg-[#3fb950]' : 'bg-[#6e7681]')
-                }
-              />
               <span className="w-[300px] shrink-0 truncate text-[13px]">{p.title}</span>
               <div className="flex min-w-0 flex-1 gap-1 overflow-hidden">
                 {p.topics.slice(0, 2).map((t) => (

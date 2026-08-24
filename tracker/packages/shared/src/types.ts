@@ -29,7 +29,7 @@ export function difficultyRank(d?: string | null): number | null {
 // it correctly needs Problem.dueAt denormalised — not worth the drift risk
 // until it is actually wanted.
 export const SORT_FIELDS = [
-  'title', 'difficulty', 'created', 'status', 'source',
+  'title', 'difficulty', 'created', 'source',
 ] as const
 export type SortField = (typeof SORT_FIELDS)[number]
 
@@ -37,7 +37,6 @@ export const SORT_LABEL: Record<SortField, string> = {
   title: 'Title',
   difficulty: 'Difficulty',
   created: 'Created',
-  status: 'Status',
   source: 'Source',
 }
 
@@ -46,7 +45,6 @@ export const SORT_DIR_LABEL: Record<SortField, { asc: string; desc: string }> = 
   title: { asc: 'A → Z', desc: 'Z → A' },
   difficulty: { asc: 'Easy first', desc: 'Hard first' },
   created: { asc: 'Oldest first', desc: 'Newest first' },
-  status: { asc: 'A → Z', desc: 'Z → A' },
   source: { asc: 'A → Z', desc: 'Z → A' },
 }
 
@@ -91,9 +89,6 @@ export function formatSort(specs: SortSpec[]): string {
   return specs.map((s) => `${s.field}:${s.dir}`).join(',')
 }
 
-export const STATUSES = ['unsolved', 'solved', 'needs_review'] as const
-export type Status = (typeof STATUSES)[number]
-
 export interface Tag {
   id: string
   name: string
@@ -133,7 +128,6 @@ export interface ProblemSummary {
   source: string | null
   judgeUrl: string | null
   difficulty: Difficulty | null
-  status: Status
   topics: Tag[]
   patterns: Tag[]
   hasNote: boolean
@@ -156,7 +150,6 @@ export interface ProblemQuery {
   topic?: string
   pattern?: string
   difficulty?: Difficulty
-  status?: Status
   source?: string
   sort?: 'title' | 'recent' | 'difficulty'
   page?: number
@@ -175,13 +168,10 @@ export interface Facets {
   patterns: Tag[]
   sources: { name: string; count: number }[]
   difficulties: { name: string; count: number }[]
-  statuses: { name: string; count: number }[]
 }
 
 export interface Stats {
   problems: number
-  solved: number
-  unsolved: number
   withNotes: number
   withMistakes: number
   topics: number
@@ -195,7 +185,6 @@ export interface UpdateProblemInput {
   source?: string | null
   judgeUrl?: string | null
   difficulty?: Difficulty | null
-  status?: Status
   topics?: string[]
   patterns?: string[]
 }
@@ -264,4 +253,18 @@ export interface GradeResult {
   card: CardInfo
   /** What each button would do next, for the following card render. */
   intervals: Record<string, { due: string; label: string }>
+}
+
+export interface TopicRevisionRow {
+  topic: Tag
+  problems: number
+  /** Problems in this topic whose own card is due. */
+  problemsDue: number
+  due: string
+  step: number
+  reps: number
+  lastReviewedAt: string | null
+  overdueDays: number
+  /** Interval that will be applied if the next sweep goes well. */
+  nextIntervalLabel: string
 }

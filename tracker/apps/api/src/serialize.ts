@@ -13,7 +13,6 @@ export function toSummary(p: any): ProblemSummary {
     source: p.source,
     judgeUrl: p.judgeUrl,
     difficulty: p.difficulty,
-    status: p.status,
     topics: (p.topics ?? []).map((x: any) => tag(x.topic)),
     patterns: (p.patterns ?? []).map((x: any) => tag(x.pattern)),
     hasNote: Boolean(

@@ -166,3 +166,68 @@ export function seedCard(opts: {
     lastReview: created ? created.toISOString() : now.toISOString(),
   }
 }
+
+
+// ---------- topic-level revision ----------
+
+/**
+ * Fixed ladder for sweeping a whole topic: 3 days, 1 week, 2 weeks, then
+ * 1 month. Past the last rung the interval stays at a month rather than
+ * growing — a topic is broad enough that it is never really "finished".
+ */
+export const TOPIC_LADDER_DAYS = [3, 7, 14, 30] as const
+
+export const TOPIC_LADDER_LABELS = ['3 days', '1 week', '2 weeks', '1 month'] as const
+
+export type TopicOutcome = 'good' | 'again'
+
+export interface TopicRevisionState {
+  step: number
+  reps: number
+  due: string
+  lastReviewedAt: string | null
+}
+
+/** Days until the next revision at a given rung. */
+export function topicIntervalDays(step: number): number {
+  const i = Math.max(0, Math.min(step, TOPIC_LADDER_DAYS.length - 1))
+  return TOPIC_LADDER_DAYS[i]
+}
+
+export function topicIntervalLabel(step: number): string {
+  const i = Math.max(0, Math.min(step, TOPIC_LADDER_LABELS.length - 1))
+  return TOPIC_LADDER_LABELS[i]
+}
+
+/**
+ * Advance the ladder.
+ *
+ * `step` is the rung to APPLY on the next sweep, not the one just used, so
+ * a topic that has never been revised sits at 0 and its first sweep
+ * schedules 3 days rather than skipping straight to a week.
+ *
+ * 'good' applies the current rung then climbs one (capped at the top, so
+ * it repeats monthly forever). 'again' drops back to the bottom — a topic
+ * you could not get through is one to see in a few days, not a month.
+ */
+export function reviseTopic(
+  state: Pick<TopicRevisionState, 'step' | 'reps'>,
+  outcome: TopicOutcome,
+  now: Date = new Date(),
+): TopicRevisionState {
+  const applied = outcome === 'again' ? 0 : state.step
+  const days = topicIntervalDays(applied)
+  const nextStep =
+    outcome === 'again' ? 0 : Math.min(applied + 1, TOPIC_LADDER_DAYS.length - 1)
+  return {
+    step: nextStep,
+    reps: state.reps + 1,
+    due: new Date(now.getTime() + days * 86400000).toISOString(),
+    lastReviewedAt: now.toISOString(),
+  }
+}
+
+/** A brand-new topic is due immediately. */
+export function newTopicRevision(now: Date = new Date()): TopicRevisionState {
+  return { step: 0, reps: 0, due: now.toISOString(), lastReviewedAt: null }
+}

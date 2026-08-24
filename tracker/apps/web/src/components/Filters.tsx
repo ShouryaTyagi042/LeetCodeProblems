@@ -57,12 +57,6 @@ export default function Filters({ facets, value, onChange }: Props) {
   return (
     <aside className="w-56 shrink-0">
       <Group
-        title="Status"
-        items={(facets?.statuses ?? []).map((s) => ({ name: s.name, count: s.count }))}
-        active={value.status}
-        onPick={(v) => onChange({ status: v })}
-      />
-      <Group
         title="Difficulty"
         items={(facets?.difficulties ?? []).map((s) => ({ name: s.name, count: s.count }))}
         active={value.difficulty}
