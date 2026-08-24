@@ -59,11 +59,11 @@ web layer.
   └────────┬───────┘     └────────┬─────────┘
            │                      │
            └──────────┬───────────┘
-                      │  shared/ : API client, types, SRS logic
+                      │  shared/ : API client, types, scheduling logic
                       ▼
               ┌───────────────┐
               │  REST API     │  Fastify + TypeScript
-              │  + SRS engine │
+              │  + scheduler  │
               └───────┬───────┘
                       ▼
               ┌───────────────┐        ┌──────────────────┐
@@ -87,7 +87,7 @@ tracker/
     api/          Fastify
     mobile/       Expo            (phase 4)
   packages/
-    shared/       types, API client, SRS algorithm, formatting
+    shared/       types, API client, spaced-repetition logic
     db/           Prisma schema + migrations
   tools/
     sync/         repo -> DB indexer
@@ -118,8 +118,8 @@ this size.
 
 **Decision to revisit, not now:** Supabase would remove most of the API
 layer (Postgres + auth + generated REST client). It is genuinely tempting
-for a single-user app. The reason to keep a thin API anyway is the SRS
-engine and the sync job, which want real server code. If phase 1 feels
+for a single-user app. The reason to keep a thin API anyway is the
+scheduling engine and the sync job, which want real server code. If phase 1 feels
 like boilerplate, switch — the data model below is unaffected.
 
 ---
@@ -225,7 +225,18 @@ finally on one screen.
 - Notion retired.
 
 ### Phase 3 — Spaced repetition *(the reason this exists)*
-- FSRS (preferred over SM-2 — better defaults, actively maintained).
+
+A **spaced repetition system (SRS)** decides *when* to show you a problem
+again. Each review is graded, and the gap until the next one expands when
+you recall it and shrinks when you don't — so you revisit each problem
+just before you'd have forgotten it, instead of re-solving at random. You
+are already doing this by hand: the `Due At` field, set on 84 of your 87
+Notion rows, is a manually-maintained SRS.
+
+- **FSRS** (Free Spaced Repetition Scheduler) — a model fitted to real
+  review data, now the default in Anki. Preferred over **SM-2** (the
+  1987 SuperMemo algorithm Anki used previously): better defaults, no
+  hand-tuning of ease factors, actively maintained.
 - Daily review queue: shows the problem statement and your own
   "Framework" note, hides the code until you've committed to an answer.
 - Grade `again`/`hard`/`good`/`easy`; schedule next review.
