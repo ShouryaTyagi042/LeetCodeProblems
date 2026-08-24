@@ -45,7 +45,10 @@ export default function ProblemsPage() {
     setSp((prev) => {
       const next = new URLSearchParams(prev)
       for (const [k, v] of Object.entries(p)) v ? next.set(k, v) : next.delete(k)
-      next.delete('page')
+      // Changing a filter returns to page 1 — otherwise you can land on a
+      // page past the end of the new result set. But not when the patch IS
+      // the page change, which would delete the page we just set.
+      if (!('page' in p)) next.delete('page')
       return next
     })
   }
