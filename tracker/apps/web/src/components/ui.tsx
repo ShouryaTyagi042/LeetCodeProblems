@@ -47,9 +47,15 @@ export function Field({ label, children }: { label: string; children: ReactNode 
   )
 }
 
-export const inputCls =
-  'w-full rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm ' +
+// Width is deliberately NOT part of the base: appending another w-* to a
+// string that already has w-full produces two utilities of equal
+// specificity, and the one Tailwind emits later wins regardless of the
+// order written here.
+export const inputBase =
+  'rounded-md border border-[#30363d] bg-[#0d1117] px-3 py-2 text-sm ' +
   'text-[#e6edf3] outline-none placeholder:text-[#6e7681] focus:border-[#58a6ff]'
+
+export const inputCls = `w-full ${inputBase}`
 
 export function Button({
   children, onClick, variant = 'default', disabled, type = 'button',

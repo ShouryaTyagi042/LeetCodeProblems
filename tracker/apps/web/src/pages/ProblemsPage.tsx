@@ -6,7 +6,7 @@ import { api } from '../lib/api'
 import Filters from '../components/Filters'
 import SearchBox, { type PickKind } from '../components/SearchBox'
 import ActiveFilters from '../components/ActiveFilters'
-import { Chip, Empty, difficultyTone, inputCls } from '../components/ui'
+import { Chip, Empty, difficultyTone, inputBase } from '../components/ui'
 
 export default function ProblemsPage() {
   const [sp, setSp] = useSearchParams()
@@ -58,7 +58,7 @@ export default function ProblemsPage() {
       <Filters facets={facets.data} value={value} onChange={patch} />
 
       <div className="min-w-0 flex-1">
-        <div className="mb-3 flex items-start gap-3">
+        <div className="mb-3 flex items-start gap-2">
           <SearchBox
             value={term}
             onChange={setTerm}
@@ -71,7 +71,7 @@ export default function ProblemsPage() {
             }}
           />
           <select
-            className={inputCls + ' w-40'}
+            className={`${inputBase} w-36 shrink-0`}
             value={value.sort ?? 'title'}
             onChange={(e) => patch({ sort: e.target.value })}
           >

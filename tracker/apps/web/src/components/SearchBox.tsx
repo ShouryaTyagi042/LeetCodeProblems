@@ -97,7 +97,7 @@ export default function SearchBox({
   let idx = -1
 
   return (
-    <div ref={wrap} className="relative flex-1">
+    <div ref={wrap} className="relative min-w-0 flex-1">
       <input
         className={inputCls}
         placeholder="Search titles, approaches, notes, mistakes — or a topic, pattern, source…"

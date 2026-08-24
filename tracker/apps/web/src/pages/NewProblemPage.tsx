@@ -4,11 +4,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { DIFFICULTIES } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Field, inputCls } from '../components/ui'
+import ComboInput from '../components/ComboInput'
 
 export default function NewProblemPage() {
   const nav = useNavigate()
   const qc = useQueryClient()
-  const topics = useQuery({ queryKey: ['topics'], queryFn: api.topics })
+  const facets = useQuery({ queryKey: ['facets'], queryFn: api.facets })
 
   const [title, setTitle] = useState('')
   const [topic, setTopic] = useState('')
@@ -49,11 +50,12 @@ export default function NewProblemPage() {
         </Field>
 
         <Field label="Topic">
-          <input className={inputCls} value={topic} list="topics"
-            onChange={(e) => setTopic(e.target.value)} placeholder="Graphs" />
-          <datalist id="topics">
-            {topics.data?.map((t) => <option key={t.id} value={t.name} />)}
-          </datalist>
+          <ComboInput
+            value={topic}
+            onChange={setTopic}
+            options={facets.data?.topics ?? []}
+            placeholder="Start typing to search topics…"
+          />
         </Field>
 
         <Field label="Folder name (optional — derived from title)">
@@ -70,8 +72,12 @@ export default function NewProblemPage() {
             </select>
           </Field>
           <Field label="Source">
-            <input className={inputCls} value={source}
-              onChange={(e) => setSource(e.target.value)} placeholder="LeetCode" />
+            <ComboInput
+              value={source}
+              onChange={setSource}
+              options={facets.data?.sources ?? []}
+              placeholder="LeetCode"
+            />
           </Field>
         </div>
 
