@@ -4,7 +4,7 @@ import ProblemsPage from './pages/ProblemsPage'
 import ProblemPage from './pages/ProblemPage'
 import NewProblemPage from './pages/NewProblemPage'
 import ReviewPage from './pages/ReviewPage'
-import TopicRevisionPage from './pages/TopicRevisionPage'
+import TopicsPage from './pages/TopicsPage'
 
 export default function App() {
   return (
@@ -13,7 +13,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/problems" replace />} />
         <Route path="/problems" element={<ProblemsPage />} />
         <Route path="/review" element={<ReviewPage />} />
-        <Route path="/revision" element={<TopicRevisionPage />} />
+        <Route path="/topics" element={<TopicsPage />} />
         <Route path="/problems/new" element={<NewProblemPage />} />
         <Route path="/problems/:topic/:name" element={<ProblemPage />} />
       </Route>

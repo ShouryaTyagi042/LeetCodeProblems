@@ -40,20 +40,17 @@ if you would rather drive them individually.
 - Create a problem, which shells out to `cp_setup.sh` to scaffold the folder.
 - Notion is no longer needed. `notion_updated/` stays as an archive.
 
-**Topic revision** — separate from per-problem review. `/revision` lists
-every topic with a fixed ladder: 3 days → 1 week → 2 weeks → 1 month, then
-monthly. Sweep a topic, mark it *Solid* to climb a rung or *Shaky* to drop
-back to 3 days. It is deliberately not FSRS: that models recall of one
-specific item, whereas sweeping a whole topic has no single right answer to
-fit a model to.
-
 **Phase 3 — spaced repetition**
-- FSRS scheduling (via `ts-fsrs`), seeded from the 84 Notion `Due At` dates
-  so nothing restarts from zero.
+- One fixed ladder for every problem: 3 days → 1 week → 2 weeks → 1 month,
+  then monthly. Seeded from the 84 Notion `Due At` dates so nothing restarts
+  from zero.
 - `/review` shows one due problem at a time: title, topics and the judge
   link as the prompt; patterns, framework, mistakes and code stay hidden
-  until you reveal. Grade again / hard / good / easy, keys `space` then
-  `1`-`4`.
+  until you reveal. Mark it **Solid** to climb a rung or **Shaky** to drop
+  back to 3 days — keys `space` then `1`/`2`.
+- `/topics` lists every topic with how many of its problems are due, and
+  links into a review queue filtered to that topic. Topics are a filter on
+  the queue, not something scheduled in their own right.
 - Due badge in the nav, backlog and retention stats, and a forecast of the
   next two weeks.
 - Every problem in the tree gets a card. There is no solved/unsolved flag —
@@ -123,9 +120,11 @@ tools/import    one-time Notion CSV import
   the framework — showing either upfront defeats the recall. Topics stay
   visible, since you would know it was a graph problem from reading the
   statement anyway.
-- **`maximum_interval` is capped at 365 days**, well under the FSRS default
-  of ~100 years. A pattern last touched three years ago is not "known", and
-  interview prep has a horizon.
+- **A fixed ladder rather than a fitted model.** FSRS was implemented first
+  and then removed: it models recall of one specific item and produces
+  open-ended intervals — on a 94-day overdue card it scheduled five months
+  out. A short fixed ladder suits interview prep better, and gives problems
+  and topics one shared vocabulary.
 
 ## Not built yet
 

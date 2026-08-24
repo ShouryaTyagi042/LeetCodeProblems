@@ -105,11 +105,7 @@ importers:
         specifier: ^6.1.0
         version: 6.19.3(typescript@5.9.3)
 
-  packages/shared:
-    dependencies:
-      ts-fsrs:
-        specifier: ^5.4.1
-        version: 5.4.1
+  packages/shared: {}
 
   tools:
     dependencies:
@@ -1537,10 +1533,6 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
-  ts-fsrs@5.4.1:
-    resolution: {integrity: sha512-mOp9+oexJexBTkwjg/jQI1aSUQRLIAvbimeKHLSmVdNJPwObugFNKmZkoggH5d6kZ0uaWLboP1Al1DnXAfIb9w==}
-    engines: {node: '>=20.0.0'}
-
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
@@ -2906,8 +2898,6 @@ snapshots:
   toad-cache@3.7.4: {}
 
   tree-kill@1.2.2: {}
-
-  ts-fsrs@5.4.1: {}
 
   tslib@2.8.1: {}
 

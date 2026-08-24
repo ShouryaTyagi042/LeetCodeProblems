@@ -12,12 +12,15 @@
   },
   "scripts": {
     "sync": "tsx src/sync.ts",
-    "import-notion": "tsx src/import.ts"
+    "import-notion": "tsx src/import.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@tracker/db": "workspace:*",
     "@tracker/shared": "workspace:*",
     "csv-parse": "^5.6.0"
   },
-  "devDependencies": { "tsx": "^4.19.2" }
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
 }

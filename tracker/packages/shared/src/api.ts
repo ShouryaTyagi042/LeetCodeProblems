@@ -4,7 +4,7 @@
 import type {
   CreateProblemInput, Facets, ForecastDay, GradeResult, Paged, ProblemDetail,
   CardInfo, ProblemQuery, ProblemSummary, ReviewQueue, ReviewStats, Stats, Tag,
-  TopicRevisionRow, UpdateNoteInput, UpdateProblemInput,
+  TopicDueRow, UpdateNoteInput, UpdateProblemInput,
 } from './types.js'
 
 export class ApiError extends Error {
@@ -80,20 +80,18 @@ export function createApi(opts: ApiOptions) {
     sync: () => req<{ created: number; updated: number; removed: number }>('/api/sync', { method: 'POST' }),
 
     // ---- review ----
-    reviewQueue: (limit = 30) => req<ReviewQueue>(`/api/review/queue?limit=${limit}`),
+    reviewQueue: (limit = 30, topic?: string) =>
+      req<ReviewQueue>(
+        `/api/review/queue?limit=${limit}${topic ? `&topic=${encodeURIComponent(topic)}` : ''}`,
+      ),
     reviewStats: () => req<ReviewStats>('/api/review/stats'),
     reviewForecast: (days = 14) => req<ForecastDay[]>(`/api/review/forecast?days=${days}`),
-    gradeProblem: (problemId: string, rating: string, durationMs?: number) =>
+    gradeProblem: (problemId: string, outcome: 'good' | 'again', durationMs?: number) =>
       req<GradeResult>(`/api/review/${problemId}/grade`, {
         method: 'POST',
-        body: JSON.stringify({ rating, durationMs }),
+        body: JSON.stringify({ outcome, durationMs }),
       }),
-    topicRevisions: () => req<TopicRevisionRow[]>('/api/revision/topics'),
-    reviseTopic: (slug: string, outcome: 'good' | 'again') =>
-      req<{ due: string; step: number; nextIntervalLabel: string }>(
-        `/api/revision/topics/${encodeURIComponent(slug)}`,
-        { method: 'POST', body: JSON.stringify({ outcome }) },
-      ),
+    topicsDue: () => req<TopicDueRow[]>('/api/revision/topics'),
 
     setSuspended: (problemId: string, suspended: boolean) =>
       req<CardInfo>(`/api/review/${problemId}/suspend`, {

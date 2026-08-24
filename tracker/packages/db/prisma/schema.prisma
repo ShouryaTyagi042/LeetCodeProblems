@@ -47,24 +47,8 @@ model Topic {
   name     String         @unique // 'Two Pointers'
   slug     String         @unique // 'two-pointers'
   problems ProblemTopic[]
-  revision TopicRevision?
 }
 
-// Topic-level revision, separate from per-problem scheduling.
-//
-// Deliberately a fixed ladder (3d, 1w, 2w, 1mo) rather than FSRS: FSRS
-// models recall of one specific item, whereas sweeping a whole topic is a
-// different activity with no single right/wrong answer to fit a model to.
-model TopicRevision {
-  topicId        String    @id
-  due            DateTime
-  step           Int       @default(0) // index into TOPIC_LADDER_DAYS
-  reps           Int       @default(0)
-  lastReviewedAt DateTime?
-  topic          Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
-  @@index([due])
-}
 
 model Pattern {
   id       String           @id @default(cuid())
@@ -131,21 +115,17 @@ model Note {
 // the append-only history, Card is the single mutable "where does this
 // stand now" row, which is what makes "what is due?" one indexed query.
 model Card {
-  problemId     String    @id
-  due           DateTime
-  stability     Float     @default(0)
-  difficulty    Float     @default(0)
-  elapsedDays   Int       @default(0)
-  scheduledDays Int       @default(0)
-  reps          Int       @default(0)
-  lapses        Int       @default(0)
-  state         String    @default("new") // new | learning | review | relearning
-  lastReview    DateTime?
-  suspended     Boolean   @default(false)
-  problem       Problem   @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problemId  String    @id
+  due        DateTime
+  // Rung of the shared ladder to apply next (see LADDER_DAYS).
+  step       Int       @default(0)
+  reps       Int       @default(0)
+  lapses     Int       @default(0)
+  lastReview DateTime?
+  suspended  Boolean   @default(false)
+  problem    Problem   @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@index([due])
-  @@index([state])
   @@index([suspended])
 }
 
@@ -154,19 +134,15 @@ model Card {
 // audit any schedule. Seeded from Notion's `Due At` so scheduling does
 // not restart from zero.
 model Review {
-  id            String    @id @default(cuid())
-  problemId     String
-  reviewedAt    DateTime  @default(now())
-  rating        Int? // 1=again 2=hard 3=good 4=easy
-  state         String? // card state AFTER this review
-  stability     Float?
-  difficulty    Float?
-  elapsedDays   Int?
-  scheduledDays Int?
-  dueAt         DateTime?
-  durationMs    Int?
-  seeded        Boolean   @default(false) // true for rows imported from Notion
-  problem       Problem   @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  problemId  String
+  reviewedAt DateTime  @default(now())
+  outcome    String? // again | good
+  step       Int? // rung AFTER this review
+  dueAt      DateTime?
+  durationMs Int?
+  seeded     Boolean   @default(false) // true for rows imported from Notion
+  problem    Problem   @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@index([problemId])
   @@index([dueAt])

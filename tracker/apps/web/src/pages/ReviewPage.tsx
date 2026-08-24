@@ -1,29 +1,40 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { RATINGS, preview, type RatingName, type SrsCard } from '@tracker/shared'
+import { LADDER_LABELS, type Outcome } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Chip, cx, difficultyTone } from '../components/ui'
 
 const CodeView = lazy(() => import('../components/CodeView'))
 
-const RATING_STYLE: Record<RatingName, string> = {
-  again: 'border-[#7d2429] bg-[#3d1418] text-[#f85149] hover:bg-[#5a1d22]',
-  hard: 'border-[#7d5e12] bg-[#3a2c05] text-[#e3b341] hover:bg-[#54400a]',
-  good: 'border-[#1f6f34] bg-[#0f2f1a] text-[#56d364] hover:bg-[#17472a]',
-  easy: 'border-[#1f4e8c] bg-[#0d2d5e] text-[#79c0ff] hover:bg-[#164173]',
-}
+/** Same two outcomes as topic revision, so the whole app schedules alike. */
+const OUTCOME_UI: { key: Outcome; label: string; hint: string; cls: string }[] = [
+  {
+    key: 'again',
+    label: 'Shaky',
+    hint: 'back to 3 days',
+    cls: 'border-[#7d2429] bg-[#3d1418] text-[#f85149] hover:bg-[#5a1d22]',
+  },
+  {
+    key: 'good',
+    label: 'Solid',
+    hint: '',
+    cls: 'border-[#1f6f34] bg-[#0f2f1a] text-[#56d364] hover:bg-[#17472a]',
+  },
+]
 
 export default function ReviewPage() {
   const qc = useQueryClient()
+  const [sp] = useSearchParams()
+  const topic = sp.get('topic') ?? undefined
   const [idx, setIdx] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [done, setDone] = useState(0)
   const startedAt = useRef(Date.now())
 
   const queue = useQuery({
-    queryKey: ['review', 'queue'],
-    queryFn: () => api.reviewQueue(30),
+    queryKey: ['review', 'queue', topic],
+    queryFn: () => api.reviewQueue(30, topic),
     // Scheduling changes on every grade; never serve this from cache.
     staleTime: 0,
     refetchOnMount: 'always',
@@ -53,19 +64,9 @@ export default function ReviewPage() {
     startedAt.current = Date.now()
   }, [idx])
 
-  const intervals = useMemo(() => {
-    if (!current) return null
-    const c = current.card as unknown as SrsCard
-    try {
-      return preview(c, new Date())
-    } catch {
-      return null
-    }
-  }, [current])
-
   const gradeMut = useMutation({
-    mutationFn: (rating: RatingName) =>
-      api.gradeProblem(current!.problem.id, rating, Date.now() - startedAt.current),
+    mutationFn: (outcome: Outcome) =>
+      api.gradeProblem(current!.problem.id, outcome, Date.now() - startedAt.current),
     onSuccess: () => {
       setDone((d) => d + 1)
       qc.invalidateQueries({ queryKey: ['review', 'stats'] })
@@ -76,7 +77,7 @@ export default function ReviewPage() {
   })
 
   const submit = useCallback(
-    (r: RatingName) => {
+    (r: Outcome) => {
       if (!current || gradeMut.isPending) return
       if (!revealed) { setRevealed(true); return }
       gradeMut.mutate(r)
@@ -90,7 +91,10 @@ export default function ReviewPage() {
       if (el && /INPUT|TEXTAREA|SELECT/.test(el.tagName)) return
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setRevealed(true); return }
       const n = Number(e.key)
-      if (n >= 1 && n <= 4 && revealed) { e.preventDefault(); submit(RATINGS[n - 1]) }
+      if (n >= 1 && n <= OUTCOME_UI.length && revealed) {
+        e.preventDefault()
+        submit(OUTCOME_UI[n - 1].key)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -108,9 +112,14 @@ export default function ReviewPage() {
         <p className="mb-5 text-[13px] text-[#8b949e]">
           {done > 0
             ? `${done} review${done === 1 ? '' : 's'} done this session.`
-            : 'Everything is scheduled for later.'}
+            : topic
+              ? 'Nothing due in this topic.'
+              : 'Everything is scheduled for later.'}
         </p>
-        <Link to="/problems"><Button>Browse problems</Button></Link>
+        <div className="flex justify-center gap-2">
+          <Link to="/topics"><Button>Topics</Button></Link>
+          <Link to="/problems"><Button>Browse problems</Button></Link>
+        </div>
       </div>
     )
   }
@@ -123,11 +132,16 @@ export default function ReviewPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-4 flex items-center gap-3 text-[12px] text-[#8b949e]">
-        <span><b className="text-[#e6edf3]">{queue.data!.dueTotal}</b> due</span>
+        {topic && (
+          <Link to="/topics" className="text-[#58a6ff] hover:underline">
+            ← all topics
+          </Link>
+        )}
+        <span><b className="text-[#e6edf3]">{queue.data!.dueTotal}</b> due{topic ? ' in this topic' : ''}</span>
         <span>·</span>
         <span><b className="text-[#e6edf3]">{done}</b> done</span>
         <div className="ml-auto flex items-center gap-2">
-          <Chip>{current.card.state}</Chip>
+          <Chip>{current.card.reps === 0 ? 'new' : `seen ${current.card.reps}×`}</Chip>
           {overdue > 0 && <Chip tone="amber">{overdue}d overdue</Chip>}
         </div>
       </div>
@@ -209,25 +223,30 @@ export default function ReviewPage() {
       </div>
 
       {revealed && (
-        <div className="mt-4 grid grid-cols-4 gap-2">
-          {RATINGS.map((r, i) => (
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {OUTCOME_UI.map((o, i) => (
             <button
-              key={r}
+              key={o.key}
               disabled={gradeMut.isPending}
-              onClick={() => submit(r)}
+              onClick={() => submit(o.key)}
               className={cx(
-                'rounded-md border px-3 py-2.5 text-[13px] font-medium capitalize transition disabled:opacity-50',
-                RATING_STYLE[r],
+                'rounded-md border px-3 py-2.5 text-[13px] font-medium transition disabled:opacity-50',
+                o.cls,
               )}
             >
-              <div>{r}</div>
+              <div>{o.label}</div>
               <div className="mt-0.5 text-[11px] font-normal opacity-70">
-                {intervals ? intervals[r].label : '—'} · {i + 1}
+                {o.hint || current.card.nextIntervalLabel} · {i + 1}
               </div>
             </button>
           ))}
         </div>
       )}
+
+      <p className="mt-3 text-center text-[11px] text-[#6e7681]">
+        Ladder: {LADDER_LABELS.join(' → ')}, then monthly — the same one topic
+        revision uses.
+      </p>
 
       {gradeMut.isError && (
         <div className="mt-3 text-[12px] text-[#f85149]">

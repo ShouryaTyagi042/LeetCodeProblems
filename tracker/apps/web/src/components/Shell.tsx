@@ -14,10 +14,10 @@ export default function Shell() {
   })
   const topics = useQuery({
     queryKey: ['revision', 'topics'],
-    queryFn: api.topicRevisions,
+    queryFn: api.topicsDue,
     staleTime: 0,
   })
-  const topicsDue = topics.data?.filter((t) => t.overdueDays >= 0).length ?? 0
+  const topicsWithDue = topics.data?.filter((t) => t.due > 0).length ?? 0
   const sync = useMutation({
     mutationFn: api.sync,
     onSuccess: () => qc.invalidateQueries(),
@@ -42,16 +42,16 @@ export default function Shell() {
               Problems
             </Link>
             <Link
-              to="/revision"
+              to="/topics"
               className={
                 'flex items-center gap-1.5 rounded px-2 py-1 ' +
-                (pathname === '/revision' ? 'bg-[#21262d] text-[#e6edf3]' : 'text-[#8b949e] hover:text-[#e6edf3]')
+                (pathname === '/topics' ? 'bg-[#21262d] text-[#e6edf3]' : 'text-[#8b949e] hover:text-[#e6edf3]')
               }
             >
               Topics
-              {!!topicsDue && (
+              {!!topicsWithDue && (
                 <span className="rounded-full bg-[#8957e5] px-1.5 text-[10px] font-semibold text-white">
-                  {topicsDue}
+                  {topicsWithDue}
                 </span>
               )}
             </Link>

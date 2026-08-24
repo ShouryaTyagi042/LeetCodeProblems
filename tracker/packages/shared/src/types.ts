@@ -209,15 +209,16 @@ export interface CreateProblemInput {
 
 export interface CardInfo {
   due: string
-  stability: number
-  difficulty: number
+  /** Rung of the shared ladder to apply next. */
+  step: number
   reps: number
   lapses: number
-  state: 'new' | 'learning' | 'review' | 'relearning'
   lastReview: string | null
   suspended: boolean
   /** Negative when the card is not due yet. */
   overdueDays: number
+  /** Interval a successful review would schedule, e.g. '2 weeks'. */
+  nextIntervalLabel: string
 }
 
 export interface ReviewQueueItem {
@@ -236,11 +237,12 @@ export interface ReviewStats {
   due: number
   /** Due for more than a day — the part of `due` that is a genuine backlog. */
   backlog: number
+  /** Never reviewed here (still on the bottom rung with no reps). */
   newCards: number
   reviewedToday: number
   totalCards: number
   suspended: number
-  /** Correct share of graded reviews in the last 30 days, or null if none. */
+  /** Share of reviews in the last 30 days marked good, or null if none. */
   retention30d: number | null
 }
 
@@ -251,20 +253,16 @@ export interface ForecastDay {
 
 export interface GradeResult {
   card: CardInfo
-  /** What each button would do next, for the following card render. */
-  intervals: Record<string, { due: string; label: string }>
 }
 
-export interface TopicRevisionRow {
+/** A topic as a lens on the review queue — counts only, no schedule. */
+export interface TopicDueRow {
   topic: Tag
   problems: number
-  /** Problems in this topic whose own card is due. */
-  problemsDue: number
-  due: string
-  step: number
-  reps: number
-  lastReviewedAt: string | null
-  overdueDays: number
-  /** Interval that will be applied if the next sweep goes well. */
-  nextIntervalLabel: string
+  /** Problems in this topic due now. */
+  due: number
+  /** Problems never reviewed here. */
+  fresh: number
+  /** Earliest upcoming due date among its problems, or null. */
+  nextDue: string | null
 }

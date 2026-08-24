@@ -12,7 +12,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { getPrisma } from '@tracker/db'
-import { UNKNOWN_CREATED_AT, humanize, newCard, slugify } from '@tracker/shared'
+import { UNKNOWN_CREATED_AT, humanize, newLadderState, slugify } from '@tracker/shared'
 import { ALGO_ROOT, TOPICS_DIR, TOPIC_DISPLAY, assertLayout } from './paths.js'
 
 const prisma = getPrisma()
@@ -164,18 +164,13 @@ export async function sync(opts: { quiet?: boolean } = {}) {
     {
       const existing = await prisma.card.findUnique({ where: { problemId: row.id } })
       if (!existing) {
-        const c = newCard(new Date())
+        const c = newLadderState(new Date())
         await prisma.card.create({
           data: {
             problemId: row.id,
             due: new Date(c.due),
-            stability: c.stability,
-            difficulty: c.difficulty,
-            elapsedDays: c.elapsedDays,
-            scheduledDays: c.scheduledDays,
+            step: c.step,
             reps: c.reps,
-            lapses: c.lapses,
-            state: c.state,
             lastReview: null,
           },
         })
