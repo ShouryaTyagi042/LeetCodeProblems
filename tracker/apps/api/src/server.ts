@@ -301,6 +301,33 @@ app.delete('/api/problems/:id', async (req, reply) => {
   return reply.code(204).send()
 })
 
+/**
+ * Re-read one problem's files. Scoped on purpose: it refreshes the code and
+ * test data for this folder only, and leaves the title, topics and
+ * scheduling alone, so it is safe to press straight after editing a
+ * solution without undoing anything set in the app.
+ */
+app.post('/api/problems/:id/sync', async (req, reply) => {
+  const { id } = req.params as { id: string }
+  const { syncProblem } = await import('@tracker/tools/sync')
+  const result = await syncProblem(id)
+
+  if (!result.ok) {
+    if (result.reason === 'not-found') {
+      return reply.code(404).send({ message: 'problem not found' })
+    }
+    if (result.reason === 'missing-folder') {
+      return reply.code(409).send({
+        message: `no folder on disk at ${result.folderPath}`,
+      })
+    }
+    return reply.code(409).send({ message: `unexpected folder path: ${result.folderPath}` })
+  }
+
+  const p = await prisma.problem.findUnique({ where: { id }, include: DETAIL_INCLUDE as any })
+  return { ...result, problem: toDetail(p) }
+})
+
 app.post('/api/sync', async () => {
   const { sync } = await import('@tracker/tools/sync')
   return sync({ quiet: true })

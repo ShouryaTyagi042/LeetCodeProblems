@@ -266,3 +266,16 @@ export interface TopicDueRow {
   /** Earliest upcoming due date among its problems, or null. */
   nextDue: string | null
 }
+
+export interface ProblemSyncResult {
+  ok: true
+  folderPath: string
+  /** .java files read from the folder. */
+  files: number
+  /** Rows dropped because the file no longer exists. */
+  removedFiles: number
+  testcases: number
+  loc: number
+  cardCreated: boolean
+  problem: ProblemDetail
+}

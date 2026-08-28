@@ -1,12 +1,12 @@
 import { Suspense, lazy, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../lib/api'
 // CodeMirror is ~60% of the bundle and only the detail page needs it.
 const CodeView = lazy(() => import('../components/CodeView'))
 import NoteEditor from '../components/NoteEditor'
 import MetaEditor from '../components/MetaEditor'
-import { Chip, Empty, cx, difficultyTone } from '../components/ui'
+import { Button, Chip, Empty, cx, difficultyTone } from '../components/ui'
 
 type Tab = 'notes' | 'details' | 'tests'
 
@@ -16,7 +16,20 @@ export default function ProblemPage() {
   const [tab, setTab] = useState<Tab>('notes')
   const [fileIdx, setFileIdx] = useState(0)
 
+  const qc = useQueryClient()
   const q = useQuery({ queryKey: ['problem', slug], queryFn: () => api.getProblem(slug) })
+
+  // Re-reads this problem's files only, so it can be pressed right after
+  // editing a solution without waiting on a full-repo sync.
+  const sync = useMutation({
+    mutationFn: () => api.syncProblem(q.data!.id),
+    onSuccess: (res) => {
+      qc.setQueryData(['problem', slug], res.problem)
+      qc.invalidateQueries({ queryKey: ['problems'] })
+      qc.invalidateQueries({ queryKey: ['stats'] })
+      qc.invalidateQueries({ queryKey: ['review'] })
+    },
+  })
 
   if (q.isLoading) return <Empty>Loading…</Empty>
   if (q.isError || !q.data) return <Empty>Problem not found.</Empty>
@@ -39,6 +52,23 @@ export default function ProblemPage() {
               Open on judge ↗
             </a>
           )}
+          <div className="ml-auto flex items-center gap-2">
+            {sync.isSuccess && !sync.isPending && (
+              <span className="text-[11px] text-[#56d364]">
+                {sync.data.files} file{sync.data.files === 1 ? '' : 's'},{' '}
+                {sync.data.loc} lines
+                {sync.data.removedFiles > 0 && `, ${sync.data.removedFiles} removed`}
+              </span>
+            )}
+            {sync.isError && (
+              <span className="text-[11px] text-[#f85149]">
+                {String((sync.error as Error).message)}
+              </span>
+            )}
+            <Button onClick={() => sync.mutate()} disabled={sync.isPending}>
+              {sync.isPending ? 'Reading files…' : 'Sync files'}
+            </Button>
+          </div>
         </div>
         <div className="mt-1.5 flex flex-wrap gap-1">
           {p.topics.map((t) => <Chip key={t.id}>{t.name}</Chip>)}

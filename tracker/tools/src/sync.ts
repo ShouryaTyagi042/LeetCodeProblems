@@ -31,46 +31,122 @@ function readIfExists(p: string): string {
   try { return fs.readFileSync(p, 'utf8') } catch { return '' }
 }
 
+/** Read one problem folder. Returns null if it is not a directory. */
+export function scanProblemFolder(topicDir: string, probDir: string): ScannedProblem | null {
+  const probPath = path.join(TOPICS_DIR, topicDir, probDir)
+  let stat: fs.Stats
+  try { stat = fs.statSync(probPath) } catch { return null }
+  if (!stat.isDirectory()) return null
+
+  const javaFiles = fs
+    .readdirSync(probPath)
+    .filter((f) => f.endsWith('.java'))
+    .sort()
+    .map((f) => {
+      const code = readIfExists(path.join(probPath, f))
+      return {
+        filePath: path.relative(ALGO_ROOT, path.join(probPath, f)),
+        code,
+        loc: code ? code.replace(/\n$/, '').split('\n').length : 0,
+      }
+    })
+
+  return {
+    folderPath: `topics/${topicDir}/${probDir}`,
+    slug: `${slugify(topicDir)}/${slugify(probDir)}`,
+    title: humanize(probDir),
+    topicName: TOPIC_DISPLAY[topicDir] ?? humanize(topicDir),
+    javaFiles,
+    input: readIfExists(path.join(probPath, 'input.txt')),
+    expected: readIfExists(path.join(probPath, 'expected.txt')),
+  }
+}
+
 export function scanRepo(): ScannedProblem[] {
   assertLayout()
   const out: ScannedProblem[] = []
   for (const topicDir of fs.readdirSync(TOPICS_DIR).sort()) {
     const topicPath = path.join(TOPICS_DIR, topicDir)
     if (!fs.statSync(topicPath).isDirectory()) continue
-    const topicName = TOPIC_DISPLAY[topicDir] ?? humanize(topicDir)
-
     for (const probDir of fs.readdirSync(topicPath).sort()) {
-      const probPath = path.join(topicPath, probDir)
-      if (!fs.statSync(probPath).isDirectory()) continue
-
-      const javaFiles = fs
-        .readdirSync(probPath)
-        .filter((f) => f.endsWith('.java'))
-        .sort()
-        .map((f) => {
-          const code = readIfExists(path.join(probPath, f))
-          return {
-            filePath: path.relative(ALGO_ROOT, path.join(probPath, f)),
-            code,
-            loc: code ? code.replace(/\n$/, '').split('\n').length : 0,
-          }
-        })
-
-      const input = readIfExists(path.join(probPath, 'input.txt'))
-      const expected = readIfExists(path.join(probPath, 'expected.txt'))
-
-      out.push({
-        folderPath: `topics/${topicDir}/${probDir}`,
-        slug: `${slugify(topicDir)}/${slugify(probDir)}`,
-        title: humanize(probDir),
-        topicName,
-        javaFiles,
-        input,
-        expected,
-      })
+      const p = scanProblemFolder(topicDir, probDir)
+      if (p) out.push(p)
     }
   }
   return out
+}
+
+/**
+ * Re-read one problem's folder and update its code and test data.
+ *
+ * Deliberately narrower than a full sync: it does not touch the title,
+ * topics or scheduling, only what the files on disk actually say. That
+ * makes it safe to press right after editing a solution, without undoing
+ * anything you have changed in the app.
+ */
+export async function syncProblem(problemId: string) {
+  assertLayout()
+  const problem = await prisma.problem.findUnique({
+    where: { id: problemId },
+    select: { id: true, folderPath: true },
+  })
+  if (!problem) return { ok: false as const, reason: 'not-found' as const }
+
+  const parts = problem.folderPath.split('/')
+  if (parts.length !== 3 || parts[0] !== 'topics') {
+    return { ok: false as const, reason: 'bad-path' as const, folderPath: problem.folderPath }
+  }
+  const scanned = scanProblemFolder(parts[1], parts[2])
+  if (!scanned) {
+    return { ok: false as const, reason: 'missing-folder' as const, folderPath: problem.folderPath }
+  }
+
+  let files = 0
+  for (const f of scanned.javaFiles) {
+    await prisma.solution.upsert({
+      where: { problemId_filePath: { problemId: problem.id, filePath: f.filePath } },
+      update: { code: f.code, loc: f.loc, syncedAt: new Date() },
+      create: {
+        problemId: problem.id, filePath: f.filePath, code: f.code,
+        loc: f.loc, language: 'java',
+      },
+    })
+    files++
+  }
+  const removed = await prisma.solution.deleteMany({
+    where: { problemId: problem.id, filePath: { notIn: scanned.javaFiles.map((f) => f.filePath) } },
+  })
+
+  let testcases = 0
+  if (scanned.input.trim() || scanned.expected.trim()) {
+    await prisma.testcase.upsert({
+      where: { problemId_ord: { problemId: problem.id, ord: 0 } },
+      update: { input: scanned.input, expected: scanned.expected },
+      create: { problemId: problem.id, ord: 0, input: scanned.input, expected: scanned.expected },
+    })
+    testcases = 1
+  } else {
+    // Both files empty — drop a stale testcase rather than keeping old data.
+    await prisma.testcase.deleteMany({ where: { problemId: problem.id, ord: 0 } })
+  }
+
+  // A problem is reviewable whether or not it has test data.
+  const card = await prisma.card.findUnique({ where: { problemId: problem.id } })
+  if (!card) {
+    await prisma.card.create({
+      data: { problemId: problem.id, due: new Date(), step: 0, reps: 0 },
+    })
+  }
+
+  return {
+    ok: true as const,
+    folderPath: problem.folderPath,
+    files,
+    removedFiles: removed.count,
+    testcases,
+    loc: scanned.javaFiles.reduce((a, f) => a + f.loc, 0),
+    cardCreated: !card,
+  }
 }
 
 async function upsertTopic(name: string) {

@@ -4,7 +4,7 @@
 import type {
   CreateProblemInput, Facets, ForecastDay, GradeResult, Paged, ProblemDetail,
   CardInfo, ProblemQuery, ProblemSummary, ReviewQueue, ReviewStats, Stats, Tag,
-  TopicDueRow, UpdateNoteInput, UpdateProblemInput,
+  ProblemSyncResult, TopicDueRow, UpdateNoteInput, UpdateProblemInput,
 } from './types.js'
 
 export class ApiError extends Error {
@@ -69,6 +69,10 @@ export function createApi(opts: ApiOptions) {
 
     createProblem: (body: CreateProblemInput) =>
       req<ProblemDetail>('/api/problems', { method: 'POST', body: JSON.stringify(body) }),
+
+    /** Re-read this one problem's files from disk. */
+    syncProblem: (id: string) =>
+      req<ProblemSyncResult>(`/api/problems/${id}/sync`, { method: 'POST' }),
 
     deleteProblem: (id: string) =>
       req<void>(`/api/problems/${id}`, { method: 'DELETE' }),
