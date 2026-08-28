@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import { Button } from './ui'
+import Logo from './Logo'
 
 export default function Shell() {
   const qc = useQueryClient()
@@ -27,8 +28,14 @@ export default function Shell() {
     <div className="flex min-h-full flex-col">
       <header className="sticky top-0 z-20 border-b border-[#262d36] bg-[#0e1116]/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-5 py-3">
-          <Link to="/problems" className="text-sm font-semibold tracking-tight">
-            DSA<span className="text-[#58a6ff]">Tracker</span>
+          <Link
+            to="/problems"
+            className="flex shrink-0 items-center gap-2 text-sm font-semibold tracking-tight"
+          >
+            <Logo />
+            <span className="hidden sm:inline">
+              DSA<span className="text-[#58a6ff]">Tracker</span>
+            </span>
           </Link>
 
           <nav className="flex items-center gap-1 text-[13px]">
