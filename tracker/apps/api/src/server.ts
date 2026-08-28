@@ -280,6 +280,10 @@ app.post('/api/problems', async (req, reply) => {
       source: b.source ?? null,
       judgeUrl: b.judgeUrl ?? null,
       topics: { create: { topicId: topicRow.id } },
+      // Every problem is reviewable, so give it a card here too. Without
+      // this a problem created in the app stays out of the review queue
+      // until the next sync happens to run.
+      card: { create: { due: new Date(), step: 0, reps: 0 } },
     },
   })
   const p = await prisma.problem.findUnique({
