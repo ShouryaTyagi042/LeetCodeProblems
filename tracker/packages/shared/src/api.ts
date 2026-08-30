@@ -27,7 +27,11 @@ export function createApi(opts: ApiOptions) {
     const res = await doFetch(`${opts.baseUrl}${path}`, {
       ...init,
       headers: {
-        'content-type': 'application/json',
+        // Only declare JSON when we actually send a body — Fastify rejects a
+        // zero-length body that claims content-type: application/json.
+        ...(init?.body === undefined || init?.body === null
+          ? {}
+          : { 'content-type': 'application/json' }),
         ...(opts.token ? { authorization: `Bearer ${opts.token}` } : {}),
         ...(init?.headers ?? {}),
       },
