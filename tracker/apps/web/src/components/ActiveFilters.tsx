@@ -1,4 +1,5 @@
 import type { Facets } from '@tracker/shared'
+import { X } from './icons'
 
 const KEYS = ['topic', 'pattern', 'source', 'difficulty'] as const
 type Key = (typeof KEYS)[number]
@@ -38,9 +39,9 @@ export default function ActiveFilters({
           <button
             onClick={() => onClear(k)}
             aria-label={`Clear ${LABEL[k]} filter`}
-            className="rounded-full px-1 leading-none hover:bg-[#1f4e8c]"
+            className="inline-flex items-center rounded-full px-1 hover:bg-[#1f4e8c]"
           >
-            ×
+            <X size={11} />
           </button>
         </span>
       ))}

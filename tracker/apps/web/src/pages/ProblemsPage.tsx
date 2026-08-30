@@ -10,6 +10,7 @@ import SearchBox, { type PickKind } from '../components/SearchBox'
 import ActiveFilters from '../components/ActiveFilters'
 import SortControl from '../components/SortControl'
 import { Chip, Empty, difficultyTone, inputBase } from '../components/ui'
+import { ChevronLeft, ChevronRight, Pencil } from '../components/icons'
 
 export default function ProblemsPage() {
   const [sp, setSp] = useSearchParams()
@@ -122,7 +123,11 @@ export default function ProblemsPage() {
                   <Chip key={t.id} tone="accent">{t.name}</Chip>
                 ))}
               </div>
-              {p.hasNote && <span title="has notes" className="text-[11px] text-[#8b949e]">✎</span>}
+              {p.hasNote && (
+                <span title="has notes" className="inline-flex text-[#8b949e]">
+                  <Pencil size={12} />
+                </span>
+              )}
               {p.difficulty && (
                 <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>
               )}
@@ -144,17 +149,17 @@ export default function ProblemsPage() {
             <button
               disabled={page <= 1}
               onClick={() => patch({ page: String(page - 1) })}
-              className="rounded px-3 py-1 hover:bg-[#161b22] disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded px-3 py-1 hover:bg-[#161b22] disabled:opacity-40"
             >
-              ← Prev
+              <ChevronLeft size={13} /> Prev
             </button>
             <span className="text-[#8b949e]">{page} / {pages}</span>
             <button
               disabled={page >= pages}
               onClick={() => patch({ page: String(page + 1) })}
-              className="rounded px-3 py-1 hover:bg-[#161b22] disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded px-3 py-1 hover:bg-[#161b22] disabled:opacity-40"
             >
-              Next →
+              Next <ChevronRight size={13} />
             </button>
           </div>
         )}

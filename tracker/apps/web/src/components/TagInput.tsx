@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Tag } from '@tracker/shared'
 import { cx } from './ui'
+import { X } from './icons'
 
 /** Bold the matched span so it is obvious why a row is listed. */
 function Highlight({ text, term }: { text: string; term: string }) {
@@ -118,9 +119,9 @@ export default function TagInput({
               type="button"
               aria-label={`Remove ${v}`}
               onClick={(e) => { e.stopPropagation(); remove(v) }}
-              className="rounded-full px-1 leading-none hover:bg-black/30"
+              className="inline-flex items-center rounded-full px-1 hover:bg-black/30"
             >
-              ×
+              <X size={11} />
             </button>
           </span>
         ))}

@@ -4,6 +4,7 @@ import {
   isDefaultSort, type SortField, type SortSpec,
 } from '@tracker/shared'
 import { cx } from './ui'
+import { ArrowDown, ArrowUp, ChevronDown, X } from './icons'
 
 /**
  * Multi-key sort builder. Keys apply in the order listed, so the first row
@@ -41,12 +42,22 @@ export default function SortControl({
   }
   const add = (f: SortField) => onChange([...value, { field: f, dir: f === 'title' ? 'asc' : 'desc' }])
 
+  const DirIcon = ({ dir }: { dir: 'asc' | 'desc' }) =>
+    dir === 'asc' ? <ArrowUp size={11} /> : <ArrowDown size={11} />
+
+  // min-w-0 + truncate on the label itself: the icon is a flex child, and a
+  // flex child ignores the parent's text-overflow, so truncating the wrapper
+  // would let a long label run past the button instead of ellipsing.
   const summary =
-    value.length === 0
-      ? 'Sort'
-      : value.length === 1
-        ? `${SORT_LABEL[value[0].field]} ${value[0].dir === 'asc' ? '↑' : '↓'}`
-        : `${SORT_LABEL[value[0].field]} ${value[0].dir === 'asc' ? '↑' : '↓'} +${value.length - 1}`
+    value.length === 0 ? (
+      'Sort'
+    ) : (
+      <span className="flex min-w-0 items-center gap-1">
+        <span className="truncate">{SORT_LABEL[value[0].field]}</span>
+        <DirIcon dir={value[0].dir} />
+        {value.length > 1 && <span className="shrink-0">+{value.length - 1}</span>}
+      </span>
+    )
 
   return (
     <div ref={wrap} className="relative shrink-0">
@@ -54,8 +65,8 @@ export default function SortControl({
         onClick={() => setOpen((o) => !o)}
         className="flex h-[38px] w-44 items-center justify-between rounded-md border border-[#30363d] bg-[#0d1117] px-3 text-sm text-[#e6edf3] hover:border-[#484f58]"
       >
-        <span className="truncate">{summary}</span>
-        <span className="ml-2 text-[#6e7681]">▾</span>
+        <span className="min-w-0 flex-1 truncate text-left">{summary}</span>
+        <ChevronDown size={14} className="ml-2 shrink-0 text-[#6e7681]" />
       </button>
 
       {open && (
@@ -73,23 +84,26 @@ export default function SortControl({
                     title="Toggle direction"
                     className="flex-1 truncate rounded px-1.5 py-0.5 text-left text-[11px] text-[#79c0ff] hover:bg-[#21262d]"
                   >
-                    {s.dir === 'asc' ? '↑' : '↓'} {SORT_DIR_LABEL[s.field][s.dir]}
+                    <span className="inline-flex items-center gap-1">
+                      <DirIcon dir={s.dir} />
+                      {SORT_DIR_LABEL[s.field][s.dir]}
+                    </span>
                   </button>
                   <button
                     onClick={() => move(i, -1)} disabled={i === 0}
-                    title="Move up"
-                    className="rounded px-1 text-[11px] text-[#8b949e] hover:bg-[#21262d] disabled:opacity-25"
-                  >↑</button>
+                    title="Move up" aria-label="Move up"
+                    className="rounded px-1 text-[#8b949e] hover:bg-[#21262d] disabled:opacity-25"
+                  ><ArrowUp size={12} /></button>
                   <button
                     onClick={() => move(i, 1)} disabled={i === value.length - 1}
-                    title="Move down"
-                    className="rounded px-1 text-[11px] text-[#8b949e] hover:bg-[#21262d] disabled:opacity-25"
-                  >↓</button>
+                    title="Move down" aria-label="Move down"
+                    className="rounded px-1 text-[#8b949e] hover:bg-[#21262d] disabled:opacity-25"
+                  ><ArrowDown size={12} /></button>
                   <button
                     onClick={() => drop(i)}
-                    title="Remove"
+                    title="Remove" aria-label="Remove"
                     className="rounded px-1 text-[#8b949e] hover:bg-[#21262d] hover:text-[#f85149]"
-                  >×</button>
+                  ><X size={12} /></button>
                 </div>
               ))}
             </div>
@@ -121,9 +135,17 @@ export default function SortControl({
                 'mt-2 w-full rounded px-2 py-1 text-[11px] text-[#8b949e] hover:bg-[#21262d]',
               )}
             >
-              Reset to default ({DEFAULT_SORT.map(
-                (s) => `${SORT_LABEL[s.field]} ${s.dir === 'asc' ? '↑' : '↓'}`,
-              ).join(', ')})
+              <span className="inline-flex flex-wrap items-center justify-center gap-1">
+                Reset to default (
+                {DEFAULT_SORT.map((s, i) => (
+                  <span key={s.field} className="inline-flex items-center gap-0.5">
+                    {SORT_LABEL[s.field]}
+                    <DirIcon dir={s.dir} />
+                    {i < DEFAULT_SORT.length - 1 && ','}
+                  </span>
+                ))}
+                )
+              </span>
             </button>
           )}
         </div>

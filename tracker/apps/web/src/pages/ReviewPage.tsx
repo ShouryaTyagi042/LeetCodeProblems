@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { LADDER_LABELS, type Outcome } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Chip, cx, difficultyTone } from '../components/ui'
+import { ArrowLeft, ExternalLink } from '../components/icons'
 
 const CodeView = lazy(() => import('../components/CodeView'))
 
@@ -133,8 +134,9 @@ export default function ReviewPage() {
     <div className="mx-auto max-w-3xl">
       <div className="mb-4 flex items-center gap-3 text-[12px] text-[#8b949e]">
         {topic && (
-          <Link to="/topics" className="text-[#58a6ff] hover:underline">
-            ← all topics
+          <Link to="/topics"
+            className="inline-flex items-center gap-1 text-[#58a6ff] hover:underline">
+            <ArrowLeft size={13} /> all topics
           </Link>
         )}
         <span><b className="text-[#e6edf3]">{queue.data!.dueTotal}</b> due{topic ? ' in this topic' : ''}</span>
@@ -158,8 +160,9 @@ export default function ReviewPage() {
           </div>
           <div className="mt-2 flex items-center gap-3 text-[12px]">
             {p.judgeUrl && (
-              <a href={p.judgeUrl} target="_blank" rel="noreferrer" className="text-[#58a6ff] hover:underline">
-                Read the problem ↗
+              <a href={p.judgeUrl} target="_blank" rel="noreferrer"
+                className="inline-flex items-center gap-1 text-[#58a6ff] hover:underline">
+                Read the problem <ExternalLink size={12} />
               </a>
             )}
             <Link to={`/problems/${p.slug}`} className="text-[#8b949e] hover:text-[#58a6ff]">
