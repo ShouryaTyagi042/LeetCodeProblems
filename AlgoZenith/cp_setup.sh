@@ -127,16 +127,16 @@ public class Main {
     }
 
     static class Pair  {
-        long x, y;
+        long first, second;
 
         Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
+            this.first = x;
+            this.second = y;
         }
 
         @Override
         public String toString() {
-            return "(" + x + ", " + y + ")";
+            return "(" + first + ", " + second + ")";
         }
     }
 
@@ -211,6 +211,44 @@ public class Main {
 
         public static int[] toCell(int id, int m) {
             return new int[]{id / m, id % m};
+        }
+    }
+
+    static public class DSU {
+        int[] size ;
+        int[] parent;
+        DSU(int n) {
+            size = new int[n+1] ;
+            parent = new int[n+1] ;
+            for(int i = 0 ; i <= n ; i++) {
+                parent[i] = i ;
+                size[i] = 1 ;
+            }
+        }
+
+        int find(int x) {
+            if(parent[x] == x) return x ;
+            return parent[x] = find(parent[x]) ;
+        }
+
+        boolean union(int x, int y) {
+            int rootX = find(x);
+            int rootY = find(y);
+
+            if(rootX == rootY) {
+                return false;
+            }
+
+            if(size[rootX] < size[rootY]) {
+                int temp = rootX;
+                rootX = rootY;
+                rootY = temp;
+            }
+
+            parent[rootY] = rootX;
+            size[rootX] += size[rootY];
+
+            return true;
         }
     }
 
