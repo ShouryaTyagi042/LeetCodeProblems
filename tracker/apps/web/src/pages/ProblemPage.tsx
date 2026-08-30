@@ -9,7 +9,7 @@ import NoteEditor from '../components/NoteEditor'
 import MetaEditor from '../components/MetaEditor'
 import { useProblemDraft } from '../lib/useProblemDraft'
 import { ArrowLeft, ExternalLink } from '../components/icons'
-import { Button, Chip, Empty, cx, difficultyTone } from '../components/ui'
+import { Button, Chip, Empty, buttonCls, cx, difficultyTone } from '../components/ui'
 
 type Tab = 'notes' | 'details' | 'tests'
 
@@ -49,9 +49,10 @@ function Loaded({ p, slug }: { p: ProblemDetail; slug: string }) {
   return (
     <div>
       <div className="mb-4">
-        <Link to="/problems"
-          className="inline-flex items-center gap-1 text-[12px] text-[#8b949e] hover:text-[#58a6ff]">
-          <ArrowLeft size={13} /> All problems
+        {/* -ml-3 cancels the button's own padding so the label lines up with
+            the title beneath it rather than sitting indented from it. */}
+        <Link to="/problems" className={cx(buttonCls('ghost'), '-ml-3')}>
+          <ArrowLeft size={14} />All problems
         </Link>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <h1 className="text-lg font-semibold">{p.title}</h1>
@@ -63,9 +64,8 @@ function Loaded({ p, slug }: { p: ProblemDetail; slug: string }) {
           {p.difficulty && <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>}
           {p.source && <Chip>{p.source}</Chip>}
           {p.judgeUrl && (
-            <a href={p.judgeUrl} target="_blank" rel="noreferrer"
-              className="inline-flex items-center gap-1 text-[12px] text-[#58a6ff] hover:underline">
-              Open on judge <ExternalLink size={12} />
+            <a href={p.judgeUrl} target="_blank" rel="noreferrer" className={buttonCls()}>
+              Open on judge<ExternalLink size={13} />
             </a>
           )}
           <div className="ml-auto flex items-center gap-2">

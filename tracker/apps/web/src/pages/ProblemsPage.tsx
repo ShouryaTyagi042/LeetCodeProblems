@@ -9,7 +9,7 @@ import Filters from '../components/Filters'
 import SearchBox, { type PickKind } from '../components/SearchBox'
 import ActiveFilters from '../components/ActiveFilters'
 import SortControl from '../components/SortControl'
-import { Chip, Empty, difficultyTone, inputBase } from '../components/ui'
+import { Chip, Empty, buttonCls, difficultyTone, inputBase } from '../components/ui'
 import { ChevronLeft, ChevronRight, Pencil } from '../components/icons'
 
 export default function ProblemsPage() {
@@ -124,7 +124,7 @@ export default function ProblemsPage() {
                 ))}
               </div>
               {p.hasNote && (
-                <span title="has notes" className="inline-flex text-[#8b949e]">
+                <span title="has notes" className="inline-flex items-center text-[#8b949e]">
                   <Pencil size={12} />
                 </span>
               )}
@@ -149,17 +149,17 @@ export default function ProblemsPage() {
             <button
               disabled={page <= 1}
               onClick={() => patch({ page: String(page - 1) })}
-              className="inline-flex items-center gap-1 rounded px-3 py-1 hover:bg-[#161b22] disabled:opacity-40"
+              className={buttonCls('ghost', page <= 1)}
             >
-              <ChevronLeft size={13} /> Prev
+              <ChevronLeft size={14} />Prev
             </button>
             <span className="text-[#8b949e]">{page} / {pages}</span>
             <button
               disabled={page >= pages}
               onClick={() => patch({ page: String(page + 1) })}
-              className="inline-flex items-center gap-1 rounded px-3 py-1 hover:bg-[#161b22] disabled:opacity-40"
+              className={buttonCls('ghost', page >= pages)}
             >
-              Next <ChevronRight size={13} />
+              Next<ChevronRight size={14} />
             </button>
           </div>
         )}

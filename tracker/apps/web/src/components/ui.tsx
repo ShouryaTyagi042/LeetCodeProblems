@@ -57,30 +57,43 @@ export const inputBase =
 
 export const inputCls = `w-full ${inputBase}`
 
+export type ButtonVariant = 'default' | 'primary' | 'ghost'
+
+const BUTTON_VARIANT: Record<ButtonVariant, string> = {
+  default: 'bg-[#21262d] border-[#30363d] hover:bg-[#30363d]',
+  primary: 'bg-[#1f6feb] border-[#1f6feb] text-white hover:bg-[#388bfd]',
+  ghost: 'bg-transparent border-transparent hover:bg-[#21262d]',
+}
+
+/**
+ * Button styling as a bare class string, so navigation that has to stay an
+ * anchor — a router Link, or anything opening in a new tab — can still look
+ * like a button. inline-flex + gap is what spaces an icon from its label, so
+ * no call site needs a literal space between the two.
+ */
+export function buttonCls(variant: ButtonVariant = 'default', disabled = false) {
+  return cx(
+    'inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition',
+    BUTTON_VARIANT[variant],
+    disabled && 'cursor-not-allowed opacity-50',
+  )
+}
+
 export function Button({
   children, onClick, variant = 'default', disabled, type = 'button',
 }: {
   children: ReactNode
   onClick?: () => void
-  variant?: 'default' | 'primary' | 'ghost'
+  variant?: ButtonVariant
   disabled?: boolean
   type?: 'button' | 'submit'
 }) {
-  const v = {
-    default: 'bg-[#21262d] border-[#30363d] hover:bg-[#30363d]',
-    primary: 'bg-[#1f6feb] border-[#1f6feb] text-white hover:bg-[#388bfd]',
-    ghost: 'bg-transparent border-transparent hover:bg-[#21262d]',
-  }
   return (
     <button
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={cx(
-        'rounded-md border px-3 py-1.5 text-sm font-medium transition',
-        v[variant],
-        disabled && 'cursor-not-allowed opacity-50',
-      )}
+      className={buttonCls(variant, disabled)}
     >
       {children}
     </button>

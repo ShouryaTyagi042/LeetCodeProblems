@@ -42,8 +42,8 @@ export default function SortControl({
   }
   const add = (f: SortField) => onChange([...value, { field: f, dir: f === 'title' ? 'asc' : 'desc' }])
 
-  const DirIcon = ({ dir }: { dir: 'asc' | 'desc' }) =>
-    dir === 'asc' ? <ArrowUp size={11} /> : <ArrowDown size={11} />
+  const DirIcon = ({ dir, className }: { dir: 'asc' | 'desc'; className?: string }) =>
+    dir === 'asc' ? <ArrowUp size={11} className={className} /> : <ArrowDown size={11} className={className} />
 
   // min-w-0 + truncate on the label itself: the icon is a flex child, and a
   // flex child ignores the parent's text-overflow, so truncating the wrapper
@@ -92,17 +92,17 @@ export default function SortControl({
                   <button
                     onClick={() => move(i, -1)} disabled={i === 0}
                     title="Move up" aria-label="Move up"
-                    className="rounded px-1 text-[#8b949e] hover:bg-[#21262d] disabled:opacity-25"
+                    className="inline-flex items-center rounded px-1 text-[#8b949e] hover:bg-[#21262d] disabled:opacity-25"
                   ><ArrowUp size={12} /></button>
                   <button
                     onClick={() => move(i, 1)} disabled={i === value.length - 1}
                     title="Move down" aria-label="Move down"
-                    className="rounded px-1 text-[#8b949e] hover:bg-[#21262d] disabled:opacity-25"
+                    className="inline-flex items-center rounded px-1 text-[#8b949e] hover:bg-[#21262d] disabled:opacity-25"
                   ><ArrowDown size={12} /></button>
                   <button
                     onClick={() => drop(i)}
                     title="Remove" aria-label="Remove"
-                    className="rounded px-1 text-[#8b949e] hover:bg-[#21262d] hover:text-[#f85149]"
+                    className="inline-flex items-center rounded px-1 text-[#8b949e] hover:bg-[#21262d] hover:text-[#f85149]"
                   ><X size={12} /></button>
                 </div>
               ))}
@@ -135,16 +135,17 @@ export default function SortControl({
                 'mt-2 w-full rounded px-2 py-1 text-[11px] text-[#8b949e] hover:bg-[#21262d]',
               )}
             >
-              <span className="inline-flex flex-wrap items-center justify-center gap-1">
-                Reset to default (
+              {/* No flex gap here: punctuation has to hug the arrow it follows,
+                  so the icon carries its own margin and the comma its own space. */}
+              <span className="inline-flex flex-wrap items-center justify-center">
+                <span>Reset to default&nbsp;(</span>
                 {DEFAULT_SORT.map((s, i) => (
-                  <span key={s.field} className="inline-flex items-center gap-0.5">
-                    {SORT_LABEL[s.field]}
-                    <DirIcon dir={s.dir} />
-                    {i < DEFAULT_SORT.length - 1 && ','}
+                  <span key={s.field} className="inline-flex items-center">
+                    <span>{SORT_LABEL[s.field]}</span>
+                    <DirIcon dir={s.dir} className="mx-0.5" />
+                    <span>{i < DEFAULT_SORT.length - 1 ? ',\u00a0' : ')'}</span>
                   </span>
                 ))}
-                )
               </span>
             </button>
           )}
