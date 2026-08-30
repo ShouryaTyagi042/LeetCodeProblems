@@ -1,11 +1,13 @@
 import { Suspense, lazy, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { ProblemDetail } from '@tracker/shared'
 import { api } from '../lib/api'
 // CodeMirror is ~60% of the bundle and only the detail page needs it.
 const CodeView = lazy(() => import('../components/CodeView'))
 import NoteEditor from '../components/NoteEditor'
 import MetaEditor from '../components/MetaEditor'
+import { useProblemDraft } from '../lib/useProblemDraft'
 import { Button, Chip, Empty, cx, difficultyTone } from '../components/ui'
 
 type Tab = 'notes' | 'details' | 'tests'
@@ -13,16 +15,26 @@ type Tab = 'notes' | 'details' | 'tests'
 export default function ProblemPage() {
   const { topic, name } = useParams()
   const slug = `${topic}/${name}`
+  const q = useQuery({ queryKey: ['problem', slug], queryFn: () => api.getProblem(slug) })
+
+  if (q.isLoading) return <Empty>Loading…</Empty>
+  if (q.isError || !q.data) return <Empty>Problem not found.</Empty>
+  // Keyed on the problem so switching problems starts a clean draft rather
+  // than carrying one across.
+  return <Loaded key={q.data.id} p={q.data} slug={slug} />
+}
+
+/** Split out so the draft hook only ever runs against a problem that exists. */
+function Loaded({ p, slug }: { p: ProblemDetail; slug: string }) {
   const [tab, setTab] = useState<Tab>('notes')
   const [fileIdx, setFileIdx] = useState(0)
-
   const qc = useQueryClient()
-  const q = useQuery({ queryKey: ['problem', slug], queryFn: () => api.getProblem(slug) })
+  const { draft, set, notesDirty, detailsDirty, dirty, save } = useProblemDraft(p)
 
   // Re-reads this problem's files only, so it can be pressed right after
   // editing a solution without waiting on a full-repo sync.
   const sync = useMutation({
-    mutationFn: () => api.syncProblem(q.data!.id),
+    mutationFn: () => api.syncProblem(p.id),
     onSuccess: (res) => {
       qc.setQueryData(['problem', slug], res.problem)
       qc.invalidateQueries({ queryKey: ['problems'] })
@@ -31,9 +43,6 @@ export default function ProblemPage() {
     },
   })
 
-  if (q.isLoading) return <Empty>Loading…</Empty>
-  if (q.isError || !q.data) return <Empty>Problem not found.</Empty>
-  const p = q.data
   const sol = p.solutions[fileIdx]
 
   return (
@@ -44,6 +53,11 @@ export default function ProblemPage() {
         </Link>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <h1 className="text-lg font-semibold">{p.title}</h1>
+          {dirty && (
+            <span className="rounded-full border border-[#9e6a03] bg-[#3b2300] px-2 py-0.5 text-[11px] text-[#e3b341]">
+              ● Unsaved draft
+            </span>
+          )}
           {p.difficulty && <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>}
           {p.source && <Chip>{p.source}</Chip>}
           {p.judgeUrl && (
@@ -110,7 +124,7 @@ export default function ProblemPage() {
         </section>
 
         <section className="min-w-0">
-          <div className="mb-3 flex gap-1 border-b border-[#262d36]">
+          <div className="mb-3 flex items-center gap-1 border-b border-[#262d36]">
             {(['notes', 'details', 'tests'] as Tab[]).map((t) => (
               <button key={t} onClick={() => setTab(t)}
                 className={cx(
@@ -120,14 +134,44 @@ export default function ProblemPage() {
                     : 'border-transparent text-[#8b949e] hover:text-[#e6edf3]',
                 )}>
                 {t}
+                {/* A dot marks which tab holds the unsaved edit, so it is
+                    findable from whichever tab happens to be open. */}
+                {((t === 'notes' && notesDirty) || (t === 'details' && detailsDirty)) && (
+                  <span className="ml-1 text-[#e3b341]">●</span>
+                )}
               </button>
             ))}
+
+            {/* One Save for the whole problem: notes and details are separate
+                endpoints, but that is not a distinction worth pushing onto
+                whoever is writing them up. */}
+            <div className="ml-auto flex items-center gap-2 pb-1.5">
+              {save.isError && (
+                <span className="text-[11px] text-[#f85149]">
+                  {String((save.error as Error).message)}
+                </span>
+              )}
+              {!dirty && save.isSuccess && (
+                <span className="text-[11px] text-[#56d364]">Saved</span>
+              )}
+              <Button variant="primary" disabled={!dirty || save.isPending}
+                onClick={() => save.mutate()}>
+                {save.isPending ? 'Saving…' : 'Save'}
+              </Button>
+            </div>
           </div>
 
-          {tab === 'notes' && <NoteEditor problem={p} />}
-          {tab === 'details' && <MetaEditor problem={p} />}
-          {tab === 'tests' && (
-            p.testcases.length === 0 ? (
+          {/* Panels stay mounted and are hidden with CSS rather than being
+              unmounted on a tab switch, which would throw away an unsaved
+              draft along with the component's state. */}
+          <div className={cx(tab !== 'notes' && 'hidden')}>
+            <NoteEditor draft={draft} set={set} />
+          </div>
+          <div className={cx(tab !== 'details' && 'hidden')}>
+            <MetaEditor draft={draft} set={set} />
+          </div>
+          <div className={cx(tab !== 'tests' && 'hidden')}>
+            {p.testcases.length === 0 ? (
               <Empty>No test data.</Empty>
             ) : (
               p.testcases.map((tc) => (
@@ -146,8 +190,8 @@ export default function ProblemPage() {
                   </div>
                 </div>
               ))
-            )
-          )}
+            )}
+          </div>
         </section>
       </div>
     </div>
