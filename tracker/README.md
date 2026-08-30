@@ -1,7 +1,6 @@
 # DSA Tracker
 
-Phases 1-3 of [`../AlgoZenith/WEBAPP_PLAN.md`](../AlgoZenith/WEBAPP_PLAN.md):
-a browsable, searchable, editable index of every problem in `AlgoZenith/topics/`,
+A browsable, searchable, editable index of every problem in `AlgoZenith/topics/`,
 joined to the metadata that used to live in Notion, with spaced-repetition
 review scheduling on top.
 
