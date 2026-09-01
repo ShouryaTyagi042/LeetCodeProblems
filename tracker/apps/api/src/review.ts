@@ -44,6 +44,73 @@ function toInfo(c: any, now: Date): CardInfo {
   }
 }
 
+/**
+ * How far ahead the interleaver may reach to avoid repeating a pattern. It
+ * doubles as the priority guarantee: a card can only be pulled forward past
+ * this many others, so the queue stays essentially most-overdue-first.
+ */
+const PATTERN_LOOKAHEAD = 8
+
+function shuffleInPlace<T>(a: T[]): T[] {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const t = a[i]; a[i] = a[j]; a[j] = t
+  }
+  return a
+}
+
+const patternIdsOf = (c: any): string[] =>
+  (c.problem?.patterns ?? []).map((x: any) => x.pattern.id)
+
+/**
+ * Order the due queue so two problems of the same pattern do not come up
+ * back to back — revising three shortest-path problems in a row tests the
+ * pattern once, not three times.
+ *
+ * Two passes over cards already sorted by due date:
+ *
+ *  1. Shuffle within each due day, so a day's worth of cards is not served
+ *     in the same order every session. Days keep their order, so a card a
+ *     month overdue still comes before one due today.
+ *  2. Walk the result, and where the next card repeats the previous card's
+ *     pattern, reach up to PATTERN_LOOKAHEAD ahead for one that does not.
+ *     If nothing in the window avoids the clash, take the front card
+ *     anyway: spreading patterns never costs more than a bounded amount of
+ *     priority.
+ *
+ * A problem with no pattern clashes with nothing, so it is always eligible
+ * and doubles as a spacer between two of the same kind. Two thirds of the
+ * library is untagged today, which caps how much this can do — the effect
+ * scales with how well patterns are filled in.
+ */
+function interleaveByPattern(cards: any[]): any[] {
+  const byDay = new Map<string, any[]>()
+  for (const c of cards) {
+    const key = localDay(c.due)
+    const bucket = byDay.get(key)
+    if (bucket) bucket.push(c)
+    else byDay.set(key, [c])
+  }
+
+  const pool: any[] = []
+  for (const bucket of byDay.values()) pool.push(...shuffleInPlace(bucket))
+
+  const out: any[] = []
+  let previous = new Set<string>()
+  while (pool.length > 0) {
+    let pick = 0
+    const window = Math.min(PATTERN_LOOKAHEAD, pool.length)
+    for (let i = 0; i < window; i++) {
+      const ids = patternIdsOf(pool[i])
+      if (ids.length === 0 || !ids.some((id) => previous.has(id))) { pick = i; break }
+    }
+    const [chosen] = pool.splice(pick, 1)
+    out.push(chosen)
+    previous = new Set(patternIdsOf(chosen))
+  }
+  return out
+}
+
 export function registerReviewRoutes(app: FastifyInstance) {
   /**
    * The due queue, oldest first so a backlog drains in the order it built
@@ -58,11 +125,13 @@ export function registerReviewRoutes(app: FastifyInstance) {
     // A topic is only a filter over this queue — it has no schedule of its own.
     const base: any = { suspended: false }
     if (q.topic) base.problem = { topics: { some: { topic: { slug: q.topic } } } }
+    // Fetch a superset: the interleaver reorders within it, so taking exactly
+    // `limit` from the database would leave it nothing to work with.
     const [due, dueTotal, newTotal] = await Promise.all([
       prisma.card.findMany({
         where: { ...base, due: { lte: now } },
         orderBy: [{ due: 'asc' }],
-        take: limit,
+        take: Math.min(200, limit * 3),
         include: { problem: { include: SUMMARY_INCLUDE as any } },
       }),
       prisma.card.count({ where: { ...base, due: { lte: now } } }),
@@ -70,10 +139,12 @@ export function registerReviewRoutes(app: FastifyInstance) {
     ])
 
     return {
-      items: due.map((c) => ({
-        problem: toSummary(c.problem),
-        card: toInfo(c, now),
-      })),
+      items: interleaveByPattern(due)
+        .slice(0, limit)
+        .map((c) => ({
+          problem: toSummary(c.problem),
+          card: toInfo(c, now),
+        })),
       dueTotal,
       newTotal,
     }
