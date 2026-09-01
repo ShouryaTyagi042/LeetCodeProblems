@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { LADDER_LABELS, type Outcome } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Chip, buttonCls, cx, difficultyTone } from '../components/ui'
-import { ArrowLeft, ExternalLink } from '../components/icons'
+import { ArrowLeft, ExternalLink, Lightbulb } from '../components/icons'
 
 const CodeView = lazy(() => import('../components/CodeView'))
 
@@ -30,6 +30,9 @@ export default function ReviewPage() {
   const topic = sp.get('topic') ?? undefined
   const [idx, setIdx] = useState(0)
   const [revealed, setRevealed] = useState(false)
+  // Topic and difficulty are a hint, not part of the prompt: knowing a
+  // problem is a Medium graph question is most of the way to the approach.
+  const [hinted, setHinted] = useState(false)
   const [done, setDone] = useState(0)
   const startedAt = useRef(Date.now())
 
@@ -62,6 +65,7 @@ export default function ReviewPage() {
 
   useEffect(() => {
     setRevealed(false)
+    setHinted(false)
     startedAt.current = Date.now()
   }, [idx])
 
@@ -91,6 +95,7 @@ export default function ReviewPage() {
       const el = e.target as HTMLElement
       if (el && /INPUT|TEXTAREA|SELECT/.test(el.tagName)) return
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setRevealed(true); return }
+      if (e.key === 'h' || e.key === 'H') { e.preventDefault(); setHinted((v) => !v); return }
       const n = Number(e.key)
       if (n >= 1 && n <= OUTCOME_UI.length && revealed) {
         e.preventDefault()
@@ -129,6 +134,7 @@ export default function ReviewPage() {
   const note = detail.data?.note
   const sol = detail.data?.solutions?.[0]
   const overdue = current.card.overdueDays
+  const showHint = hinted || revealed
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -151,12 +157,29 @@ export default function ReviewPage() {
         <div className="border-b border-[#262d36] px-5 py-4">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-lg font-semibold">{p.title}</h1>
-            {p.difficulty && <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>}
             {p.source && <Chip>{p.source}</Chip>}
           </div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1">
-            {p.topics.map((t) => <Chip key={t.id}>{t.name}</Chip>)}
-          </div>
+
+          {/* The hint is everything that names the technique before you have
+              recalled it: difficulty, the topics, and the folder path — which
+              spells out the topic and usually the pattern too. Revealing the
+              answer implies the hint, so it stops being worth asking for. */}
+          {showHint ? (
+            <div className="mt-1.5 flex flex-wrap items-center gap-1">
+              {p.difficulty && <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>}
+              {p.topics.map((t) => <Chip key={t.id}>{t.name}</Chip>)}
+              <span className="ml-1 font-mono text-[11px] text-[#6e7681]">{p.folderPath}</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => setHinted(true)}
+              className={cx(buttonCls('ghost'), 'mt-1.5 -ml-3 text-[12px] text-[#8b949e]')}
+            >
+              <Lightbulb size={13} />Show topic hint
+              <span className="ml-1 opacity-60">(h)</span>
+            </button>
+          )}
+
           <div className="mt-2 flex items-center gap-3 text-[12px]">
             {p.judgeUrl && (
               <a href={p.judgeUrl} target="_blank" rel="noreferrer" className={buttonCls()}>
@@ -166,7 +189,6 @@ export default function ReviewPage() {
             <Link to={`/problems/${p.slug}`} className="text-[#8b949e] hover:text-[#58a6ff]">
               Open full page
             </Link>
-            <span className="font-mono text-[11px] text-[#6e7681]">{p.folderPath}</span>
           </div>
         </div>
 
