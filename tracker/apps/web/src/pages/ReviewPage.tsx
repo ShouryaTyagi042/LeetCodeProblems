@@ -30,9 +30,11 @@ export default function ReviewPage() {
   const topic = sp.get('topic') ?? undefined
   const [idx, setIdx] = useState(0)
   const [revealed, setRevealed] = useState(false)
-  // Topic and difficulty are a hint, not part of the prompt: knowing a
-  // problem is a Medium graph question is most of the way to the approach.
+  // Two independent hints, because they give away different amounts. Topic
+  // and difficulty narrow the field; the pattern names the technique outright,
+  // so it is worth being able to take the first without the second.
   const [hinted, setHinted] = useState(false)
+  const [patternHinted, setPatternHinted] = useState(false)
   const [done, setDone] = useState(0)
   const startedAt = useRef(Date.now())
 
@@ -66,6 +68,7 @@ export default function ReviewPage() {
   useEffect(() => {
     setRevealed(false)
     setHinted(false)
+    setPatternHinted(false)
     startedAt.current = Date.now()
   }, [idx])
 
@@ -96,6 +99,7 @@ export default function ReviewPage() {
       if (el && /INPUT|TEXTAREA|SELECT/.test(el.tagName)) return
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setRevealed(true); return }
       if (e.key === 'h' || e.key === 'H') { e.preventDefault(); setHinted((v) => !v); return }
+      if (e.key === 'p' || e.key === 'P') { e.preventDefault(); setPatternHinted((v) => !v); return }
       const n = Number(e.key)
       if (n >= 1 && n <= OUTCOME_UI.length && revealed) {
         e.preventDefault()
@@ -123,8 +127,8 @@ export default function ReviewPage() {
               : 'Everything is scheduled for later.'}
         </p>
         <div className="flex justify-center gap-2">
-          <Link to="/topics"><Button>Topics</Button></Link>
-          <Link to="/problems"><Button>Browse problems</Button></Link>
+          <Link to="/topics" className={buttonCls()}>Topics</Link>
+          <Link to="/problems" className={buttonCls()}>Browse problems</Link>
         </div>
       </div>
     )
@@ -135,6 +139,7 @@ export default function ReviewPage() {
   const sol = detail.data?.solutions?.[0]
   const overdue = current.card.overdueDays
   const showHint = hinted || revealed
+  const showPatterns = patternHinted || revealed
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -160,35 +165,55 @@ export default function ReviewPage() {
             {p.source && <Chip>{p.source}</Chip>}
           </div>
 
-          {/* The hint is everything that names the technique before you have
-              recalled it: difficulty, the topics, and the folder path — which
-              spells out the topic and usually the pattern too. Revealing the
-              answer implies the hint, so it stops being worth asking for. */}
-          {showHint ? (
-            <div className="mt-1.5 flex flex-wrap items-center gap-1">
-              {p.difficulty && <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>}
-              {p.topics.map((t) => <Chip key={t.id}>{t.name}</Chip>)}
-              <span className="ml-1 font-mono text-[11px] text-[#6e7681]">{p.folderPath}</span>
+          {/* Whatever has been unlocked so far. The folder path rides with the
+              topic hint because it reads topics/Graphs/DisjointSetUnion — the
+              topic and usually the pattern, spelled out. */}
+          {(showHint || showPatterns) && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {showHint && p.difficulty && (
+                <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>
+              )}
+              {showHint && p.topics.map((t) => <Chip key={t.id}>{t.name}</Chip>)}
+              {showPatterns && (
+                p.patterns.length > 0
+                  ? p.patterns.map((t) => <Chip key={t.id} tone="accent">{t.name}</Chip>)
+                  : <span className="text-[11px] text-[#6e7681]">no patterns tagged</span>
+              )}
+              {showHint && (
+                <span className="font-mono text-[11px] text-[#6e7681]">{p.folderPath}</span>
+              )}
             </div>
-          ) : (
-            <button
-              onClick={() => setHinted(true)}
-              className={cx(buttonCls('ghost'), 'mt-1.5 -ml-3 text-[12px] text-[#8b949e]')}
-            >
-              <Lightbulb size={13} />Show topic hint
-              <span className="ml-1 opacity-60">(h)</span>
-            </button>
           )}
 
-          <div className="mt-2 flex items-center gap-3 text-[12px]">
+          {/* Every action in one row: same variant height, one gap, one left
+              edge. Split across rows they lined up on three different edges. */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             {p.judgeUrl && (
               <a href={p.judgeUrl} target="_blank" rel="noreferrer" className={buttonCls()}>
                 Read the problem<ExternalLink size={13} />
               </a>
             )}
-            <Link to={`/problems/${p.slug}`} className="text-[#8b949e] hover:text-[#58a6ff]">
+            <Link to={`/problems/${p.slug}`} className={buttonCls()}>
               Open full page
             </Link>
+            {/* All one variant on purpose. Ghost buttons draw no border, so
+                their label sits inside an invisible box — in a row next to a
+                bordered button that reads as misaligned and unevenly spaced,
+                even though the boxes line up exactly. */}
+            {!showHint && (
+              <button onClick={() => setHinted(true)}
+                className={cx(buttonCls(), 'text-[#8b949e]')}>
+                <Lightbulb size={13} />Topic hint
+                <span className="opacity-60">(h)</span>
+              </button>
+            )}
+            {!showPatterns && (
+              <button onClick={() => setPatternHinted(true)}
+                className={cx(buttonCls(), 'text-[#8b949e]')}>
+                <Lightbulb size={13} />Pattern hint
+                <span className="opacity-60">(p)</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -201,21 +226,13 @@ export default function ReviewPage() {
               Which technique does this need, and why that one?
             </p>
             <Button variant="primary" onClick={() => setRevealed(true)}>
-              Show answer <span className="ml-1 opacity-60">(space)</span>
+              Show answer<span className="opacity-60">(space)</span>
             </Button>
           </div>
         ) : (
+          // Patterns are not repeated here: revealing implies both hints, so
+          // they are already showing in the header by this point.
           <div className="space-y-4 px-5 py-4">
-            {p.patterns.length > 0 && (
-              <div>
-                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#8b949e]">
-                  Patterns
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {p.patterns.map((t) => <Chip key={t.id} tone="accent">{t.name}</Chip>)}
-                </div>
-              </div>
-            )}
             {note?.framework && (
               <Section title="Framework">{note.framework}</Section>
             )}
