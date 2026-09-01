@@ -5,6 +5,7 @@ import { LADDER_LABELS, type Outcome } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Chip, buttonCls, cx, difficultyTone } from '../components/ui'
 import { ArrowLeft, ExternalLink, Lightbulb } from '../components/icons'
+import Markdown from '../components/Markdown'
 
 const CodeView = lazy(() => import('../components/CodeView'))
 
@@ -301,7 +302,7 @@ function Section({
   title, children, tone,
 }: {
   title: string
-  children: React.ReactNode
+  children: string
   tone?: 'warn'
 }) {
   return (
@@ -312,8 +313,8 @@ function Section({
       )}>
         {title}
       </div>
-      <div className="whitespace-pre-wrap rounded-md border border-[#262d36] bg-[#161b22] px-3 py-2 text-[13px] leading-relaxed text-[#c9d1d9]">
-        {children}
+      <div className="rounded-md border border-[#262d36] bg-[#161b22] px-3 py-2">
+        <Markdown>{children}</Markdown>
       </div>
     </div>
   )

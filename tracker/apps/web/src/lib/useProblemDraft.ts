@@ -42,6 +42,9 @@ function seed(p: ProblemDetail): Draft {
 export function useProblemDraft(problem: ProblemDetail) {
   const qc = useQueryClient()
   const [draft, setDraft] = useState<Draft>(() => seed(problem))
+  // Bumped on every successful save. The notes editor watches it to drop
+  // back from the textareas to the rendered markdown.
+  const [savedCount, setSavedCount] = useState(0)
 
   // Re-seed only when this is a different problem. The page keeps the editors
   // mounted while navigating between problems, and re-seeding on every new
@@ -96,6 +99,7 @@ export function useProblemDraft(problem: ProblemDetail) {
       // Take the stored values back — the server trims source and judgeUrl,
       // so the draft has to follow or it would read as dirty forever.
       setDraft(seed(updated))
+      setSavedCount((n) => n + 1)
       qc.invalidateQueries({ queryKey: ['problems'] })
       qc.invalidateQueries({ queryKey: ['stats'] })
       qc.invalidateQueries({ queryKey: ['facets'] })
@@ -107,6 +111,7 @@ export function useProblemDraft(problem: ProblemDetail) {
   return {
     draft,
     set,
+    savedCount,
     notesDirty,
     detailsDirty,
     dirty: notesDirty || detailsDirty,

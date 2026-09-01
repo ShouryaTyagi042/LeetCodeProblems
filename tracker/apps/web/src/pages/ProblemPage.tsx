@@ -30,7 +30,7 @@ function Loaded({ p, slug }: { p: ProblemDetail; slug: string }) {
   const [tab, setTab] = useState<Tab>('notes')
   const [fileIdx, setFileIdx] = useState(0)
   const qc = useQueryClient()
-  const { draft, set, notesDirty, detailsDirty, dirty, save } = useProblemDraft(p)
+  const { draft, set, savedCount, notesDirty, detailsDirty, dirty, save } = useProblemDraft(p)
 
   // Re-reads this problem's files only, so it can be pressed right after
   // editing a solution without waiting on a full-repo sync.
@@ -167,7 +167,7 @@ function Loaded({ p, slug }: { p: ProblemDetail; slug: string }) {
               unmounted on a tab switch, which would throw away an unsaved
               draft along with the component's state. */}
           <div className={cx(tab !== 'notes' && 'hidden')}>
-            <NoteEditor draft={draft} set={set} />
+            <NoteEditor draft={draft} set={set} savedCount={savedCount} />
           </div>
           <div className={cx(tab !== 'details' && 'hidden')}>
             <MetaEditor draft={draft} set={set} />
