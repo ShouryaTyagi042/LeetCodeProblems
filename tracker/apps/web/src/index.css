@@ -9,6 +9,10 @@
   --color-accent: #58a6ff;
 }
 
+/* The app header is h-14 (56px) plus its 1px bottom border. Anything that
+   sticks below it offsets by this, so the two cannot drift apart. */
+:root { --app-header-h: 57px; }
+
 html, body, #root { height: 100%; }
 body {
   background: var(--color-bg);

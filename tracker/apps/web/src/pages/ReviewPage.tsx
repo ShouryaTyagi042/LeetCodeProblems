@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { LADDER_LABELS, type Outcome } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Chip, buttonCls, cx, difficultyTone } from '../components/ui'
-import { ArrowLeft, ExternalLink, Lightbulb } from '../components/icons'
+import { ArrowLeft, ChevronDown, ChevronRight, ExternalLink, Lightbulb } from '../components/icons'
 import Markdown from '../components/Markdown'
 
 const CodeView = lazy(() => import('../components/CodeView'))
@@ -36,6 +36,10 @@ export default function ReviewPage() {
   // so it is worth being able to take the first without the second.
   const [hinted, setHinted] = useState(false)
   const [patternHinted, setPatternHinted] = useState(false)
+  // Not reset between cards: collapsing the solution is a preference for the
+  // sitting, not a per-problem state like the hints. Collapse once and it
+  // stays collapsed for the rest of the session.
+  const [codeOpen, setCodeOpen] = useState(true)
   const [done, setDone] = useState(0)
   const startedAt = useRef(Date.now())
 
@@ -101,6 +105,9 @@ export default function ReviewPage() {
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setRevealed(true); return }
       if (e.key === 'h' || e.key === 'H') { e.preventDefault(); setHinted((v) => !v); return }
       if (e.key === 'p' || e.key === 'P') { e.preventDefault(); setPatternHinted((v) => !v); return }
+      if ((e.key === 'c' || e.key === 'C') && revealed) {
+        e.preventDefault(); setCodeOpen((v) => !v); return
+      }
       const n = Number(e.key)
       if (n >= 1 && n <= OUTCOME_UI.length && revealed) {
         e.preventDefault()
@@ -243,14 +250,40 @@ export default function ReviewPage() {
             {note?.notes && <Section title="Notes">{note.notes}</Section>}
 
             {sol ? (
-              <div className="overflow-hidden rounded-md border border-[#262d36]">
-                <div className="flex items-center justify-between border-b border-[#262d36] bg-[#161b22] px-3 py-1.5">
-                  <span className="font-mono text-[11px] text-[#8b949e]">{sol.filePath}</span>
-                  <span className="text-[11px] text-[#6e7681]">{sol.loc} lines</span>
-                </div>
-                <Suspense fallback={<div className="p-6 text-[12px] text-[#6e7681]">Loading…</div>}>
-                  <CodeView code={sol.code} />
-                </Suspense>
+              // No overflow-hidden on this wrapper: an overflowing ancestor
+              // becomes the sticky element's scroll container, and since this
+              // box does not scroll, the bar below would never stick to the
+              // viewport. The code gets its own clipping wrapper instead.
+              <div className="rounded-md border border-[#262d36]">
+                {/* The whole bar toggles, so the target is the width of the
+                    panel rather than a chevron the size of a full stop. It
+                    parks under the app header while a long solution scrolls
+                    past, so the collapse control is always in reach. */}
+                <button
+                  onClick={() => setCodeOpen((v) => !v)}
+                  aria-expanded={codeOpen}
+                  className={cx(
+                    'sticky top-[var(--app-header-h)] z-10 flex w-full items-center gap-2',
+                    'bg-[#161b22] px-3 py-1.5 text-left hover:bg-[#1c2129]',
+                    codeOpen ? 'rounded-t-md border-b border-[#262d36]' : 'rounded-md',
+                  )}
+                >
+                  {codeOpen ? <ChevronDown size={13} className="shrink-0 text-[#6e7681]" />
+                            : <ChevronRight size={13} className="shrink-0 text-[#6e7681]" />}
+                  <span className="truncate font-mono text-[11px] text-[#8b949e]">
+                    {sol.filePath}
+                  </span>
+                  <span className="ml-auto shrink-0 text-[11px] text-[#6e7681]">
+                    {sol.loc} lines{codeOpen ? '' : ' · hidden'}
+                  </span>
+                </button>
+                {codeOpen && (
+                  <div className="overflow-hidden rounded-b-md">
+                    <Suspense fallback={<div className="p-6 text-[12px] text-[#6e7681]">Loading…</div>}>
+                      <CodeView code={sol.code} />
+                    </Suspense>
+                  </div>
+                )}
               </div>
             ) : detail.isLoading ? (
               <div className="py-6 text-center text-[12px] text-[#6e7681]">Loading solution…</div>

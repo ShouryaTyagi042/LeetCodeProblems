@@ -27,7 +27,7 @@ export default function Shell() {
   return (
     <div className="flex min-h-full flex-col">
       <header className="sticky top-0 z-20 border-b border-[#262d36] bg-[#0e1116]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-5 py-3">
+        <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 px-5">
           <Link
             to="/problems"
             className="flex shrink-0 items-center gap-2 text-sm font-semibold tracking-tight"
