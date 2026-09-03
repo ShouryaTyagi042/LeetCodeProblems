@@ -95,3 +95,11 @@ export const Eye = (p: IconProps) => (
     <circle cx="12" cy="12" r="3" />
   </Svg>
 )
+
+/** Re-read a problem's files from disk. */
+export const Refresh = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+    <path d="M21 3v6h-6" />
+  </Svg>
+)

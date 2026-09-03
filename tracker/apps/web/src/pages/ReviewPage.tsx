@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { LADDER_LABELS, type Outcome } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Chip, buttonCls, cx, difficultyTone } from '../components/ui'
-import { ArrowLeft, ChevronDown, ChevronRight, ExternalLink, Lightbulb } from '../components/icons'
+import { ArrowLeft, ChevronDown, ChevronRight, ExternalLink, Lightbulb, Refresh } from '../components/icons'
 import Markdown from '../components/Markdown'
 
 const CodeView = lazy(() => import('../components/CodeView'))
@@ -75,6 +75,30 @@ export default function ReviewPage() {
     setHinted(false)
     setPatternHinted(false)
     startedAt.current = Date.now()
+  }, [idx])
+
+  // Re-reads this problem's files from disk, the same as the button on the
+  // full page — for when the solution has been edited since the card was
+  // built and the code on screen is stale.
+  const syncMut = useMutation({
+    mutationFn: () => api.syncProblem(current!.problem.id),
+    onSuccess: (res) => {
+      qc.setQueryData(['problem', current!.problem.slug], res.problem)
+      qc.invalidateQueries({ queryKey: ['problems'] })
+      qc.invalidateQueries({ queryKey: ['stats'] })
+      // Deliberately not ['review','queue']: refetching it mid-session would
+      // reshuffle the order and move a different problem under the card you
+      // are part way through. Grading avoids it for the same reason.
+      qc.invalidateQueries({ queryKey: ['review', 'stats'] })
+      qc.invalidateQueries({ queryKey: ['review', 'forecast'] })
+    },
+  })
+
+  // Clear the result line when moving on, so it does not read as if it
+  // belonged to the next problem.
+  useEffect(() => {
+    syncMut.reset()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx])
 
   const gradeMut = useMutation({
@@ -223,6 +247,26 @@ export default function ReviewPage() {
                 <Lightbulb size={13} />Pattern hint
                 <span className="opacity-60">(p)</span>
               </button>
+            )}
+            <button
+              onClick={() => syncMut.mutate()}
+              disabled={syncMut.isPending}
+              className={cx(buttonCls('default', syncMut.isPending), 'text-[#8b949e]')}
+            >
+              <Refresh size={13} />
+              {syncMut.isPending ? 'Reading files…' : 'Sync files'}
+            </button>
+            {syncMut.isSuccess && (
+              <span className="text-[11px] text-[#56d364]">
+                {syncMut.data.files} file{syncMut.data.files === 1 ? '' : 's'},{' '}
+                {syncMut.data.loc} lines
+                {syncMut.data.removedFiles > 0 && `, ${syncMut.data.removedFiles} removed`}
+              </span>
+            )}
+            {syncMut.isError && (
+              <span className="text-[11px] text-[#f85149]">
+                {String((syncMut.error as Error).message)}
+              </span>
             )}
           </div>
         </div>
