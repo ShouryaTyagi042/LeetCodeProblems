@@ -310,7 +310,8 @@ export default function ReviewPage() {
             >
               <div>{o.label}</div>
               <div className="mt-0.5 text-[11px] font-normal opacity-70">
-                {o.hint || current.card.nextIntervalLabel} · {i + 1}
+                {o.hint || current.card.nextIntervalLabel}{' '}
+                <span className="opacity-60">({i + 1})</span>
               </div>
             </button>
           ))}
