@@ -102,12 +102,14 @@ export default function ReviewPage() {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement
       if (el && /INPUT|TEXTAREA|SELECT/.test(el.tagName)) return
+      // Leave anything held with a modifier to the browser. e.key is the bare
+      // letter whether or not cmd is down, so without this every shortcut here
+      // also fires on its cmd- equivalent — and preventDefault then swallows
+      // the real one. Cmd+C collapsed the solution instead of copying it.
+      if (e.metaKey || e.ctrlKey || e.altKey) return
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setRevealed(true); return }
       if (e.key === 'h' || e.key === 'H') { e.preventDefault(); setHinted((v) => !v); return }
       if (e.key === 'p' || e.key === 'P') { e.preventDefault(); setPatternHinted((v) => !v); return }
-      if ((e.key === 'c' || e.key === 'C') && revealed) {
-        e.preventDefault(); setCodeOpen((v) => !v); return
-      }
       const n = Number(e.key)
       if (n >= 1 && n <= OUTCOME_UI.length && revealed) {
         e.preventDefault()
