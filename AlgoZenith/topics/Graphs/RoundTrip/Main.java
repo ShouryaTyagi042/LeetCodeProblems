@@ -90,103 +90,10 @@ public class Main {
         }
     }
 
-    static final long MOD = 1_000_000_007L;
-
-    static long modPow(long base, long exp, long mod) {
-        long result = 1 ;
-        base %= mod ;
-        while( exp > 0) {
-            // check if power is odd
-            if  ((exp & 1) == 1 ) {
-                result = (( result % mod) * (base % mod) ) % mod ;
-            }
-            base = ( (base % mod)  * (base % mod ) ) % mod ;
-            exp >>= 1 ;
-        }
-
-        return result ;
-    }
-
-    static long inverse(long n) {
-        return modPow(n, MOD - 2, MOD) ;
-    }
-
-    static class Pair  {
-        long x, y;
-
-        Pair(long x, long y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + x + ", " + y + ")";
-        }
-    }
-
-    static class MonotoneDeque {
-        Deque<Integer> deque;
-
-        MonotoneDeque() {
-            deque = new ArrayDeque<>() ;
-        }
-
-        void insert(int val) {
-            while(!deque.isEmpty() && deque.peekLast() < val ) {
-                deque.pollLast() ;
-            }
-            deque.offerFirst(val) ;
-        }
-
-        int getMax(){
-            return deque.peekFirst() ;
-        }
-
-        void remove(int val) {
-            if(deque.peekFirst() == val) {
-                deque.pollFirst() ;
-            }
-        }
-    }
-
-    static int upperBound(int[] arr, int n , int target) {
-            int hi = n - 1 ;
-            int lo = 0 ;
-            int ans = n ;
-            while(lo <= hi) {
-                int mid = lo + (hi - lo) / 2 ;
-                if(arr[mid] > target ) {
-                    ans = mid ;
-                    hi = mid - 1 ;
-                } else {
-                    lo = mid + 1 ;
-                }
-            }
-            return ans ;
-    }
-
-    static long[] fact = new long[1000100];
-
-    static void precompute() {
-        fact[0] = 1L;
-        for(int i=1; i<=1000000; i++) {
-            fact[i] = (fact[i-1] * i) % MOD;
-        }
-    }
-
-    static long calculateNCR(int n, int r) {
-        long num = fact[n] ;
-        long dem = ( fact[n-r] * fact[r]) % MOD ;
-        return (num * inverse(dem)) % MOD ;
-    }
 
     static ArrayList<ArrayList<Integer>> graph ;
-    static boolean[] vis ;
     static int[] col ;
     static int[] parent ;
-    static int[] component ;
-    static int[] cSize ;
     static boolean isCycle = false ;
     static final int[][] dir = {
         {1,0},
@@ -210,16 +117,6 @@ public class Main {
             }
         }
         col[node] = 3 ;
-    }
-
-    public static void main(String[] args) throws Exception {
-        new Thread(null, () -> {
-            try {
-                solve();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }, "solve", 1 << 26).start();   // 64 MB stack
     }
 
     static void solve() throws Exception {
@@ -250,10 +147,18 @@ public class Main {
         if(isCycle) out.append("YES") ;
         else out.append("NO") ;
 
-
-
         System.out.println(out);
 
+    }
+
+    public static void main(String[] args) throws Exception {
+        new Thread(null, () -> {
+            try {
+                solve();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, "solve", 1 << 26).start();   // 64 MB stack
     }
 
 
