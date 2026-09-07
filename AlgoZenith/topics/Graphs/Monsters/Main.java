@@ -19,24 +19,45 @@ public class Main {
         }
 
         int nextInt() throws IOException {
-            int c, val = 0;
-
+            int c, sign = 1, val = 0;
             do {
                 c = readByte();
             } while (c <= ' ');
+
+            if (c == '-') {
+                sign = -1;
+                c = readByte();
+            }
 
             while (c > ' ') {
                 val = val * 10 + (c - '0');
                 c = readByte();
             }
+            return val * sign;
+        }
 
-            return val;
+        long nextLong() throws IOException {
+            int c, sign = 1;
+            long val = 0;
+            do {
+                c = readByte();
+            } while (c <= ' ');
+
+            if (c == '-') {
+                sign = -1;
+                c = readByte();
+            }
+
+            while (c > ' ') {
+                val = val * 10 + (c - '0');
+                c = readByte();
+            }
+            return val * sign;
         }
 
         String next() throws IOException {
             StringBuilder sb = new StringBuilder();
             int c;
-
             do {
                 c = readByte();
             } while (c <= ' ');
@@ -45,328 +66,241 @@ public class Main {
                 sb.append((char) c);
                 c = readByte();
             }
+            return sb.toString();
+        }
+
+        double nextDouble() throws IOException {
+            return Double.parseDouble(next());
+        }
+
+        String nextLine() throws IOException {
+            StringBuilder sb = new StringBuilder();
+            int c;
+
+            // skip any leftover newline or spaces
+            while ((c = readByte()) != -1 && c == '\n');
+
+            // read until newline
+            while (c != -1 && c != '\n') {
+                sb.append((char) c);
+                c = readByte();
+            }
 
             return sb.toString();
         }
     }
 
-    static char[][] graph;
+static int[][] dir = {
+    {1, 0},
+    {-1, 0},
+    {0, 1},
+    {0, -1}
+};
 
-    // Earliest time monster can reach a cell
-    static int[][] disM;
+static boolean isValid(int row, int col, int n, int m, char[][] graph) {
+    return row >= 0 && row < n &&
+           col >= 0 && col < m &&
+           graph[row][col] != '#';
+}
 
-    // Earliest time player can reach a cell
-    static int[][] disP;
+static void solve() throws Exception {
 
-    /*
-        Direction used by player to ENTER a cell.
+    FastScanner fs = new FastScanner();
+    StringBuilder out = new StringBuilder();
 
-        Example:
+    int n = fs.nextInt();
+    int m = fs.nextInt();
 
-        parent[r][c] = 'D'
+    char[][] graph = new char[n][m];
 
-        means player reached (r,c) by moving DOWN
-        from its parent.
-    */
-    static char[][] parent;
+    int[] pCell = new int[2];
+    ArrayList<int[]> mCells = new ArrayList<>();
 
-    static int n, m;
+    for (int i = 0; i < n; i++) {
+        String row = fs.next();
 
-    static int startRow;
-    static int startCol;
+        for (int j = 0; j < m; j++) {
+            char ch = row.charAt(j);
 
-    // directions:
-    // D, U, R, L
-    static final int[] dr = {1, -1, 0, 0};
-    static final int[] dc = {0, 0, 1, -1};
-    static final char[] move = {'D', 'U', 'R', 'L'};
-
-    static final int INF = Integer.MAX_VALUE;
-
-    static void solve() throws Exception {
-
-        FastScanner fs = new FastScanner();
-
-        n = fs.nextInt();
-        m = fs.nextInt();
-
-        graph = new char[n][m];
-
-        disM = new int[n][m];
-        disP = new int[n][m];
-
-        parent = new char[n][m];
-
-        /*
-            Primitive BFS queue.
-
-            Instead of:
-
-            Queue<Cell>
-
-            encode:
-
-            position = row * m + col
-        */
-        int[] queue = new int[n * m];
-
-        int head = 0;
-        int tail = 0;
-
-        // -------------------------
-        // READ GRID
-        // -------------------------
-
-        for (int i = 0; i < n; i++) {
-
-            Arrays.fill(disM[i], INF);
-            Arrays.fill(disP[i], INF);
-
-            String row = fs.next();
-
-            graph[i] = row.toCharArray();
-
-            for (int j = 0; j < m; j++) {
-
-                if (graph[i][j] == 'M') {
-
-                    disM[i][j] = 0;
-
-                    // immediately add monster to BFS
-                    queue[tail++] = i * m + j;
-
-                } else if (graph[i][j] == 'A') {
-
-                    startRow = i;
-                    startCol = j;
-                }
+            if (ch == 'M') {
+                mCells.add(new int[]{i, j});
+                graph[i][j] = '.';
+            } else if (ch == 'A') {
+                pCell[0] = i;
+                pCell[1] = j;
+                graph[i][j] = '.';
+            } else {
+                graph[i][j] = ch;
             }
         }
+    }
 
-        // ==========================================
-        // EARLY EXIT #1
-        //
-        // Player already starts at boundary
-        // ==========================================
+    // Player BFS
+    Queue<int[]> pQueue = new ArrayDeque<>();
 
-        if (isBoundary(startRow, startCol)) {
+    boolean[][] pVis = new boolean[n][m];
+    int[][] pDis = new int[n][m];
+    int[][][] pParent = new int[n][m][2];
 
-            System.out.println("YES");
-            System.out.println(0);
-            System.out.println();
+    for (int i = 0; i < n; i++) {
+        Arrays.fill(pDis[i], Integer.MAX_VALUE);
+    }
 
-            return;
-        }
+    pQueue.offer(pCell);
+    pVis[pCell[0]][pCell[1]] = true;
+    pDis[pCell[0]][pCell[1]] = 0;
 
-        // ==========================================
-        // MULTI-SOURCE BFS FOR MONSTERS
-        // ==========================================
+    while (!pQueue.isEmpty()) {
 
-        while (head < tail) {
+        int[] cell = pQueue.poll();
 
-            int pos = queue[head++];
+        int row = cell[0];
+        int col = cell[1];
 
-            int row = pos / m;
-            int col = pos % m;
+        for (int[] d : dir) {
 
-            for (int k = 0; k < 4; k++) {
+            int nRow = row + d[0];
+            int nCol = col + d[1];
 
-                int nr = row + dr[k];
-                int nc = col + dc[k];
+            if (isValid(nRow, nCol, n, m, graph)
+                    && !pVis[nRow][nCol]) {
 
-                // Outside grid
-                if (nr < 0 || nr >= n || nc < 0 || nc >= m)
-                    continue;
+                pVis[nRow][nCol] = true;
+                pDis[nRow][nCol] = pDis[row][col] + 1;
 
-                // Wall
-                if (graph[nr][nc] == '#')
-                    continue;
+                pParent[nRow][nCol][0] = row;
+                pParent[nRow][nCol][1] = col;
 
-                // Already visited by monster BFS
-                if (disM[nr][nc] != INF)
-                    continue;
-
-                disM[nr][nc] = disM[row][col] + 1;
-
-                queue[tail++] = nr * m + nc;
+                pQueue.offer(new int[]{nRow, nCol});
             }
         }
+    }
 
-        // ==========================================
-        // BFS FOR PLAYER
-        // ==========================================
+    // Monster BFS
+    Queue<int[]> mQueue = new ArrayDeque<>();
 
-        /*
-            Reuse the same queue.
+    boolean[][] mVis = new boolean[n][m];
+    int[][] mDis = new int[n][m];
 
-            No need to allocate another one.
-        */
+    for (int i = 0; i < n; i++) {
+        Arrays.fill(mDis[i], Integer.MAX_VALUE);
+    }
 
-        head = 0;
-        tail = 0;
+    for (int[] cell : mCells) {
+        int row = cell[0];
+        int col = cell[1];
 
-        disP[startRow][startCol] = 0;
+        mQueue.offer(cell);
+        mVis[row][col] = true;
+        mDis[row][col] = 0;
+    }
 
-        queue[tail++] = startRow * m + startCol;
+    while (!mQueue.isEmpty()) {
 
-        int exitRow = -1;
-        int exitCol = -1;
+        int[] cell = mQueue.poll();
 
-        while (head < tail) {
+        int row = cell[0];
+        int col = cell[1];
 
-            int pos = queue[head++];
+        for (int[] d : dir) {
 
-            int row = pos / m;
-            int col = pos % m;
+            int nRow = row + d[0];
+            int nCol = col + d[1];
 
-            for (int k = 0; k < 4; k++) {
+            if (isValid(nRow, nCol, n, m, graph)
+                    && !mVis[nRow][nCol]) {
 
-                int nr = row + dr[k];
-                int nc = col + dc[k];
+                mVis[nRow][nCol] = true;
+                mDis[nRow][nCol] = mDis[row][col] + 1;
 
-                // Outside grid
-                if (nr < 0 || nr >= n || nc < 0 || nc >= m)
-                    continue;
+                mQueue.offer(new int[]{nRow, nCol});
+            }
+        }
+    }
 
-                // Wall
-                if (graph[nr][nc] == '#')
-                    continue;
+    // Find an escape cell
+    int endRow = -1;
+    int endCol = -1;
 
-                // Already visited
-                if (disP[nr][nc] != INF)
-                    continue;
+    for (int i = 0; i < n; i++) {
 
-                int newDist = disP[row][col] + 1;
+        for (int j = 0; j < m; j++) {
 
-                // ==================================
-                // IMPORTANT PRUNING
-                //
-                // Monster must arrive STRICTLY later
-                // ==================================
-
-                if (newDist >= disM[nr][nc])
-                    continue;
-
-                disP[nr][nc] = newDist;
-
-                // Store HOW we reached this cell
-                parent[nr][nc] = move[k];
-
-                // ==================================
-                // EARLY EXIT #2
-                //
-                // First safe boundary reached by BFS
-                // is a shortest escape.
-                // ==================================
-
-                if (isBoundary(nr, nc)) {
-
-                    exitRow = nr;
-                    exitCol = nc;
-
-                    break;
-                }
-
-                queue[tail++] = nr * m + nc;
+            if (i != 0 && i != n - 1 &&
+                j != 0 && j != m - 1) {
+                continue;
             }
 
-            if (exitRow != -1)
+            if (graph[i][j] == '.'
+                    && pDis[i][j] < mDis[i][j]) {
+
+                endRow = i;
+                endCol = j;
                 break;
-        }
-
-        // ==========================================
-        // NO ESCAPE
-        // ==========================================
-
-        if (exitRow == -1) {
-
-            System.out.println("NO");
-
-            return;
-        }
-
-        // ==========================================
-        // BUILD PATH
-        // ==========================================
-
-        String path = buildPath(exitRow, exitCol);
-
-        System.out.println("YES");
-        System.out.println(path.length());
-        System.out.println(path);
-    }
-
-    // ------------------------------------------
-    // Check whether cell is on grid boundary
-    // ------------------------------------------
-
-    static boolean isBoundary(int row, int col) {
-
-        return row == 0 ||
-               row == n - 1 ||
-               col == 0 ||
-               col == m - 1;
-    }
-
-    // ------------------------------------------
-    // Reconstruct player path
-    // ------------------------------------------
-
-    static String buildPath(int row, int col) {
-
-        StringBuilder path = new StringBuilder();
-
-        /*
-            Walk BACKWARDS from exit to A.
-
-            parent[r][c] tells us which move was
-            originally used to enter (r,c).
-        */
-
-        while (row != startRow || col != startCol) {
-
-            char direction = parent[row][col];
-
-            path.append(direction);
-
-            /*
-                Reverse the move.
-
-                If we entered this cell using D:
-
-                    parent
-                       |
-                       D
-                       ↓
-                    current
-
-                then parent is one row above.
-            */
-
-            if (direction == 'D') {
-
-                row--;
-
-            } else if (direction == 'U') {
-
-                row++;
-
-            } else if (direction == 'R') {
-
-                col--;
-
-            } else if (direction == 'L') {
-
-                col++;
             }
         }
 
-        // We constructed exit -> start,
-        // so reverse it.
-        return path.reverse().toString();
+        if (endRow != -1) break;
+    }
+
+    if (endRow == -1) {
+        out.append("NO\n");
+        System.out.print(out);
+        return;
+    }
+
+    // Reconstruct path
+    StringBuilder path = new StringBuilder();
+
+    int row = endRow;
+    int col = endCol;
+
+    while (row != pCell[0] || col != pCell[1]) {
+
+        int pRow = pParent[row][col][0];
+        int pCol = pParent[row][col][1];
+
+        if (pRow == row - 1) {
+            path.append('D');
+        } else if (pRow == row + 1) {
+            path.append('U');
+        } else if (pCol == col - 1) {
+            path.append('R');
+        } else if (pCol == col + 1) {
+            path.append('L');
+        }
+
+        row = pRow;
+        col = pCol;
+    }
+
+    path.reverse();
+
+    out.append("YES\n");
+    out.append(path.length()).append('\n');
+    out.append(path).append('\n');
+
+    System.out.print(out);
+}
+
+    static boolean isValid(int row, int col, int n , int m, char[][] graph) {
+        if(row < n && col < m && row >= 0 && col >= 0) {
+            if(graph[row][col] != '#') {
+                return true ;
+            }
+        }
+        return false ;
     }
 
     public static void main(String[] args) throws Exception {
-        solve();
+        new Thread(null, () -> {
+            try {
+                solve();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, "solve", 1 << 26).start();   // 64 MB stack
     }
+
+
 }
