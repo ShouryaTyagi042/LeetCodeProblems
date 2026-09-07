@@ -103,3 +103,8 @@ export const Refresh = (p: IconProps) => (
     <path d="M21 3v6h-6" />
   </Svg>
 )
+
+/** Offers a value that does not exist yet. */
+export const Plus = (p: IconProps) => (
+  <Svg {...p}><path d="M12 5v14" /><path d="M5 12h14" /></Svg>
+)

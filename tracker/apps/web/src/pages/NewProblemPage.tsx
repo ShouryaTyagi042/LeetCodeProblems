@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { DIFFICULTIES } from '@tracker/shared'
+import { DIFFICULTIES, slugify } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Field, inputCls } from '../components/ui'
 import ComboInput from '../components/ComboInput'
+import { Plus } from '../components/icons'
 
 export default function NewProblemPage() {
   const nav = useNavigate()
@@ -21,6 +22,12 @@ export default function NewProblemPage() {
 
   const derived = folderName || title.replace(/[^A-Za-z0-9]+/g, '')
   const topicDir = topic.replace(/[^A-Za-z0-9]+/g, '')
+
+  // Same test the server keys topics on, so this does not warn about creating
+  // something that would fold straight into an existing topic.
+  const isNewTopic =
+    topic.trim().length > 0 &&
+    !(facets.data?.topics ?? []).some((t) => slugify(t.name) === slugify(topic.trim()))
 
   const create = useMutation({
     mutationFn: () =>
@@ -54,9 +61,16 @@ export default function NewProblemPage() {
             value={topic}
             onChange={setTopic}
             options={facets.data?.topics ?? []}
-            placeholder="Start typing to search topics…"
+            placeholder="Start typing, or name a topic that does not exist yet…"
+            createLabel="topic"
           />
         </Field>
+        {isNewTopic && (
+          <p className="-mt-2 flex items-center gap-1.5 text-[11px] text-[#e3b341]">
+            <Plus size={11} className="shrink-0" />
+            New topic — “{topic.trim()}” will be created alongside the problem.
+          </p>
+        )}
 
         <Field label="Folder name (optional — derived from title)">
           <input className={inputCls} value={folderName}
