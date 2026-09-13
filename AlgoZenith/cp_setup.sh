@@ -27,7 +27,6 @@ public class Main {
     static int[] col, component, cSize;
     static boolean isCycle = false;
 
-    // -------- MODULAR ARITHMETIC --------
     static long modPow(long base, long exp, long mod) {
         long result = 1;
         base %= mod;
@@ -52,7 +51,6 @@ public class Main {
         return fact[n] * inverse(fact[n - r] * fact[r] % MOD) % MOD;
     }
 
-    /** First index holding a value strictly greater than target, else n. */
     static int upperBound(int[] arr, int n, int target) {
         int lo = 0, hi = n - 1, ans = n;
         while (lo <= hi) {
@@ -63,7 +61,6 @@ public class Main {
         return ans;
     }
 
-    // -------- STRUCTURES --------
     static class Pair {
         long first, second;
         Pair(long x, long y) { first = x; second = y; }
@@ -95,7 +92,6 @@ public class Main {
             for (int i = 0; i <= n; i++) { parent[i] = i; size[i] = 1; }
         }
         int find(int x) { return parent[x] == x ? x : (parent[x] = find(parent[x])); }
-        /** False when the two were already joined. */
         boolean union(int x, int y) {
             int rootX = find(x), rootY = find(y);
             if (rootX == rootY) return false;
@@ -128,7 +124,7 @@ public class Main {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
 
-        int t = fs.nextInt();   // number of test cases
+        int t = fs.nextInt();
 
         while (t-- > 0) {
 
@@ -143,10 +139,9 @@ public class Main {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }, "solve", 1 << 26).start();   // 64 MB stack
+        }, "solve", 1 << 26).start();
     }
 
-    // -------- FAST INPUT --------
     static class FastScanner {
         private final InputStream in = System.in;
         private final byte[] buffer = new byte[1 << 16];
@@ -161,7 +156,6 @@ public class Main {
             return buffer[ptr++];
         }
 
-        /** Skip whitespace, return the first byte of the next token. */
         private int skipBlank() throws IOException {
             int c;
             do { c = readByte(); } while (c <= ' ');
