@@ -117,10 +117,10 @@ public class Main {
         void set(int i)   { mask |= 1L << i; }
         void clear(int i) { mask &= ~(1L << i); }
         void flip(int i)  { mask ^= 1L << i; }
-        boolean check(int i) { return (mask & (1L << i)) != 0; }
-        boolean all() { return mask == allMask; }
-        boolean any() { return mask != 0; }
-        boolean none() { return mask == 0; }
+        int check(int i) { return (int) (mask >> i & 1); }
+        int all()  { return mask == allMask ? 1 : 0; }
+        int any()  { return mask != 0 ? 1 : 0; }
+        int none() { return mask == 0 ? 1 : 0; }
         int count() { return Long.bitCount(mask); }
     }
 
