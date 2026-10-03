@@ -8,6 +8,7 @@ import {
 import { DETAIL_INCLUDE, SUMMARY_INCLUDE, toDetail, toSummary } from './serialize.js'
 import { scaffoldFolder } from './scaffold.js'
 import { registerReviewRoutes } from './review.js'
+import { registerDashboardRoutes } from './dashboard.js'
 
 const prisma = getPrisma()
 const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' } })
@@ -26,6 +27,7 @@ app.addHook('onRequest', async (req, reply) => {
 app.get('/api/health', async () => ({ ok: true }))
 
 registerReviewRoutes(app)
+registerDashboardRoutes(app)
 
 // ---------- Phase 1: read ----------
 

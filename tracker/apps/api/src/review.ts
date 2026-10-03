@@ -15,7 +15,7 @@ const DAY = 86400000
  * any positive offset (IST is +5:30) local midnight falls on the previous
  * UTC day and every forecast bucket is labelled a day early.
  */
-function localDay(d: Date): string {
+export function localDay(d: Date): string {
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')

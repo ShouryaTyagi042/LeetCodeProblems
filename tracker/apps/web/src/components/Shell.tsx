@@ -29,7 +29,7 @@ export default function Shell() {
       <header className="sticky top-0 z-20 border-b border-[#262d36] bg-[#0e1116]/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-4 px-5">
           <Link
-            to="/problems"
+            to="/"
             className="flex shrink-0 items-center gap-2 text-sm font-semibold tracking-tight"
           >
             <Logo />
@@ -39,6 +39,15 @@ export default function Shell() {
           </Link>
 
           <nav className="flex items-center gap-1 text-[13px]">
+            <Link
+              to="/"
+              className={
+                'rounded px-2 py-1 ' +
+                (pathname === '/' ? 'bg-[#21262d] text-[#e6edf3]' : 'text-[#8b949e] hover:text-[#e6edf3]')
+              }
+            >
+              Dashboard
+            </Link>
             <Link
               to="/problems"
               className={

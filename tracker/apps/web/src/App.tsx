@@ -5,12 +5,14 @@ import ProblemPage from './pages/ProblemPage'
 import NewProblemPage from './pages/NewProblemPage'
 import ReviewPage from './pages/ReviewPage'
 import TopicsPage from './pages/TopicsPage'
+import DashboardPage from './pages/DashboardPage'
 
 export default function App() {
   return (
     <Routes>
       <Route element={<Shell />}>
-        <Route path="/" element={<Navigate to="/problems" replace />} />
+        <Route path="/" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<Navigate to="/" replace />} />
         <Route path="/problems" element={<ProblemsPage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/topics" element={<TopicsPage />} />

@@ -2,7 +2,7 @@
 // app both use this — only the baseUrl differs.
 
 import type {
-  CreateProblemInput, Facets, ForecastDay, GradeResult, Paged, ProblemDetail,
+  CreateProblemInput, Dashboard, Facets, ProblemOfTheDay, ForecastDay, GradeResult, Paged, ProblemDetail,
   CardInfo, ProblemQuery, ProblemSummary, ReviewQueue, ReviewStats, Stats, Tag,
   ProblemSyncResult, TopicDueRow, UpdateNoteInput, UpdateProblemInput,
 } from './types.js'
@@ -85,6 +85,8 @@ export function createApi(opts: ApiOptions) {
     stats: () => req<Stats>('/api/stats'),
     topics: () => req<Tag[]>('/api/topics'),
     patterns: () => req<Tag[]>('/api/patterns'),
+    dashboard: () => req<Dashboard>('/api/dashboard'),
+    problemOfTheDay: () => req<ProblemOfTheDay>('/api/potd'),
     sync: () => req<{ created: number; updated: number; removed: number }>('/api/sync', { method: 'POST' }),
 
     // ---- review ----

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { DIFFICULTIES, slugify, sourceOptions } from '@tracker/shared'
 import { api } from '../lib/api'
@@ -12,12 +12,15 @@ export default function NewProblemPage() {
   const qc = useQueryClient()
   const facets = useQuery({ queryKey: ['facets'], queryFn: api.facets })
 
-  const [title, setTitle] = useState('')
-  const [topic, setTopic] = useState('')
+  // The dashboard's "Add to tracker" arrives with the fields it already
+  // knows filled in through the query string.
+  const [sp] = useSearchParams()
+  const [title, setTitle] = useState(sp.get('title') ?? '')
+  const [topic, setTopic] = useState(sp.get('topic') ?? '')
   const [folderName, setFolderName] = useState('')
-  const [difficulty, setDifficulty] = useState('')
-  const [source, setSource] = useState('')
-  const [judgeUrl, setJudgeUrl] = useState('')
+  const [difficulty, setDifficulty] = useState(sp.get('difficulty') ?? '')
+  const [source, setSource] = useState(sp.get('source') ?? '')
+  const [judgeUrl, setJudgeUrl] = useState(sp.get('judgeUrl') ?? '')
   const [scaffold, setScaffold] = useState(true)
 
   const derived = folderName || title.replace(/[^A-Za-z0-9]+/g, '')

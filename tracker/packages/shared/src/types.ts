@@ -288,3 +288,36 @@ export interface ProblemSyncResult {
   cardCreated: boolean
   problem: ProblemDetail
 }
+
+// ---------- dashboard ----------
+
+export interface ActivityDay {
+  /** Local YYYY-MM-DD. */
+  date: string
+  /** Problems added that day. */
+  added: number
+}
+
+export interface Dashboard {
+  /** One row per day for the last year, oldest first, ending today. */
+  activity: ActivityDay[]
+  /** Consecutive days with a problem added. Today not having one yet does
+   *  not break it — the streak is only lost once a whole day passes. */
+  currentStreak: number
+  longestStreak: number
+  addedToday: number
+  addedThisWeek: number
+  addedThisYear: number
+}
+
+/** LeetCode's daily question, and the tracked problem it matches if any. */
+export interface ProblemOfTheDay {
+  date: string
+  title: string
+  titleSlug: string
+  frontendId: string
+  difficulty: Difficulty | null
+  url: string
+  tags: string[]
+  tracked: ProblemSummary | null
+}

@@ -108,3 +108,9 @@ export const Refresh = (p: IconProps) => (
 export const Plus = (p: IconProps) => (
   <Svg {...p}><path d="M12 5v14" /><path d="M5 12h14" /></Svg>
 )
+
+export const Flame = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 22c4 0 7-2.7 7-6.8 0-3.7-2.6-6.4-4.4-8.2-.4 2.2-1.6 3.6-3 4.2.4-3.4-1.2-6.6-4.1-9.2C7.3 5.4 5 8.6 5 13.6 5 18.8 8 22 12 22Z" />
+  </Svg>
+)
