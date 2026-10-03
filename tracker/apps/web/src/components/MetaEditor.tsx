@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { DIFFICULTIES } from '@tracker/shared'
+import { DIFFICULTIES, sourceOptions } from '@tracker/shared'
 import { api } from '../lib/api'
 import type { Draft, DraftSetter } from '../lib/useProblemDraft'
 import { Field, inputCls } from './ui'
@@ -29,8 +29,8 @@ export default function MetaEditor({ draft, set }: { draft: Draft; set: DraftSet
         <ComboInput
           value={draft.source}
           onChange={(v) => set('source', v)}
-          options={facets.data?.sources ?? []}
-          placeholder="LeetCode, CSES, AlgoZenith…"
+          options={sourceOptions(facets.data?.sources)}
+          placeholder="LeetCode, CSES, AtCoder…"
         />
       </Field>
 

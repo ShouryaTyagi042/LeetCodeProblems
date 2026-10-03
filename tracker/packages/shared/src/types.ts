@@ -4,6 +4,15 @@
 export const DIFFICULTIES = ['Easy', 'Medium', 'Hard'] as const
 export type Difficulty = (typeof DIFFICULTIES)[number]
 
+/** Judges offered as Source suggestions even before any problem uses them. */
+export const KNOWN_SOURCES = ['AlgoZenith', 'LeetCode', 'CSES', 'AtCoder', 'Codeforces'] as const
+
+/** Sources in use (with counts) followed by any known source not yet used. */
+export function sourceOptions(used: { name: string; count: number }[] = []) {
+  const seen = new Set(used.map((s) => s.name.toLowerCase()))
+  return [...used, ...KNOWN_SOURCES.filter((s) => !seen.has(s.toLowerCase())).map((name) => ({ name }))]
+}
+
 /**
  * Stand-in creation date for problems whose real one is unknown — anything
  * the filesystem scan finds that has no Notion row. Without it these rows

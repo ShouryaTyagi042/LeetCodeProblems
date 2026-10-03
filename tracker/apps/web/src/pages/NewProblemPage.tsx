@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { DIFFICULTIES, slugify } from '@tracker/shared'
+import { DIFFICULTIES, slugify, sourceOptions } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Field, inputCls } from '../components/ui'
 import ComboInput from '../components/ComboInput'
@@ -89,7 +89,7 @@ export default function NewProblemPage() {
             <ComboInput
               value={source}
               onChange={setSource}
-              options={facets.data?.sources ?? []}
+              options={sourceOptions(facets.data?.sources)}
               placeholder="LeetCode"
             />
           </Field>
