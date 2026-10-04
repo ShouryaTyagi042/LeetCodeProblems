@@ -94,6 +94,16 @@ export function registerDashboardRoutes(app: FastifyInstance) {
       perDay.set(key, (perDay.get(key) ?? 0) + 1)
     }
 
+    // A streak day is any day with practice: a problem added or a review
+    // graded. Seeded reviews are copies of Notion's schedule, not something
+    // done on that day, so they do not count.
+    const reviews = await prisma.review.findMany({
+      where: { seeded: false, outcome: { not: null } },
+      select: { reviewedAt: true },
+    })
+    const active = new Set(perDay.keys())
+    for (const r of reviews) active.add(localDay(r.reviewedAt))
+
     const activity = []
     for (let i = 0; i < HISTORY_DAYS; i++) {
       const key = localDay(addDays(start, i))
@@ -102,9 +112,10 @@ export function registerDashboardRoutes(app: FastifyInstance) {
 
     // Walk back from today; an empty today only means "not yet", so start
     // counting from yesterday in that case.
-    let cursor = perDay.has(localDay(today)) ? today : addDays(today, -1)
+    const activeToday = active.has(localDay(today))
+    let cursor = activeToday ? today : addDays(today, -1)
     let currentStreak = 0
-    while (perDay.has(localDay(cursor))) {
+    while (active.has(localDay(cursor))) {
       currentStreak++
       cursor = addDays(cursor, -1)
     }
@@ -117,7 +128,8 @@ export function registerDashboardRoutes(app: FastifyInstance) {
     return {
       activity,
       currentStreak,
-      longestStreak: longestRun([...perDay.keys()].sort()),
+      longestStreak: longestRun([...active].sort()),
+      activeToday,
       addedToday: perDay.get(localDay(today)) ?? 0,
       addedThisWeek: sum(weekStart),
       addedThisYear: sum(new Date(today.getFullYear(), 0, 1)),

@@ -15,7 +15,7 @@ export default function DashboardPage() {
       <h1 className="text-lg font-semibold">Dashboard</h1>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StreakTile current={d?.currentStreak} addedToday={d?.addedToday} />
+        <StreakTile current={d?.currentStreak} activeToday={d?.activeToday} addedToday={d?.addedToday} />
         <Stat label="Longest streak" value={d?.longestStreak} unit="days" />
         <Stat label="Added this week" value={d?.addedThisWeek} />
         <Stat label="Added this year" value={d?.addedThisYear} />
@@ -57,7 +57,11 @@ function Stat({ label, value, unit }: { label: string; value?: number; unit?: st
   )
 }
 
-function StreakTile({ current, addedToday }: { current?: number; addedToday?: number }) {
+function StreakTile({ current, activeToday, addedToday }: {
+  current?: number
+  activeToday?: boolean
+  addedToday?: number
+}) {
   const lit = (current ?? 0) > 0
   return (
     <div className="rounded-lg border border-[#262d36] bg-[#0d1117] px-4 py-3">
@@ -67,13 +71,15 @@ function StreakTile({ current, addedToday }: { current?: number; addedToday?: nu
         {current ?? '–'}
         {current !== undefined && <span className="text-[12px] font-normal text-[#8b949e]">days</span>}
       </div>
-      {/* Today counts toward the streak only once something is added, but an
-          empty today does not break it until the day is over. */}
-      {addedToday === 0 && lit && (
-        <div className="mt-0.5 text-[11px] text-[#e3b341]">Add one today to keep it going</div>
+      {/* Today counts toward the streak once something is added or reviewed,
+          but an empty today does not break it until the day is over. */}
+      {activeToday === false && lit && (
+        <div className="mt-0.5 text-[11px] text-[#e3b341]">Add or review one today to keep it going</div>
       )}
-      {!!addedToday && (
-        <div className="mt-0.5 text-[11px] text-[#56d364]">{addedToday} added today</div>
+      {activeToday && (
+        <div className="mt-0.5 text-[11px] text-[#56d364]">
+          {addedToday ? `${addedToday} added today` : 'Reviewed today'}
+        </div>
       )}
     </div>
   )

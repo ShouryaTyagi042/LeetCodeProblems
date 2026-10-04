@@ -301,10 +301,13 @@ export interface ActivityDay {
 export interface Dashboard {
   /** One row per day for the last year, oldest first, ending today. */
   activity: ActivityDay[]
-  /** Consecutive days with a problem added. Today not having one yet does
-   *  not break it — the streak is only lost once a whole day passes. */
+  /** Consecutive days with a problem added or a review graded. Today not
+   *  having one yet does not break it — the streak is only lost once a
+   *  whole day passes. */
   currentStreak: number
   longestStreak: number
+  /** Whether today already counts toward the streak. */
+  activeToday: boolean
   addedToday: number
   addedThisWeek: number
   addedThisYear: number
