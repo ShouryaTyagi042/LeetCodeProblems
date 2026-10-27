@@ -1,7 +1,7 @@
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { LADDER_LABELS, type Outcome } from '@tracker/shared'
+import { LADDER_LABELS, type CardInfo, type Outcome, type ReviewQueue } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Chip, buttonCls, cx, difficultyTone } from '../components/ui'
 import { ArrowLeft, ChevronDown, ChevronRight, ExternalLink, Lightbulb, Refresh } from '../components/icons'
@@ -25,10 +25,29 @@ const OUTCOME_UI: { key: Outcome; label: string; hint: string; cls: string }[] =
   },
 ]
 
+/**
+ * A one-card queue for revising a single problem on demand, from its own
+ * page. It is graded through the same endpoint as the real queue, so it
+ * moves the problem along the same ladder and counts as a normal review.
+ */
+async function singleQueue(slug: string): Promise<ReviewQueue> {
+  const problem = await api.getProblem(slug)
+  const card = await api.reviewCard(problem.id)
+  return {
+    items: [{ problem, card }],
+    dueTotal: card.overdueDays >= 0 ? 1 : 0,
+    newTotal: card.reps === 0 ? 1 : 0,
+  }
+}
+
 export default function ReviewPage() {
   const qc = useQueryClient()
+  const nav = useNavigate()
   const [sp] = useSearchParams()
   const topic = sp.get('topic') ?? undefined
+  const single = sp.get('problem') ?? undefined
+  // Set once a single-problem revision is graded, to show where it landed.
+  const [singleResult, setSingleResult] = useState<CardInfo | null>(null)
   const [idx, setIdx] = useState(0)
   const [revealed, setRevealed] = useState(false)
   // Two independent hints, because they give away different amounts. Topic
@@ -44,8 +63,8 @@ export default function ReviewPage() {
   const startedAt = useRef(Date.now())
 
   const queue = useQuery({
-    queryKey: ['review', 'queue', topic],
-    queryFn: () => api.reviewQueue(30, topic),
+    queryKey: ['review', 'queue', topic, single],
+    queryFn: () => (single ? singleQueue(single) : api.reviewQueue(30, topic)),
     // Scheduling changes on every grade; never serve this from cache.
     staleTime: 0,
     refetchOnMount: 'always',
@@ -104,10 +123,19 @@ export default function ReviewPage() {
   const gradeMut = useMutation({
     mutationFn: (outcome: Outcome) =>
       api.gradeProblem(current!.problem.id, outcome, Date.now() - startedAt.current),
-    onSuccess: () => {
+    onSuccess: (res) => {
       setDone((d) => d + 1)
       qc.invalidateQueries({ queryKey: ['review', 'stats'] })
       qc.invalidateQueries({ queryKey: ['review', 'forecast'] })
+      if (single) {
+        // The problem page shows the next review date, and the dashboard
+        // counts this toward the streak; both are stale now.
+        qc.invalidateQueries({ queryKey: ['problem', single] })
+        qc.invalidateQueries({ queryKey: ['problems'] })
+        qc.invalidateQueries({ queryKey: ['dashboard'] })
+        setSingleResult(res.card)
+        return
+      }
       if (idx + 1 < (queue.data?.items.length ?? 0)) setIdx((i) => i + 1)
       else queue.refetch().then(() => setIdx(0))
     },
@@ -126,6 +154,7 @@ export default function ReviewPage() {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement
       if (el && /INPUT|TEXTAREA|SELECT/.test(el.tagName)) return
+      if (singleResult) return
       // Leave anything held with a modifier to the browser. e.key is the bare
       // letter whether or not cmd is down, so without this every shortcut here
       // also fires on its cmd- equivalent — and preventDefault then swallows
@@ -142,10 +171,37 @@ export default function ReviewPage() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [revealed, submit])
+  }, [revealed, submit, singleResult])
 
   if (queue.isLoading) {
     return <div className="py-20 text-center text-sm text-[#6e7681]">Loading queue…</div>
+  }
+
+  if (single && (queue.isError || singleResult)) {
+    const back = `/problems/${single}?mode=edit`
+    return (
+      <div className="mx-auto max-w-md py-20 text-center">
+        {singleResult ? (
+          <>
+            <div className="mb-2 text-3xl">✓</div>
+            <h1 className="mb-1 text-lg font-semibold">Revised</h1>
+            <p className="mb-5 text-[13px] text-[#8b949e]">
+              Next review {new Date(singleResult.due).toLocaleDateString(undefined, {
+                weekday: 'short', day: 'numeric', month: 'short',
+              })}.
+            </p>
+          </>
+        ) : (
+          <p className="mb-5 text-[13px] text-[#f85149]">
+            {String((queue.error as Error).message)}
+          </p>
+        )}
+        <div className="flex justify-center gap-2">
+          <Button variant="primary" onClick={() => nav(back)}>Back to problem</Button>
+          <Link to="/review" className={buttonCls()}>Review queue</Link>
+        </div>
+      </div>
+    )
   }
 
   if (!current) {
@@ -174,21 +230,35 @@ export default function ReviewPage() {
   const overdue = current.card.overdueDays
   const showHint = hinted || revealed
   const showPatterns = patternHinted || revealed
+  const daysUntilDue = Math.ceil((new Date(current.card.due).getTime() - Date.now()) / 86400000)
 
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-4 flex items-center gap-3 text-[12px] text-[#8b949e]">
-        {topic && (
-          <Link to="/topics" className={cx(buttonCls('ghost'), '-ml-3')}>
-            <ArrowLeft size={14} />All topics
-          </Link>
+        {single ? (
+          <>
+            <Link to={`/problems/${single}?mode=edit`} className={cx(buttonCls('ghost'), '-ml-3')}>
+              <ArrowLeft size={14} />Back to problem
+            </Link>
+            <span>Revising one problem</span>
+          </>
+        ) : (
+          <>
+            {topic && (
+              <Link to="/topics" className={cx(buttonCls('ghost'), '-ml-3')}>
+                <ArrowLeft size={14} />All topics
+              </Link>
+            )}
+            <span><b className="text-[#e6edf3]">{queue.data!.dueTotal}</b> due{topic ? ' in this topic' : ''}</span>
+            <span>·</span>
+            <span><b className="text-[#e6edf3]">{done}</b> done</span>
+          </>
         )}
-        <span><b className="text-[#e6edf3]">{queue.data!.dueTotal}</b> due{topic ? ' in this topic' : ''}</span>
-        <span>·</span>
-        <span><b className="text-[#e6edf3]">{done}</b> done</span>
         <div className="ml-auto flex items-center gap-2">
           <Chip>{current.card.reps === 0 ? 'new' : `seen ${current.card.reps}×`}</Chip>
           {overdue > 0 && <Chip tone="amber">{overdue}d overdue</Chip>}
+          {/* Revising early still moves the ladder, the same as a due one. */}
+          {daysUntilDue > 0 && <Chip>due in {daysUntilDue}d</Chip>}
         </div>
       </div>
 
@@ -227,7 +297,7 @@ export default function ReviewPage() {
                 Read the problem<ExternalLink size={13} />
               </a>
             )}
-            <Link to={`/problems/${p.slug}`} className={buttonCls()}>
+            <Link to={`/problems/${p.slug}?mode=edit`} className={buttonCls()}>
               Open full page
             </Link>
             {/* All one variant on purpose. Ghost buttons draw no border, so

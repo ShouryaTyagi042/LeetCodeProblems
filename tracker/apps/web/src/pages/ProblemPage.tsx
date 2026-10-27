@@ -1,5 +1,5 @@
-import { Suspense, lazy, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Suspense, lazy, useEffect, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ProblemDetail } from '@tracker/shared'
 import { api } from '../lib/api'
@@ -16,13 +16,82 @@ type Tab = 'notes' | 'details' | 'tests'
 export default function ProblemPage() {
   const { topic, name } = useParams()
   const slug = `${topic}/${name}`
+  const [sp] = useSearchParams()
   const q = useQuery({ queryKey: ['problem', slug], queryFn: () => api.getProblem(slug) })
 
   if (q.isLoading) return <Empty>Loading…</Empty>
   if (q.isError || !q.data) return <Empty>Problem not found.</Empty>
+  // A solved problem asks first, so opening one to revise it does not put
+  // the solution on screen before you have tried to recall it. Nothing to
+  // revise without a solution file, so those go straight to editing.
+  if (q.data.solutions.length > 0 && sp.get('mode') !== 'edit') {
+    return <Choose p={q.data} slug={slug} />
+  }
   // Keyed on the problem so switching problems starts a clean draft rather
   // than carrying one across.
   return <Loaded key={q.data.id} p={q.data} slug={slug} />
+}
+
+/** Revise or edit. Shows only the title, so revising starts unspoiled. */
+function Choose({ p, slug }: { p: ProblemDetail; slug: string }) {
+  const nav = useNavigate()
+  const [, setSp] = useSearchParams()
+  const revise = () => nav(`/review?problem=${slug}`)
+  // Replace, so Back from the editor returns to wherever the problem was
+  // opened from rather than to this prompt.
+  const edit = () => setSp({ mode: 'edit' }, { replace: true })
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement
+      if (el && /INPUT|TEXTAREA|SELECT/.test(el.tagName)) return
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      if (e.key === 'r' || e.key === 'R') { e.preventDefault(); revise() }
+      if (e.key === 'e' || e.key === 'E') { e.preventDefault(); edit() }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
+
+  const dueIn = p.dueAt
+    ? Math.ceil((new Date(p.dueAt).getTime() - Date.now()) / 86400000)
+    : null
+
+  return (
+    <div className="mx-auto max-w-md py-16">
+      <Link to="/problems" className={cx(buttonCls('ghost'), '-ml-3 mb-2')}>
+        <ArrowLeft size={14} />All problems
+      </Link>
+      <h1 className="text-lg font-semibold">{p.title}</h1>
+      <p className="mb-5 mt-1 text-[12px] text-[#8b949e]">
+        {dueIn === null
+          ? 'Not scheduled for review yet.'
+          : dueIn <= 0
+            ? 'Due for review now.'
+            : `Next review in ${dueIn} day${dueIn === 1 ? '' : 's'} — revising now counts as that review.`}
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <button onClick={revise}
+          className="rounded-md border border-[#1f6feb] bg-[#0d2547] px-3 py-3 text-left hover:bg-[#12305a]">
+          <div className="text-[13px] font-medium text-[#e6edf3]">
+            Revise <span className="opacity-60">(r)</span>
+          </div>
+          <div className="mt-0.5 text-[11px] text-[#8b949e]">
+            Recall, reveal, then grade it on the ladder.
+          </div>
+        </button>
+        <button onClick={edit}
+          className="rounded-md border border-[#262d36] bg-[#161b22] px-3 py-3 text-left hover:bg-[#1c2129]">
+          <div className="text-[13px] font-medium text-[#e6edf3]">
+            Edit <span className="opacity-60">(e)</span>
+          </div>
+          <div className="mt-0.5 text-[11px] text-[#8b949e]">
+            Solution, notes, details and tests.
+          </div>
+        </button>
+      </div>
+    </div>
+  )
 }
 
 /** Split out so the draft hook only ever runs against a problem that exists. */

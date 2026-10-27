@@ -41,7 +41,7 @@ export default function NewProblemPage() {
       }),
     onSuccess: (p) => {
       qc.invalidateQueries()
-      nav(`/problems/${p.slug}`)
+      nav(`/problems/${p.slug}?mode=edit`)
     },
   })
 
