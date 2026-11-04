@@ -209,6 +209,25 @@ export function registerReviewRoutes(app: FastifyInstance) {
     return [...buckets.entries()].map(([date, count]) => ({ date, count }))
   })
 
+  /**
+   * One problem's card, for revising it on demand outside the queue. A
+   * problem with no card yet reads as a fresh one; grading creates it.
+   */
+  app.get('/api/review/:problemId/card', async (req, reply) => {
+    const { problemId } = req.params as { problemId: string }
+    const now = new Date()
+    const card = await prisma.card.findUnique({ where: { problemId } })
+    if (card) return toInfo(card, now)
+
+    const problem = await prisma.problem.findUnique({ where: { id: problemId } })
+    if (!problem) return reply.code(404).send({ message: 'problem not found' })
+    const fresh = newLadderState(now)
+    return toInfo(
+      { ...fresh, due: new Date(fresh.due), lapses: 0, lastReview: null, suspended: false },
+      now,
+    )
+  })
+
   app.post('/api/review/:problemId/grade', async (req, reply) => {
     const { problemId } = req.params as { problemId: string }
     const body = req.body as { outcome?: string; rating?: string; durationMs?: number }

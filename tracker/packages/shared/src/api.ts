@@ -94,6 +94,7 @@ export function createApi(opts: ApiOptions) {
       req<ReviewQueue>(
         `/api/review/queue?limit=${limit}${topic ? `&topic=${encodeURIComponent(topic)}` : ''}`,
       ),
+    reviewCard: (problemId: string) => req<CardInfo>(`/api/review/${problemId}/card`),
     reviewStats: () => req<ReviewStats>('/api/review/stats'),
     reviewForecast: (days = 14) => req<ForecastDay[]>(`/api/review/forecast?days=${days}`),
     gradeProblem: (problemId: string, outcome: 'good' | 'again', durationMs?: number) =>
