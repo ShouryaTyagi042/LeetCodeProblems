@@ -104,6 +104,16 @@ export const Refresh = (p: IconProps) => (
   </Svg>
 )
 
+export const Shuffle = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M16 3h5v5" />
+    <path d="M4 20L21 3" />
+    <path d="M21 16v5h-5" />
+    <path d="M15 15l6 6" />
+    <path d="M4 4l5 5" />
+  </Svg>
+)
+
 /** Offers a value that does not exist yet. */
 export const Plus = (p: IconProps) => (
   <Svg {...p}><path d="M12 5v14" /><path d="M5 12h14" /></Svg>

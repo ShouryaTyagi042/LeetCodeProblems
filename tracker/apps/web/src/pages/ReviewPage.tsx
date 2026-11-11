@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { LADDER_LABELS, type CardInfo, type Outcome, type ReviewQueue } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Button, Chip, buttonCls, cx, difficultyTone } from '../components/ui'
-import { ArrowLeft, ChevronDown, ChevronRight, ExternalLink, Lightbulb, Refresh } from '../components/icons'
+import { ArrowLeft, ChevronDown, ChevronRight, ExternalLink, Lightbulb, Refresh, Shuffle } from '../components/icons'
 import Markdown from '../components/Markdown'
 
 const CodeView = lazy(() => import('../components/CodeView'))
@@ -40,6 +40,34 @@ async function singleQueue(slug: string): Promise<ReviewQueue> {
   }
 }
 
+type QueueItem = ReviewQueue['items'][number]
+
+/** Fisher–Yates; returns a new array. */
+function shuffled<T>(xs: readonly T[]): T[] {
+  const a = [...xs]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+/**
+ * Shuffle the cards still to come, `from` onwards, leaving the ones already
+ * graded where they are. The card on screen is shuffled too, but never left
+ * on screen — pressing shuffle should always change the question.
+ */
+function shuffleRest(items: QueueItem[], from: number): QueueItem[] {
+  const rest = items.slice(from)
+  if (rest.length < 2) return items
+  const out = shuffled(rest)
+  if (out[0] === rest[0]) {
+    const j = 1 + Math.floor(Math.random() * (out.length - 1))
+    ;[out[0], out[j]] = [out[j], out[0]]
+  }
+  return [...items.slice(0, from), ...out]
+}
+
 export default function ReviewPage() {
   const qc = useQueryClient()
   const nav = useNavigate()
@@ -50,8 +78,8 @@ export default function ReviewPage() {
   const [singleResult, setSingleResult] = useState<CardInfo | null>(null)
   const [idx, setIdx] = useState(0)
   const [revealed, setRevealed] = useState(false)
-  // Two independent hints, because they give away different amounts. Topic
-  // and difficulty narrow the field; the pattern names the technique outright,
+  // Two independent hints, because they give away different amounts. The
+  // topic narrows the field; the pattern names the technique outright,
   // so it is worth being able to take the first without the second.
   const [hinted, setHinted] = useState(false)
   const [patternHinted, setPatternHinted] = useState(false)
@@ -70,7 +98,22 @@ export default function ReviewPage() {
     refetchOnMount: 'always',
   })
 
-  const current = queue.data?.items[idx]
+  // The order cards are shown in. It is the server's most-overdue-first order
+  // until shuffle is pressed; from then on every queue fetched this session
+  // is shuffled too, so working through to a refill does not quietly switch
+  // back to due order.
+  const [shuffleOn, setShuffleOn] = useState(false)
+  const [orderSrc, setOrderSrc] = useState<ReviewQueue | undefined>(undefined)
+  const [order, setOrder] = useState<QueueItem[]>([])
+  if (queue.data !== orderSrc) {
+    // Derived during render rather than in an effect, so a fresh queue never
+    // paints a frame with the previous order (or with "Nothing due").
+    setOrderSrc(queue.data)
+    const items = queue.data?.items ?? []
+    setOrder(shuffleOn ? shuffled(items) : items)
+  }
+
+  const current = order[idx]
 
   // Full detail (code, notes) only for the card on screen, plus a prefetch
   // of the next one so revealing never waits on the network.
@@ -80,7 +123,7 @@ export default function ReviewPage() {
     enabled: Boolean(current),
   })
 
-  const next = queue.data?.items[idx + 1]
+  const next = order[idx + 1]
   useEffect(() => {
     if (!next) return
     qc.prefetchQuery({
@@ -89,12 +132,15 @@ export default function ReviewPage() {
     })
   }, [next, qc])
 
+  // Keyed on the card, not the index: shuffling swaps the card on screen
+  // without moving the index, and that is a new question all the same.
+  const currentId = current?.problem.id
   useEffect(() => {
     setRevealed(false)
     setHinted(false)
     setPatternHinted(false)
     startedAt.current = Date.now()
-  }, [idx])
+  }, [currentId])
 
   // Re-reads this problem's files from disk, the same as the button on the
   // full page — for when the solution has been edited since the card was
@@ -118,7 +164,7 @@ export default function ReviewPage() {
   useEffect(() => {
     syncMut.reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx])
+  }, [currentId])
 
   const gradeMut = useMutation({
     mutationFn: (outcome: Outcome) =>
@@ -136,10 +182,17 @@ export default function ReviewPage() {
         setSingleResult(res.card)
         return
       }
-      if (idx + 1 < (queue.data?.items.length ?? 0)) setIdx((i) => i + 1)
+      if (idx + 1 < order.length) setIdx((i) => i + 1)
       else queue.refetch().then(() => setIdx(0))
     },
   })
+
+  const canShuffle = !single && order.length - idx > 1
+  const shuffleQueue = useCallback(() => {
+    if (!canShuffle || gradeMut.isPending) return
+    setShuffleOn(true)
+    setOrder((o) => shuffleRest(o, idx))
+  }, [canShuffle, idx, gradeMut.isPending])
 
   const submit = useCallback(
     (r: Outcome) => {
@@ -163,6 +216,7 @@ export default function ReviewPage() {
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setRevealed(true); return }
       if (e.key === 'h' || e.key === 'H') { e.preventDefault(); setHinted((v) => !v); return }
       if (e.key === 'p' || e.key === 'P') { e.preventDefault(); setPatternHinted((v) => !v); return }
+      if (e.key === 's' || e.key === 'S') { e.preventDefault(); shuffleQueue(); return }
       const n = Number(e.key)
       if (n >= 1 && n <= OUTCOME_UI.length && revealed) {
         e.preventDefault()
@@ -171,7 +225,7 @@ export default function ReviewPage() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [revealed, submit, singleResult])
+  }, [revealed, submit, singleResult, shuffleQueue])
 
   if (queue.isLoading) {
     return <div className="py-20 text-center text-sm text-[#6e7681]">Loading queue…</div>
@@ -266,6 +320,7 @@ export default function ReviewPage() {
         <div className="border-b border-[#262d36] px-5 py-4">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-lg font-semibold">{p.title}</h1>
+            {p.difficulty && <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>}
             {p.source && <Chip>{p.source}</Chip>}
           </div>
 
@@ -274,9 +329,6 @@ export default function ReviewPage() {
               topic and usually the pattern, spelled out. */}
           {(showHint || showPatterns) && (
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              {showHint && p.difficulty && (
-                <Chip tone={difficultyTone(p.difficulty)}>{p.difficulty}</Chip>
-              )}
               {showHint && p.topics.map((t) => <Chip key={t.id}>{t.name}</Chip>)}
               {showPatterns && (
                 p.patterns.length > 0
@@ -316,6 +368,14 @@ export default function ReviewPage() {
                 className={cx(buttonCls(), 'text-[#8b949e]')}>
                 <Lightbulb size={13} />Pattern hint
                 <span className="opacity-60">(p)</span>
+              </button>
+            )}
+            {canShuffle && (
+              <button onClick={shuffleQueue} disabled={gradeMut.isPending}
+                title="Swap in a random problem from the queue"
+                className={cx(buttonCls('default', gradeMut.isPending), 'text-[#8b949e]')}>
+                <Shuffle size={13} />Shuffle
+                <span className="opacity-60">(s)</span>
               </button>
             )}
             <button
