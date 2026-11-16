@@ -6,6 +6,7 @@ import NewProblemPage from './pages/NewProblemPage'
 import ReviewPage from './pages/ReviewPage'
 import TopicsPage from './pages/TopicsPage'
 import DashboardPage from './pages/DashboardPage'
+import InterviewPage from './pages/InterviewPage'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/problems" element={<ProblemsPage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/topics" element={<TopicsPage />} />
+        <Route path="/interview" element={<InterviewPage />} />
         <Route path="/problems/new" element={<NewProblemPage />} />
         <Route path="/problems/:topic/:name" element={<ProblemPage />} />
       </Route>

@@ -72,6 +72,15 @@ export default function Shell() {
               )}
             </Link>
             <Link
+              to="/interview"
+              className={
+                'rounded px-2 py-1 ' +
+                (pathname === '/interview' ? 'bg-[#21262d] text-[#e6edf3]' : 'text-[#8b949e] hover:text-[#e6edf3]')
+              }
+            >
+              Interview 50
+            </Link>
+            <Link
               to="/review"
               className={
                 'flex items-center gap-1.5 rounded px-2 py-1 ' +

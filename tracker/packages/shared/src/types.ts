@@ -324,3 +324,17 @@ export interface ProblemOfTheDay {
   tags: string[]
   tracked: ProblemSummary | null
 }
+
+// ---------- interview list ----------
+
+export interface InterviewItem {
+  pick: import('./interview.js').InterviewPick
+  problem: ProblemSummary
+  card: CardInfo | null
+}
+
+export interface InterviewGapItem {
+  gap: import('./interview.js').InterviewGap
+  /** Slug of the tracked problem that now covers this gap, if any. */
+  trackedSlug: string | null
+}

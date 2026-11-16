@@ -74,6 +74,8 @@ export default function ReviewPage() {
   const [sp] = useSearchParams()
   const topic = sp.get('topic') ?? undefined
   const single = sp.get('problem') ?? undefined
+  // A curated set (the interview list) is revised once through, due or not.
+  const set = single ? undefined : (sp.get('set') ?? undefined)
   // Set once a single-problem revision is graded, to show where it landed.
   const [singleResult, setSingleResult] = useState<CardInfo | null>(null)
   const [idx, setIdx] = useState(0)
@@ -91,8 +93,8 @@ export default function ReviewPage() {
   const startedAt = useRef(Date.now())
 
   const queue = useQuery({
-    queryKey: ['review', 'queue', topic, single],
-    queryFn: () => (single ? singleQueue(single) : api.reviewQueue(30, topic)),
+    queryKey: ['review', 'queue', topic, single, set],
+    queryFn: () => (single ? singleQueue(single) : api.reviewQueue(set ? 100 : 30, topic, set)),
     // Scheduling changes on every grade; never serve this from cache.
     staleTime: 0,
     refetchOnMount: 'always',
@@ -182,7 +184,13 @@ export default function ReviewPage() {
         setSingleResult(res.card)
         return
       }
-      if (idx + 1 < order.length) setIdx((i) => i + 1)
+      if (set) {
+        // The set comes back whole on every fetch, so refilling would loop.
+        // Running off the end shows the done screen instead.
+        qc.invalidateQueries({ queryKey: ['interview'] })
+        qc.invalidateQueries({ queryKey: ['dashboard'] })
+        setIdx((i) => i + 1)
+      } else if (idx + 1 < order.length) setIdx((i) => i + 1)
       else queue.refetch().then(() => setIdx(0))
     },
   })
@@ -262,16 +270,22 @@ export default function ReviewPage() {
     return (
       <div className="mx-auto max-w-md py-20 text-center">
         <div className="mb-2 text-3xl">✓</div>
-        <h1 className="mb-1 text-lg font-semibold">Nothing due</h1>
+        <h1 className="mb-1 text-lg font-semibold">{set ? 'Interview list done' : 'Nothing due'}</h1>
         <p className="mb-5 text-[13px] text-[#8b949e]">
-          {done > 0
+          {set
+            ? `${done} of ${order.length} revised this session.`
+            : done > 0
             ? `${done} review${done === 1 ? '' : 's'} done this session.`
             : topic
               ? 'Nothing due in this topic.'
               : 'Everything is scheduled for later.'}
         </p>
         <div className="flex justify-center gap-2">
-          <Link to="/topics" className={buttonCls()}>Topics</Link>
+          {set ? (
+            <Link to="/interview" className={buttonCls()}>Interview 50</Link>
+          ) : (
+            <Link to="/topics" className={buttonCls()}>Topics</Link>
+          )}
           <Link to="/problems" className={buttonCls()}>Browse problems</Link>
         </div>
       </div>
@@ -303,7 +317,16 @@ export default function ReviewPage() {
                 <ArrowLeft size={14} />All topics
               </Link>
             )}
-            <span><b className="text-[#e6edf3]">{queue.data!.dueTotal}</b> due{topic ? ' in this topic' : ''}</span>
+            {set ? (
+              <>
+                <Link to="/interview" className={cx(buttonCls('ghost'), '-ml-3')}>
+                  <ArrowLeft size={14} />Interview 50
+                </Link>
+                <span>Interview Top 50 · <b className="text-[#e6edf3]">{idx + 1}</b> of {order.length}</span>
+              </>
+            ) : (
+              <span><b className="text-[#e6edf3]">{queue.data!.dueTotal}</b> due{topic ? ' in this topic' : ''}</span>
+            )}
             <span>·</span>
             <span><b className="text-[#e6edf3]">{done}</b> done</span>
           </>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import type { ActivityDay, ProblemOfTheDay } from '@tracker/shared'
+import { INTERVIEW_SET, type ActivityDay, type ProblemOfTheDay } from '@tracker/shared'
 import { api } from '../lib/api'
 import { Chip, buttonCls, cx, difficultyTone } from '../components/ui'
 import { ExternalLink, Flame, Plus } from '../components/icons'
@@ -29,6 +29,8 @@ export default function DashboardPage() {
         <Revision />
         <ProblemOfTheDayPanel />
       </div>
+
+      <InterviewEntry />
     </div>
   )
 }
@@ -288,5 +290,25 @@ function Potd({ q }: { q: ProblemOfTheDay }) {
         )}
       </div>
     </div>
+  )
+}
+
+// ---------- interview top 50 ----------
+
+/** A pointer to the interview page, which holds the list itself. */
+function InterviewEntry() {
+  const list = useQuery({ queryKey: ['interview'], queryFn: api.interview, staleTime: 0 })
+  const items = list.data ?? []
+  const due = items.filter((x) => x.card && x.card.overdueDays >= 0).length
+  return (
+    <Panel title="Interview Top 50" aside={items.length > 0 && `${due} of ${items.length} due`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="flex-1 text-[12px] text-[#8b949e]">
+          The 50 to go over before any interview, and the sheet problems the tracker does not cover yet.
+        </p>
+        <Link to="/interview" className={buttonCls()}>Open list</Link>
+        <Link to={`/review?set=${INTERVIEW_SET}`} className={buttonCls('primary')}>Revise all</Link>
+      </div>
+    </Panel>
   )
 }

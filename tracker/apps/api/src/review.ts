@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { getPrisma } from '@tracker/db'
 import {
-  OUTCOMES, advance, intervalLabel, newLadderState,
+  INTERVIEW_GAPS, INTERVIEW_SET, INTERVIEW_TOP_50, OUTCOMES, advance, intervalLabel, newLadderState,
   type CardInfo, type LadderState, type Outcome,
 } from '@tracker/shared'
 import { SUMMARY_INCLUDE, toSummary } from './serialize.js'
@@ -125,6 +125,26 @@ export function registerReviewRoutes(app: FastifyInstance) {
     // A topic is only a filter over this queue — it has no schedule of its own.
     const base: any = { suspended: false }
     if (q.topic) base.problem = { topics: { some: { topic: { slug: q.topic } } } }
+
+    // A curated set is revised as a whole, due or not: the point is to go
+    // over all of it before an interview. Soonest-due first, so anything
+    // overdue still leads, and grading moves each card on its normal ladder.
+    if (q.set === INTERVIEW_SET) {
+      const where = { ...base, problem: { slug: { in: INTERVIEW_TOP_50.map((p) => p.slug) } } }
+      const cards = await prisma.card.findMany({
+        where,
+        orderBy: [{ due: 'asc' }],
+        include: { problem: { include: SUMMARY_INCLUDE as any } },
+      })
+      return {
+        items: interleaveByPattern(cards).slice(0, Math.max(limit, cards.length)).map((c) => ({
+          problem: toSummary(c.problem),
+          card: toInfo(c, now),
+        })),
+        dueTotal: cards.filter((c) => c.due <= now).length,
+        newTotal: cards.filter((c) => c.reps === 0).length,
+      }
+    }
     // Fetch a superset: the interleaver reorders within it, so taking exactly
     // `limit` from the database would leave it nothing to work with.
     const [due, dueTotal, newTotal] = await Promise.all([
@@ -148,6 +168,39 @@ export function registerReviewRoutes(app: FastifyInstance) {
       dueTotal,
       newTotal,
     }
+  })
+
+  /** The interview list in its curated order, each with its review state. */
+  app.get('/api/interview', async () => {
+    const now = new Date()
+    const problems = await prisma.problem.findMany({
+      where: { slug: { in: INTERVIEW_TOP_50.map((p) => p.slug) } },
+      include: { ...(SUMMARY_INCLUDE as any), card: true },
+    })
+    const bySlug = new Map(problems.map((p: any) => [p.slug, p]))
+    return INTERVIEW_TOP_50.flatMap((pick) => {
+      const p: any = bySlug.get(pick.slug)
+      if (!p) return []
+      return [{ pick, problem: toSummary(p), card: p.card ? toInfo(p.card, now) : null }]
+    })
+  })
+
+  /**
+   * The sheet problems nothing in the tracker covers yet. A gap counts as
+   * covered once a tracked problem's judge URL points at its LeetCode slug,
+   * so solving one and adding it with its link is all it takes.
+   */
+  app.get('/api/interview/gaps', async () => {
+    const rows = await prisma.problem.findMany({
+      where: { judgeUrl: { contains: 'leetcode.com/problems/' } },
+      select: { slug: true, judgeUrl: true },
+    })
+    const tracked = new Map<string, string>()
+    for (const r of rows) {
+      const m = r.judgeUrl?.match(/leetcode\.com\/problems\/([^/?#]+)/)
+      if (m) tracked.set(m[1], r.slug)
+    }
+    return INTERVIEW_GAPS.map((gap) => ({ gap, trackedSlug: tracked.get(gap.leetcode) ?? null }))
   })
 
   app.get('/api/review/stats', async () => {

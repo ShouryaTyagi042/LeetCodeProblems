@@ -3,7 +3,7 @@
 
 import type {
   CreateProblemInput, Dashboard, Facets, ProblemOfTheDay, ForecastDay, GradeResult, Paged, ProblemDetail,
-  CardInfo, ProblemQuery, ProblemSummary, ReviewQueue, ReviewStats, Stats, Tag,
+  CardInfo, InterviewGapItem, InterviewItem, ProblemQuery, ProblemSummary, ReviewQueue, ReviewStats, Stats, Tag,
   ProblemSyncResult, TopicDueRow, UpdateNoteInput, UpdateProblemInput,
 } from './types.js'
 
@@ -90,10 +90,12 @@ export function createApi(opts: ApiOptions) {
     sync: () => req<{ created: number; updated: number; removed: number }>('/api/sync', { method: 'POST' }),
 
     // ---- review ----
-    reviewQueue: (limit = 30, topic?: string) =>
+    reviewQueue: (limit = 30, topic?: string, set?: string) =>
       req<ReviewQueue>(
-        `/api/review/queue?limit=${limit}${topic ? `&topic=${encodeURIComponent(topic)}` : ''}`,
+        `/api/review/queue?limit=${limit}${topic ? `&topic=${encodeURIComponent(topic)}` : ''}${set ? `&set=${encodeURIComponent(set)}` : ''}`,
       ),
+    interview: () => req<InterviewItem[]>('/api/interview'),
+    interviewGaps: () => req<InterviewGapItem[]>('/api/interview/gaps'),
     reviewCard: (problemId: string) => req<CardInfo>(`/api/review/${problemId}/card`),
     reviewStats: () => req<ReviewStats>('/api/review/stats'),
     reviewForecast: (days = 14) => req<ForecastDay[]>(`/api/review/forecast?days=${days}`),
