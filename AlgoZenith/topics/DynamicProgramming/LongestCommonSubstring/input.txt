@@ -1,2 +1,4 @@
-acbdabacda
-cbacbdaac
+3
+abc abc
+algozenith algo
+algo zenith

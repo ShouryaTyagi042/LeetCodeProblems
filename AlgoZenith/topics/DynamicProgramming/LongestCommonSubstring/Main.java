@@ -26,22 +26,26 @@ public class Main {
     static void solve() throws Exception {
         FastScanner fs = new FastScanner();
         StringBuilder out = new StringBuilder();
-        s = fs.next() ;
-        t = fs.next() ;
-        int n = s.length() ;
-        int m = t.length() ;
+        int tc = fs.nextInt()  ;
+        while(tc-- > 0) {
+            s = fs.next() ;
+            t = fs.next() ;
+            int n = s.length() ;
+            int m = t.length() ;
 
-        for(int i = 0 ; i < 5001 ; i++) {
-            Arrays.fill(dp[i], -1) ;
-        }
-
-        int ans = 0 ;
-        for(int i = n - 1 ; i >= 0 ; i--) {
-            for(int j = m - 1 ; j >=0 ;j-- ) {
-                ans = Math.max(ans, recur(i,j)) ;
+            for(int i = 0 ; i < 5001 ; i++) {
+                Arrays.fill(dp[i], -1) ;
             }
+
+            int ans = 0 ;
+            for(int i = n - 1 ; i >= 0 ; i--) {
+                for(int j = m - 1 ; j >=0 ;j-- ) {
+                    ans = Math.max(ans, recur(i,j)) ;
+                }
+            }
+            out.append(ans).append('\n');
         }
-        System.out.println(ans);
+        System.out.println(out);
     }
 
     public static void main(String[] args) throws Exception {
