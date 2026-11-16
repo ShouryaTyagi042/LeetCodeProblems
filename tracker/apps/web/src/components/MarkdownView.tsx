@@ -10,6 +10,7 @@
  */
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import JavaCode from './JavaCode'
 
 const prose = [
   'text-[13px] leading-relaxed text-[#c9d1d9]',
@@ -57,6 +58,12 @@ export default function MarkdownView({ children }: { children: string }) {
           a: ({ node: _node, ...props }) => (
             <a {...props} target="_blank" rel="noreferrer noopener" />
           ),
+          // ```java fences get the same colours as the solution view; any
+          // other fence, and inline code, stays plain.
+          code: ({ node: _node, className, children, ...props }) =>
+            className === 'language-java' && typeof children === 'string'
+              ? <JavaCode code={children.replace(/\n$/, '')} />
+              : <code className={className} {...props}>{children}</code>,
         }}
       >
         {children}
